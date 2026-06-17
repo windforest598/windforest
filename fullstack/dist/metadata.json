@@ -1,0 +1,25 @@
+{
+  "body_part": "script",
+  "compatibility_date": "2025-06-16",
+  "compatibility_flags": [],
+  "vars": {
+    "ENV": "production",
+    "JWT_SECRET": "4410a056cb08d49d0e7af8b30ecafe2e412576b4278cca621e8187a9620547d1",
+    "WECHAT_MCH_ID": "",
+    "WECHAT_API_V3_KEY": "",
+    "WECHAT_SERIAL_NO": "",
+    "WECHAT_PRIVATE_KEY": "",
+    "WECHAT_NOTIFY_URL": "https://windforest-api.workers.dev/api/payment/wechat-notify",
+    "ALIPAY_APP_ID": "",
+    "ALIPAY_PRIVATE_KEY": "",
+    "ALIPAY_PUBLIC_KEY": "",
+    "ALIPAY_NOTIFY_URL": "https://windforest-api.workers.dev/api/payment/alipay-notify",
+    "ALIPAY_RETURN_URL": "https://windforest.pages.dev/pay-success"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "id": "82948567-5831-4ed7-9934-35b1598a4499"
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+# ═══════════════════════════════════════════════
+# 风林慧策 — 按需分析流水线
+# 用户搜索新股票时，通过 /api/trigger-analysis 触发
+# ═══════════════════════════════════════════════
+
+name: Ad-hoc PMQD Analysis
+
+on:
+  workflow_dispatch:
+    inputs:
+      stock_code:
+        description: 'Stock full code (e.g., sz000333, sh600519, hk00700, usAAPL)'
+        required: true
+        type: string
+      market:
+        description: 'Market type (sh/sz/hk/us)'
+        required: false
+        type: string
+        default: 'sz'
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: fullstack/package-lock.json
+
+      - name: Install dependencies
+        working-directory: fullstack
+        run: npm ci
+
+      - name: Compute PMQD for single stock
+        working-directory: fullstack
+        env:
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+          STOCK_CODE: ${{ inputs.stock_code }}
+          MARKET: ${{ inputs.market }}
+          FORCE_REFRESH: 'true'
+          SINGLE_STOCK: 'true'
+        run: npx tsx scripts/compute-analysis.ts
+
+      - name: Log completion
+        run: |
+          echo "✅ Ad-hoc PMQD analysis for ${{ inputs.stock_code }} complete at $(date -u '+%Y-%m-%d %H:%M:%S UTC')"

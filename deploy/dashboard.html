@@ -1,0 +1,1520 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>风林慧策 · PMQD Dashboard</title>
+<style>
+:root {
+  --bg: #FFFFFF;
+  --navy: #1E40AF;
+  --navy2: #1E3A5F;
+  --gold: #CA8A04;
+  --gold-lt: #E5B80B;
+  --gold-pale: #FFF9E6;
+  --teal: #0D9488;
+  --amber: #B45309;
+  --purple: #7C3AED;
+  --blue: #1E40AF;
+  --blue-lt: #3B82F6;
+  --red: #C0392B;
+  --red-lt: #E74C3C;
+  --green: #2D7A3E;
+  --green-lt: #3CB371;
+  --text: #1A1A2E;
+  --text2: #6B7280;
+  --text3: #9CA3AF;
+  --white: #FFFFFF;
+  --surface: #F8F9FA;
+  --border: #E5E7EB;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+  --shadow-md: 0 1px 6px rgba(26,26,46,0.10);
+  --shadow-lg: 0 4px 20px rgba(0,0,0,0.10);
+  --radius: 12px;
+  --font-cn: "PingFang SC", "Microsoft YaHei", -apple-system, "Helvetica Neue", sans-serif;
+  --font-ui: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", "Consolas", monospace;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:var(--font-ui); line-height:1.6; }
+
+/* ═══════════ HEADER ═══════════ */
+header {
+  background: var(--white);
+  color: var(--text);
+  padding: 10px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  gap: 16px;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  text-decoration: none;
+  color: var(--text);
+}
+
+.header-brand .logo-text {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+.header-brand .logo-sub {
+  font-size: 0.55rem;
+  color: var(--text3);
+  letter-spacing: 1px;
+}
+
+.header-stock {
+  text-align: center;
+  flex: 1;
+}
+.header-stock .stock-name {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.header-stock .stock-code {
+  font-size: 0.7rem;
+  color: var(--text3);
+  font-family: var(--font-mono);
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.header-btn {
+  padding: 7px 16px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  border: none;
+  transition: all 0.25s;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-subscribe {
+  background: var(--gold);
+  color: white;
+}
+.btn-subscribe:hover {
+  background: var(--gold-lt);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(202,138,4,0.4);
+}
+
+.top-link-primary {
+  transition: all 0.25s;
+  font-weight: 600;
+}
+.top-link-primary:hover {
+  opacity: 0.85;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.btn-deep {
+  background: var(--navy);
+  color: white;
+  border: 1.5px solid var(--navy);
+}
+.btn-deep:hover {
+  background: var(--navy2);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(30,64,175,0.3);
+}
+
+.btn-back {
+  background: transparent;
+  color: var(--text2);
+  border: none;
+  font-size: 0.78rem;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+.btn-back:hover { color: var(--navy); }
+
+/* ═══════════ MAIN ═══════════ */
+main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 24px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ═══════════ HERO CARD ═══════════ */
+.hero-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border);
+  padding: 28px 32px;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.hero-score {
+  text-align: center;
+  min-width: 140px;
+}
+
+.score-ring {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 8px;
+}
+
+.score-ring canvas {
+  position: absolute;
+  top: 0; left: 0;
+}
+
+.score-number {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--navy);
+}
+
+.score-label {
+  font-size: 0.75rem;
+  color: var(--text3);
+  letter-spacing: 1px;
+  margin-top: 4px;
+}
+
+.score-stars {
+  font-size: 1rem;
+  letter-spacing: 2px;
+  color: var(--gold);
+}
+
+.hero-info {
+  flex: 1;
+  min-width: 280px;
+}
+
+.hero-info h2 {
+  font-size: 1.1rem;
+  color: var(--navy);
+  margin-bottom: 4px;
+}
+
+.hero-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px,1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.metric-item {
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+}
+
+.metric-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.metric-label {
+  font-size: 0.7rem;
+  color: var(--text3);
+  letter-spacing: 0.5px;
+}
+
+.metric-item.highlight {
+  background: var(--navy);
+}
+.metric-item.highlight .metric-value { color: var(--gold); }
+.metric-item.highlight .metric-label { color: #94A3B8; }
+
+/* Price ticker */
+.price-ticker {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 8px 0;
+}
+
+.price-value {
+  font-size: 2.2rem;
+  font-weight: 900;
+  font-family: var(--font-mono);
+}
+
+.price-change {
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.price-change.up { color: var(--red); }
+.price-change.down { color: var(--green); }
+
+/* ═══════════ ACTION BUTTONS (HERO) ═══════════ */
+.hero-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 160px;
+}
+
+.hero-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 24px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  letter-spacing: 1px;
+  transition: all 0.3s;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.hero-btn-subscribe {
+  background: linear-gradient(135deg, var(--gold), var(--gold-lt));
+  color: white;
+  box-shadow: 0 4px 16px rgba(184,134,11,0.3);
+}
+.hero-btn-subscribe:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(184,134,11,0.45);
+}
+
+.hero-btn-deep {
+  background: var(--navy);
+  color: white;
+  border: 1.5px solid var(--navy);
+}
+.hero-btn-deep:hover {
+  background: var(--navy2);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(13,33,55,0.3);
+}
+
+/* ═══════════ PMQD BREAKDOWN ═══════════ */
+.section-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.section-header {
+  background: var(--navy);
+  color: white;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.section-body { padding: 18px 20px; }
+
+/* PMQD grid */
+.pmqd-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+.pmqd-item {
+  text-align: center;
+  padding: 16px 12px;
+  border-radius: 10px;
+  background: var(--bg);
+}
+
+.pmqd-item h3 {
+  font-size: 0.75rem;
+  color: var(--text3);
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+
+.pmqd-item .pmqd-bar-wrap {
+  height: 6px;
+  background: #D5CFC0;
+  border-radius: 3px;
+  margin: 8px 0;
+  overflow: hidden;
+}
+
+.pmqd-item .pmqd-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.6s ease;
+}
+
+.pmqd-item .pmqd-score {
+  font-size: 1.5rem;
+  font-weight: 900;
+}
+
+.pmqd-item .pmqd-outof {
+  font-size: 0.7rem;
+  color: var(--text3);
+}
+
+/* ═══════════ KELLY BOX ═══════════ */
+.kelly-card {
+  background: linear-gradient(135deg, var(--navy), var(--navy2));
+  border-radius: var(--radius);
+  padding: 24px 28px;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  box-shadow: var(--shadow-md);
+}
+
+.kelly-value {
+  font-size: 3rem;
+  font-weight: 900;
+  color: var(--gold);
+  font-family: var(--font-mono);
+}
+
+.kelly-label {
+  font-size: 0.8rem;
+  color: #94A3B8;
+}
+
+.kelly-details {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px,1fr));
+  gap: 12px;
+}
+
+.kelly-detail {
+  font-size: 0.82rem;
+  color: #94A3B8;
+}
+.kelly-detail strong {
+  color: white;
+  display: block;
+  font-size: 1rem;
+  margin-top: 2px;
+}
+
+/* ═══════════ QUICK INSIGHTS ═══════════ */
+.insights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
+  gap: 14px;
+}
+
+.insight-card {
+  background: var(--bg);
+  border-radius: 10px;
+  padding: 16px;
+  border-left: 3px solid var(--blue);
+}
+
+.insight-card.warn { border-left-color: var(--gold); }
+.insight-card.good { border-left-color: var(--green); }
+.insight-card.risk { border-left-color: var(--red); }
+
+.insight-title {
+  font-size: 0.75rem;
+  color: var(--text3);
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.insight-content {
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+/* ═══════════ SAFETY MARGIN ═══════════ */
+.safety-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.safety-q {
+  flex: 1;
+  min-width: 200px;
+  background: var(--bg);
+  border-radius: 8px;
+  padding: 14px;
+  text-align: center;
+}
+
+.safety-q .q-num {
+  font-size: 0.7rem;
+  color: var(--text3);
+}
+
+.safety-q .q-status {
+  font-size: 1.5rem;
+  margin: 4px 0;
+}
+
+.safety-q .q-text {
+  font-size: 0.78rem;
+  color: var(--text2);
+}
+
+/* ═══════════ RISK STRIP ═══════════ */
+.risk-strip {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.risk-tag {
+  padding: 6px 14px;
+  border-radius: 16px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.risk-tag.high { background: #FFEBEE; color: #C62828; }
+.risk-tag.medium { background: #FFF3E0; color: #E65100; }
+.risk-tag.low { background: #E8F5E9; color: #2E7D32; }
+.risk-tag.info { background: #E3F2FD; color: #1565C0; }
+
+/* ═══════════ SUBSCRIBE MODAL ═══════════ */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(26,26,46,0.6);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+.modal-overlay.active { display: flex; }
+
+.modal-box {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 32px;
+  max-width: 440px;
+  width: 90%;
+  box-shadow: var(--shadow-lg);
+  text-align: center;
+}
+
+.modal-box h3 {
+  font-size: 1.2rem;
+  color: var(--navy);
+  margin-bottom: 8px;
+}
+
+.modal-box p {
+  font-size: 0.85rem;
+  color: var(--text2);
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+.modal-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-family: var(--font-ui);
+  margin-bottom: 12px;
+  transition: border-color 0.2s;
+}
+.modal-input:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+
+.modal-btn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: all 0.2s;
+  margin-bottom: 8px;
+}
+
+.modal-btn.primary {
+  background: var(--gold);
+  color: white;
+}
+.modal-btn.primary:hover { background: var(--gold-lt); }
+
+.modal-btn.secondary {
+  background: transparent;
+  color: var(--text3);
+  border: 1px solid var(--border);
+}
+.modal-btn.secondary:hover { background: var(--bg); }
+
+/* ═══════════ NO DATA STATE ═══════════ */
+.no-data {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text3);
+}
+
+.no-data .no-data-icon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+}
+
+.no-data h3 {
+  font-size: 1.1rem;
+  color: var(--text2);
+  margin-bottom: 8px;
+}
+
+/* ═══════════ FOOTER ═══════════ */
+footer {
+  background: var(--surface);
+  color: var(--text3);
+  padding: 16px 32px;
+  text-align: center;
+  font-size: 0.72rem;
+  border-top: 1px solid var(--border);
+}
+footer strong { color: var(--text); }
+
+/* ═══════════ RESPONSIVE ═══════════ */
+@media (max-width: 800px) {
+  header { padding: 12px 16px; flex-wrap: wrap; gap: 10px; }
+  .pmqd-grid { grid-template-columns: repeat(2, 1fr); }
+  .hero-card { flex-direction: column; text-align: center; }
+  .hero-actions { flex-direction: row; }
+  .hero-score { margin: 0 auto; }
+}
+
+@media (max-width: 500px) {
+  .pmqd-grid { grid-template-columns: 1fr; }
+  .hero-actions { flex-direction: column; }
+  .hero-btn { width: 100%; }
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.hero-card { animation: fadeInUp 0.5s ease-out; }
+.section-card { animation: fadeInUp 0.5s ease-out 0.1s both; }
+.kelly-card { animation: fadeInUp 0.5s ease-out 0.2s both; }
+.insights-grid { animation: fadeInUp 0.5s ease-out 0.3s both; }
+.modal-overlay {
+  position: fixed; top:0; left:0; right:0; bottom:0;
+  background: rgba(26,26,46,0.55);
+  z-index: 1001;
+  display: none;
+  align-items: center; justify-content: center;
+  backdrop-filter: blur(3px);
+}
+.modal-overlay.active { display: flex; }
+.modal-panel {
+  background: white; border-radius: var(--radius-lg);
+  padding: 40px 36px 28px; max-width: 560px; width: 92%;
+  box-shadow: var(--shadow-xl);
+  position: relative;
+  animation: modalIn 0.3s ease-out;
+  max-height: 85vh; overflow-y: auto;
+}
+@keyframes modalIn { from { opacity:0; transform:translateY(20px) scale(0.96); } to { opacity:1; transform:translateY(0) scale(1); } }
+.modal-close {
+  position: absolute; top:14px; right:16px;
+  background: none; border: none; cursor: pointer;
+  color: var(--text3); font-size: 1.3rem;
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.modal-close:hover { background: var(--surface); color: var(--text); }
+.modal-panel h2 {
+  font-family: var(--font-cn); font-size: 1.4rem;
+  color: var(--navy); margin-bottom: 6px; letter-spacing: 2px;
+}
+.modal-panel h2 .gold { color: var(--gold); }
+.modal-panel .modal-sub { font-size: 0.78rem; color: var(--text3); margin-bottom: 22px; letter-spacing: 1px; }
+.modal-panel h3 {
+  font-size: 0.9rem; color: var(--navy); margin: 18px 0 8px;
+  display: flex; align-items: center; gap: 6px;
+}
+.modal-panel h3 .dot { width:8px; height:8px; border-radius:50%; background:var(--gold); flex-shrink:0; }
+.modal-panel p { font-size: 0.84rem; color: var(--text2); line-height: 1.7; margin-bottom: 8px; }
+.modal-panel .pill-row { display:flex; gap:8px; flex-wrap:wrap; margin:6px 0 12px; }
+.modal-panel .framework-pill {
+  padding: 6px 14px; border-radius: 16px; font-size: 0.75rem;
+  font-weight: 600; letter-spacing: 0.5px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--navy);
+}
+.modal-panel .framework-pill.highlight { border-color: var(--gold); background: var(--gold-pale); }
+.modal-panel .disclaimer {
+  font-size: 0.7rem; color: var(--text3); border-top: 1px solid var(--border);
+  padding-top: 14px; margin-top: 20px; line-height: 1.6;
+}
+
+/* ═════════════ LOGIN / REGISTER MODAL ═════════════ */
+.login-modal-overlay {
+  position: fixed; top:0; left:0; right:0; bottom:0;
+  background: rgba(26,26,46,0.55);
+  z-index: 1002;
+  display: none;
+  align-items: center; justify-content: center;
+  backdrop-filter: blur(3px);
+}
+.login-modal-overlay.active { display: flex; }
+.login-modal {
+  background: white; border-radius: var(--radius-lg);
+  padding: 0; width: 92%; max-width: 420px;
+  box-shadow: var(--shadow-xl);
+  position: relative;
+  animation: modalIn 0.3s ease-out;
+  max-height: 90vh; overflow-y: auto;
+}
+.login-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+}
+.login-tab {
+  flex: 1;
+  padding: 14px 0;
+  text-align: center;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all 0.2s;
+  border-bottom: 2px solid transparent;
+  background: none;
+  border-top: none; border-left: none; border-right: none;
+}
+.login-tab.active {
+  color: var(--navy);
+  border-bottom-color: var(--navy);
+}
+.login-tab:hover { color: var(--navy); }
+.login-body { padding: 28px 32px 32px; }
+.login-body h3 {
+  font-size: 1.1rem; color: var(--text);
+  margin-bottom: 4px; letter-spacing: 1px;
+}
+.login-body .subtitle {
+  font-size: 0.76rem; color: var(--text3);
+  margin-bottom: 20px;
+}
+.login-field {
+  margin-bottom: 16px;
+}
+.login-field label {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--text2);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+.login-field input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-family: var(--font-ui);
+  color: var(--text);
+  background: var(--bg);
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+.login-field input:focus {
+  border-color: var(--navy);
+  box-shadow: 0 0 0 3px rgba(30,64,175,0.08);
+}
+.login-btn {
+  width: 100%;
+  padding: 12px;
+  background: var(--navy);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: all 0.2s;
+  margin-top: 8px;
+}
+.login-btn:hover {
+  background: var(--navy2);
+  box-shadow: 0 2px 8px rgba(30,64,175,0.3);
+}
+.login-btn.gold-btn {
+  background: var(--gold);
+}
+.login-btn.gold-btn:hover {
+  background: var(--gold-lt);
+  box-shadow: 0 2px 8px rgba(202,138,4,0.3);
+}
+.login-hint {
+  font-size: 0.72rem;
+  color: var(--text3);
+  text-align: center;
+  margin-top: 14px;
+}
+.login-hint a {
+  color: var(--navy);
+  cursor: pointer;
+  text-decoration: none;
+  font-weight: 500;
+}
+.login-hint a:hover { text-decoration: underline; }
+.login-close {
+  position: absolute; top: 12px; right: 14px;
+  background: none; border: none; cursor: pointer;
+  color: var(--text3); font-size: 1.2rem;
+  width: 30px; height: 30px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+  z-index: 1;
+}
+.login-close:hover { background: var(--surface); color: var(--text); }
+
+/* ═════════════ SUBSCRIBE MODAL ═════════════ */
+.subscribe-overlay {
+  position: fixed; top:0; left:0; right:0; bottom:0;
+  background: rgba(26,26,46,0.6);
+  z-index: 1003;
+  display: none;
+  align-items: center; justify-content: center;
+  backdrop-filter: blur(4px);
+}
+.subscribe-overlay.active { display: flex; }
+.subscribe-panel {
+  background: white; border-radius: var(--radius-lg);
+  padding: 36px 32px 28px;
+  width: 92%; max-width: 520px;
+  box-shadow: var(--shadow-xl);
+  position: relative;
+  animation: modalIn 0.3s ease-out;
+  max-height: 90vh; overflow-y: auto;
+}
+.subscribe-panel h2 {
+  font-family: var(--font-cn);
+  font-size: 1.3rem;
+  color: var(--navy);
+  letter-spacing: 2px;
+  margin-bottom: 4px;
+}
+.subscribe-panel .subtitle {
+  font-size: 0.76rem;
+  color: var(--text3);
+  margin-bottom: 22px;
+  letter-spacing: 0.5px;
+}
+.plan-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.plan-card {
+  display: flex;
+  align-items: center;
+  padding: 16px 20px;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  gap: 16px;
+}
+.plan-card:hover {
+  border-color: var(--gold);
+  background: var(--gold-pale);
+}
+.plan-card.selected {
+  border-color: var(--gold);
+  background: var(--gold-pale);
+  box-shadow: 0 0 0 3px rgba(202,138,4,0.10);
+}
+.plan-icon {
+  font-size: 1.6rem;
+  flex-shrink: 0;
+}
+.plan-info { flex: 1; }
+.plan-name {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.plan-desc {
+  font-size: 0.74rem;
+  color: var(--text3);
+  margin-top: 2px;
+}
+.plan-price {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--navy);
+  white-space: nowrap;
+}
+.plan-price .unit {
+  font-size: 0.72rem;
+  font-weight: 400;
+  color: var(--text3);
+}
+.plan-card.free {
+  border-style: dashed;
+}
+.plan-card.free .plan-name { color: var(--green); }
+.subscribe-btn {
+  width: 100%;
+  padding: 13px;
+  background: var(--gold);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: all 0.2s;
+}
+.subscribe-btn:hover {
+  background: var(--gold-lt);
+  box-shadow: 0 4px 16px rgba(202,138,4,0.35);
+  transform: translateY(-1px);
+}
+.subscribe-btn:disabled {
+  background: var(--border);
+  color: var(--text3);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+.subscribe-hint {
+  font-size: 0.7rem;
+  color: var(--text3);
+  text-align: center;
+  margin-top: 12px;
+  line-height: 1.6;
+}
+.subscribe-close {
+  position: absolute; top: 12px; right: 14px;
+  background: none; border: none; cursor: pointer;
+  color: var(--text3); font-size: 1.2rem;
+  width: 30px; height: 30px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.subscribe-close:hover { background: var(--surface); color: var(--text); }
+
+
+</style>
+</head>
+<body>
+
+<!-- ═══════════ HEADER ═══════════ -->
+<header>
+  <a href="index.html" class="header-brand">
+    <svg width="28" height="28" viewBox="0 0 100 100" fill="none"><g transform="translate(50,50)"><path d="M0,-4 C6,-12 12,-26 6,-38 C4,-42 0,-42 -2,-38 C-8,-26 -4,-12 0,-4Z" fill="#1E40AF" transform="rotate(45)"/><path d="M0,-4 C6,-12 12,-26 6,-38 C4,-42 0,-42 -2,-38 C-8,-26 -4,-12 0,-4Z" fill="#0D9488" transform="rotate(135)"/><path d="M0,-4 C6,-12 12,-26 6,-38 C4,-42 0,-42 -2,-38 C-8,-26 -4,-12 0,-4Z" fill="#B45309" transform="rotate(225)"/><path d="M0,-4 C6,-12 12,-26 6,-38 C4,-42 0,-42 -2,-38 C-8,-26 -4,-12 0,-4Z" fill="#7C3AED" transform="rotate(315)"/><circle cx="0" cy="0" r="6" fill="#CA8A04"/></g></svg>
+    <div style="display:flex;flex-direction:column;gap:0;">
+      <span class="logo-text">风林慧策</span>
+      <span class="logo-sub">Wind Forest · Wisdom</span>
+    </div>
+  </a>
+  <div class="header-stock" id="headerStock">
+    <div class="stock-name">--</div>
+    <div class="stock-code">--</div>
+  </div>
+  <div class="header-actions">
+    <button class="header-btn btn-deep" id="btnDeepAnalysis" onclick="openReport()">📊 深度分析</button>
+  </div>
+  <div id="headerLoginArea" style="display:flex;align-items:center;gap:10px;"></div>
+</header>
+
+<!-- ═══════════ MAIN CONTENT ═══════════ -->
+<main id="mainContent">
+  <!-- Populated by JS -->
+</main>
+
+<!-- ═══════════ FOOTER ═══════════ -->
+<footer>
+  <strong>风林慧策 · PALA（老帕）</strong> · 价值投资分析引擎<br>
+  免责声明：本报告不构成投资建议，仅供研究参考。投资者须自担风险。
+</footer>
+
+<!-- ═══════════════ DATA & LOGIC ═══════════════ -->
+<script>
+// ═══════ STOCK DATA STORE (pre-computed PMQD results) ═══════
+// In production, this would come from a backend API.
+// For demo, we embed pre-computed data for key stocks.
+var STOCK_DATA = {
+  "000333": {
+    name: "美的集团",
+    code: "000333.SZ",
+    market: "sz",
+    price: 79.22,
+    change: -1.08,
+    changePct: -1.35,
+    pe: 13.65,
+    effectivePE: 8.62,
+    pb: 2.60,
+    roe: 19.7,
+    divYield: 5.05,
+    marketCap: "¥6,031亿",
+    netCash: "¥2,232亿",
+    netCashDeep: true,
+    pmqd_total: 80,
+    pmqd_verdict: "买入级 · 策略二（高质量逆风）",
+    pmqd_stars: "★★★★☆",
+    pmqd_P: { score: 31, max: 40, color: "#CA8A04", label: "价格安全边际" },
+    pmqd_M: { score: 14, max: 18, color: "#0D9488", label: "行业/结构催化" },
+    pmqd_Q: { score: 26, max: 30, color: "#2D7A3E", label: "不可替代硬质量" },
+    pmqd_D: { score: 9,  max: 12, color: "#7C3AED", label: "市场认知差" },
+    kelly_f: 15,
+    kelly_verdict: "策略二·买入级，半凯利仓位15%（上限20%），PE 8.62×折价31%",
+    safety: [
+      { q: "即便行业不复苏，是否不会破产？", status: "✅", cls: "good" },
+      { q: "股价再跌50%，净资产是否仍支撑？", status: "✅", cls: "good" },
+      { q: "未来5年FCF能否覆盖有效市值？", status: "✅", cls: "good" }
+    ],
+    risks: [
+      { text: "类现金挖掘·净现金¥2,232亿", severity: "low" },
+      { text: "有效PE 8.62×折价31%", severity: "low" },
+      { text: "偿债能力优秀✅", severity: "low" },
+      { text: "海外+机器人第二曲线", severity: "info" }
+    ],
+    insights: [
+      { title: "策略判定", content: "策略二·买入级 — ROE 19.7%远超15%门槛，有效PE 8.62×远低于12×上限。类现金5层框架修正后全面通过。", cls: "good" },
+      { title: "安全边际", content: "三问3/3全面通过 — 净现金¥2,232亿占市值37%，5年OCF可覆盖70%有效市值，安全垫充裕。", cls: "good" },
+      { title: "核心优势", content: "品牌+成本双护城河 · 海外+机器人第二曲线 · ROE持续>15% · 类现金¥2,915亿（5层框架挖掘）", cls: "good" },
+      { title: "认知差", content: "市场对巨额类现金认知严重不足 — ¥2,096亿固收产品隐藏在非流动资产中，有效PE被高估。", cls: "" }
+    ]
+  },
+  "600519": {
+    name: "贵州茅台",
+    code: "600519.SH",
+    market: "sh",
+    price: 1580.00,
+    change: 12.50,
+    changePct: 0.80,
+    pe: 22.5,
+    pb: 8.1,
+    roe: 34.2,
+    divYield: 2.80,
+    marketCap: "¥1.98万亿",
+    netCash: "¥1,200亿",
+    pmqd_total: 58,
+    pmqd_verdict: "观察级 · 策略一",
+    pmqd_stars: "★★★☆☆",
+    pmqd_P: { score: 8, max: 40, color: "#C0392B", label: "价格安全边际" },
+    pmqd_M: { score: 15, max: 18, color: "#D4A43A", label: "行业/结构催化" },
+    pmqd_Q: { score: 28, max: 30, color: "#2D7A3E", label: "不可替代硬质量" },
+    pmqd_D: { score: 7, max: 12, color: "#1A5FA5", label: "市场认知差" },
+    kelly_f: 5,
+    kelly_verdict: "半凯利5%，等待更好买点",
+    safety: [
+      { q: "即便行业不复苏，是否不会破产？", status: "✅", cls: "good" },
+      { q: "股价再跌50%，净资产是否仍支撑？", status: "✅", cls: "good" },
+      { q: "未来5年FCF能否覆盖有效市值？", status: "⚠️", cls: "warn" }
+    ],
+    risks: [
+      { text: "消费税改革风险", severity: "medium" },
+      { text: "估值偏高(PE 22.5×)", severity: "info" },
+      { text: "品牌力稳固✅", severity: "low" }
+    ],
+    insights: [
+      { title: "护城河评级", content: "全球最强白酒品牌 · ROE 34% · 净现金¥1200亿 · 无可争议的顶级消费品", cls: "good" },
+      { title: "估值约束", content: "PE 22.5× 处于历史中位 · 策略一需要PE≤20×", cls: "warn" },
+      { title: "确定性", content: "品牌定价权极强 · 渠道改革深化 · 分红率提升趋势", cls: "good" },
+      { title: "等待区间", content: "PE 18-20×(¥1350-1500)为较优买点区间", cls: "" }
+    ]
+  }
+};
+
+// ═══════ PARSE URL PARAMS ═══════
+function getParams() {
+  var p = {};
+  var search = window.location.search.substring(1);
+  if (!search) return p;
+  search.split('&').forEach(function(s) {
+    var parts = s.split('=');
+    p[decodeURIComponent(parts[0])] = decodeURIComponent(parts[1] || '');
+  });
+  return p;
+}
+
+// ── API Configuration ──
+var API_BASE = (function () {
+  if (location.hostname.endsWith('.pages.dev')) return 'https://windforest-api.workers.dev';
+  if (location.hostname === 'localhost' || location.port) return 'http://localhost:8787';
+  return 'https://windforest-api.workers.dev';
+})();
+
+// ═══════ GET STOCK DATA ═══════
+function getStockData(code) {
+  var clean = code.replace(/^(sz|sh|bj|hk|us)/, '');
+  return STOCK_DATA[clean] || null;
+}
+
+// Async version with API fallback
+function getStockDataAsync(code, market, callback) {
+  var local = getStockData(code);
+  if (local) { callback(local); }
+
+  // Try API
+  fetch(API_BASE + '/api/analysis?code=' + encodeURIComponent(code) + '&market=' + encodeURIComponent(market))
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.status === 'ok' && data.data) {
+        // Convert API response to dashboard format
+        var apiData = convertApiToDashboard(data.data, code, market);
+        callback(apiData);
+      } else if (!local) {
+        renderPending(code, market);
+      }
+    })
+    .catch(function(err) {
+      if (!local) { renderError('网络错误', err.message); }
+    });
+}
+
+function convertApiToDashboard(apiData, code, market) {
+  return {
+    name: apiData.name || '',
+    code: code,
+    market: market,
+    pmqd_total: apiData.pmqd_total || 0,
+    pmqd_verdict: apiData.pmqd_verdict || '',
+    pmqd_stars: apiData.pmqd_stars || '',
+    pmqd_P: { score: apiData.pmqd_p_score || 0, max: 40, color: '#C0392B', label: '价格安全边际' },
+    pmqd_M: { score: apiData.pmqd_m_score || 0, max: 18, color: '#D4A43A', label: '行业/结构催化' },
+    pmqd_Q: { score: apiData.pmqd_q_score || 0, max: 30, color: '#2D7A3E', label: '不可替代硬质量' },
+    pmqd_D: { score: apiData.pmqd_d_score || 0, max: 12, color: '#1A5FA5', label: '市场认知差' },
+    kelly_f: apiData.kelly_f || 0,
+    kelly_verdict: apiData.kelly_verdict || '',
+    safety: [
+      { q: '即便行业不复苏，是否不会破产？', status: apiData.safety_q1_pass ? '✅' : '❌', cls: apiData.safety_q1_pass ? 'good' : 'bad' },
+      { q: '股价再跌50%，企业价值是否依然坚挺？', status: apiData.safety_q2_pass ? '✅' : '❌', cls: apiData.safety_q2_pass ? 'good' : 'bad' },
+      { q: '5年自由现金流能否覆盖有效市值？', status: apiData.safety_q3_pass ? '✅' : '❌', cls: apiData.safety_q3_pass ? 'good' : 'bad' },
+    ],
+    risks: [],
+    insights: [],
+    pe: 0, pb: 0, roe: 0, divYield: 0,
+    marketCap: '', netCash: '',
+    price: 0, change: 0, changePct: 0,
+  };
+}
+
+function renderPending(code, market) {
+  // Show pending state
+  document.getElementById('headerStock').innerHTML = '<div class="stock-name">分析准备中...</div><div class="stock-code">' + code + '</div>';
+  document.getElementById('mainContent').innerHTML =
+    '<div style="text-align:center;padding:60px 20px;">' +
+    '<div style="font-size:3rem;margin-bottom:16px;">⏳</div>' +
+    '<h3 style="color:var(--navy);margin-bottom:8px;">首次分析该标的</h3>' +
+    '<p style="color:var(--text2);margin-bottom:24px;">正在获取市场数据并计算PMQD评分，预计3-5分钟完成</p>' +
+    '<button onclick="location.reload()" style="padding:10px 24px;background:var(--gold);color:white;border:none;border-radius:20px;cursor:pointer;font-weight:600;">刷新查看</button>' +
+    '</div>';
+}
+
+function renderError(title, msg) {
+  document.getElementById('mainContent').innerHTML =
+    '<div style="text-align:center;padding:60px 20px;color:var(--red);">' +
+    '<h3>' + title + '</h3><p>' + msg + '</p>' +
+    '<button onclick="location.reload()" style="padding:10px 24px;background:var(--navy);color:white;border:none;border-radius:20px;cursor:pointer;">重试</button>' +
+    '</div>';
+}
+
+// ═══════ RENDER PMQD RING ═══════
+function drawScoreRing(canvasId, score, max, color) {
+  var c = document.getElementById(canvasId);
+  if (!c) return;
+  var ctx = c.getContext('2d');
+  var w = c.width, h = c.height;
+  var cx = w/2, cy = h/2, r = 36, lw = 7;
+
+  ctx.clearRect(0, 0, w, h);
+
+  // Background
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI*2);
+  ctx.strokeStyle = '#E0D8C8';
+  ctx.lineWidth = lw;
+  ctx.stroke();
+
+  // Score arc
+  var pct = Math.min(score / max, 1);
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, -Math.PI/2, -Math.PI/2 + Math.PI*2*pct);
+  ctx.strokeStyle = color;
+  ctx.lineWidth = lw;
+  ctx.lineCap = 'round';
+  ctx.stroke();
+
+  // Text
+  ctx.fillStyle = color;
+  ctx.font = 'bold 13px ' + getComputedStyle(document.body).fontFamily;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(Math.round(pct*100)+'%', cx, cy);
+}
+
+// ═══════ RENDER MAIN SCORE RING ═══════
+function drawMainRing(canvasId, score) {
+  var c = document.getElementById(canvasId);
+  if (!c) return;
+  var ctx = c.getContext('2d');
+  var w = c.width, h = c.height;
+  var cx = w/2, cy = h/2, r = 50, lw = 8;
+
+  ctx.clearRect(0, 0, w, h);
+
+  // Background
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI*2);
+  ctx.strokeStyle = '#E0D8C8';
+  ctx.lineWidth = lw;
+  ctx.stroke();
+
+  // Score arc (color based on score)
+  var pct = score / 100;
+  var color = pct >= 0.6 ? '#2D7A3E' : pct >= 0.4 ? '#D4A43A' : '#C0392B';
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, -Math.PI/2, -Math.PI/2 + Math.PI*2*pct);
+  ctx.strokeStyle = color;
+  ctx.lineWidth = lw;
+  ctx.lineCap = 'round';
+  ctx.stroke();
+}
+
+// ═══════ RENDER DASHBOARD ═══════
+function renderDashboard(data) {
+  var main = document.getElementById('mainContent');
+  var headerStock = document.getElementById('headerStock');
+
+  // Update header
+  headerStock.innerHTML =
+    '<div class="stock-name">' + data.name + ' · ' + data.code + '</div>' +
+    '<div class="stock-code">PMQD V5.9 · 风林慧策价值投资分析</div>';
+
+  // Price display
+  var changeClass = data.change >= 0 ? 'up' : 'down';
+  var changeSign = data.change >= 0 ? '+' : '';
+
+  main.innerHTML =
+    // ═══ HERO CARD ═══
+    '<div class="hero-card">' +
+      '<div class="hero-score">' +
+        '<div class="score-ring">' +
+          '<canvas id="mainRing" width="120" height="120"></canvas>' +
+          '<div class="score-number">' + data.pmqd_total + '</div>' +
+        '</div>' +
+        '<div class="score-stars">' + data.pmqd_stars + '</div>' +
+        '<div class="score-label">PMQD 综合评分</div>' +
+      '</div>' +
+
+      '<div class="hero-info">' +
+        '<h2>' + data.pmqd_verdict + '</h2>' +
+        '<div class="price-ticker">' +
+          '<span class="price-value">¥' + data.price.toFixed(2) + '</span>' +
+          '<span class="price-change ' + changeClass + '">' +
+            changeSign + data.change.toFixed(2) + ' (' + changeSign + data.changePct.toFixed(2) + '%)' +
+          '</span>' +
+        '</div>' +
+        '<div class="hero-metrics">' +
+          '<div class="metric-item highlight">' +
+            '<div class="metric-value">' + data.pmqd_total + '/100</div>' +
+            '<div class="metric-label">PMQD总分</div>' +
+          '</div>' +
+          '<div class="metric-item">' +
+            '<div class="metric-value">' + (data.effectivePE ? data.effectivePE.toFixed(2) + '×' : data.pe.toFixed(1) + '×') + '</div>' +
+            '<div class="metric-label">' + (data.effectivePE ? '有效PE' : 'PE(TTM)') + '</div>' +
+          '</div>' +
+          '<div class="metric-item">' +
+            '<div class="metric-value">' + data.roe.toFixed(1) + '%</div>' +
+            '<div class="metric-label">ROE</div>' +
+          '</div>' +
+          '<div class="metric-item">' +
+            '<div class="metric-value">' + data.netCash + '</div>' +
+            '<div class="metric-label">' + (data.netCashDeep ? '净现金(深入)' : '净现金') + '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="hero-actions">' +
+        '<button class="hero-btn hero-btn-subscribe" onclick="openSubscribe()">' +
+          '📩 订阅跟踪' +
+        '</button>' +
+        '<button class="hero-btn hero-btn-deep" onclick="openReport()">' +
+          '📊 深度分析报告' +
+        '</button>' +
+      '</div>' +
+    '</div>' +
+
+    // ═══ PMQD BREAKDOWN ═══
+    '<div class="section-card">' +
+      '<div class="section-header">📐 PMQD 四维评分分解</div>' +
+      '<div class="section-body">' +
+        '<div class="pmqd-grid">' +
+          pmqdItem('P', 'ringP', data.pmqd_P) +
+          pmqdItem('M', 'ringM', data.pmqd_M) +
+          pmqdItem('Q', 'ringQ', data.pmqd_Q) +
+          pmqdItem('D', 'ringD', data.pmqd_D) +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+
+    // ═══ KELLY POSITION ═══
+    '<div class="kelly-card">' +
+      '<div>' +
+        '<div class="kelly-value">' + data.kelly_f.toFixed(0) + '%</div>' +
+        '<div class="kelly-label">凯利最优仓位 f*</div>' +
+      '</div>' +
+      '<div class="kelly-details">' +
+        '<div class="kelly-detail">' + (data.effectivePE ? '有效PE' : 'PE(TTM)') + '<strong>' + (data.effectivePE || data.pe).toFixed(2) + '×</strong></div>' +
+        '<div class="kelly-detail">PB<strong>' + data.pb.toFixed(2) + '×</strong></div>' +
+        '<div class="kelly-detail">股息率(TTM)<strong>' + data.divYield.toFixed(2) + '%</strong></div>' +
+        '<div class="kelly-detail">总市值<strong>' + data.marketCap + '</strong></div>' +
+        (data.netCashDeep ? '<div class="kelly-detail">净现金(深入)<strong>' + data.netCash + '</strong></div>' : '') +
+      '</div>' +
+      '<div style="flex-basis:100%;font-size:0.82rem;color:#94A3B8;margin-top:8px;">' +
+        data.kelly_verdict +
+      '</div>' +
+    '</div>' +
+
+    // ═══ QUICK INSIGHTS ═══
+    '<div class="insights-grid">' +
+      data.insights.map(function(ins) {
+        return '<div class="insight-card ' + ins.cls + '">' +
+          '<div class="insight-title">' + ins.title + '</div>' +
+          '<div class="insight-content">' + ins.content + '</div>' +
+        '</div>';
+      }).join('') +
+    '</div>' +
+
+    // ═══ SAFETY MARGIN ═══
+    '<div class="section-card">' +
+      '<div class="section-header">🛡️ 安全边际三问</div>' +
+      '<div class="section-body">' +
+        '<div class="safety-row">' +
+          data.safety.map(function(s, i) {
+            return '<div class="safety-q">' +
+              '<div class="q-num">第' + (i+1) + '问</div>' +
+              '<div class="q-status">' + s.status + '</div>' +
+              '<div class="q-text">' + s.q + '</div>' +
+            '</div>';
+          }).join('') +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+
+    // ═══ RISK ALERTS ═══
+    '<div class="section-card">' +
+      '<div class="section-header">⚠️ 风险速览</div>' +
+      '<div class="section-body">' +
+        '<div class="risk-strip">' +
+          data.risks.map(function(r) {
+            return '<span class="risk-tag ' + r.severity + '">' + r.text + '</span>';
+          }).join('') +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+
+    // ═══ BOTTOM CTA ═══
+    '<div style="text-align:center;padding:12px 0 30px;">' +
+      '<p style="color:var(--text3);font-size:0.82rem;margin-bottom:14px;">' +
+        '以上为PMQD概要分析。点击下方按钮查看包含15个模块的完整风林慧策深度报告。' +
+      '</p>' +
+      '<button class="hero-btn hero-btn-deep" onclick="openReport()" style="display:inline-flex;font-size:1rem;padding:16px 36px;">' +
+        '🔓 查看完整深度分析报告 →' +
+      '</button>' +
+      '<p style="color:var(--text3);font-size:0.7rem;margin-top:8px;">需登录并订阅后方可查看完整报告</p>' +
+    '</div>';
+
+  // Draw rings after DOM is populated
+  setTimeout(function() {
+    drawMainRing('mainRing', data.pmqd_total);
+    drawScoreRing('ringP', data.pmqd_P.score, data.pmqd_P.max, data.pmqd_P.color);
+    drawScoreRing('ringM', data.pmqd_M.score, data.pmqd_M.max, data.pmqd_M.color);
+    drawScoreRing('ringQ', data.pmqd_Q.score, data.pmqd_Q.max, data.pmqd_Q.color);
+    drawScoreRing('ringD', data.pmqd_D.score, data.pmqd_D.max, data.pmqd_D.color);
+  }, 50);
+}
+
+function pmqdItem(letter, canvasId, dim) {
+  return '<div class="pmqd-item">' +
+    '<h3>' + letter + ' · ' + dim.label + '</h3>' +
+    '<canvas id="' + canvasId + '" width="90" height="90"></canvas>' +
+    '<div class="pmqd-bar-wrap"><div class="pmqd-bar-fill" style="width:' + (dim.score/dim.max*100) + '%;background:' + dim.color + ';"></div></div>' +
+    '<span class="pmqd-score" style="color:' + dim.color + '">' + dim.score + '</span>' +
+    '<span class="pmqd-outof"> / ' + dim.max + '</span>' +
+  '</div>';
+}
+
+// ═══════ NO DATA STATE ═══════
+function renderNoData(name, code) {
+  var main = document.getElementById('mainContent');
+  var headerStock = document.getElementById('headerStock');
+
+  headerStock.innerHTML =
+    '<div class="stock-name">' + (name || '未知标的') + '</div>' +
+    '<div class="stock-code">' + (code || '--') + '</div>';
+
+  main.innerHTML =
+    '<div class="no-data">' +
+      '<div class="no-data-icon">📡</div>' +
+      '<h3>' + (name || code) + ' 的深度分析数据正在准备中</h3>' +
+      '<p style="color:var(--text3);font-size:0.88rem;">' +
+        '该标的尚未在本地数据库中预计算。<br>' +
+        '点击下方按钮可触发实时分析流程（需要 westock-data + wind-forest 引擎支持）。' +
+      '</p>' +
+      '<div style="margin-top:20px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">' +
+        '<button class="hero-btn hero-btn-subscribe" onclick="openSubscribe()" style="font-size:0.9rem;">📩 订阅此标的</button>' +
+        '<button class="hero-btn hero-btn-deep" onclick="openReport()" style="font-size:0.9rem;">📊 尝试深度分析</button>' +
+      '</div>' +
+    '</div>';
+}
+
+// ═══════ NAVIGATION ═══════
+function openReport() {
+  // 1. Check if user is logged in
+  var token = typeof getToken === 'function' ? getToken() : localStorage.getItem('wf_token');
+  if (!token) {
+    // Store the intent to redirect after login
+    localStorage.setItem('wf_redirect_after_auth', 'report');
+    if (typeof openLogin === 'function') {
+      openLogin();
+    } else {
+      alert('请先登录后再查看完整分析报告');
+    }
+    return;
+  }
+
+  // 2. Check subscription status via API
+  fetch(API_BASE + '/api/auth/me', {
+    headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }
+  })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.data && data.data.plan && data.data.plan !== 'free') {
+        // Has valid subscription → proceed to report
+        doGoReport();
+      } else if (data.data && data.data.freeTrialUsed === 0) {
+        // Has free trial → proceed
+        doGoReport();
+      } else {
+        // No valid subscription → show subscribe modal
+        localStorage.setItem('wf_redirect_after_auth', 'report');
+        if (typeof openSubscribe === 'function') {
+          openSubscribe();
+        } else {
+          alert('请先订阅后再查看完整分析报告');
+        }
+      }
+    })
+    .catch(function() {
+      // API unavailable — fallback: check localStorage
+      var user = localStorage.getItem('wf_user');
+      if (user) {
+        try {
+          var u = JSON.parse(user);
+          if (u.plan && u.plan !== 'free') {
+            doGoReport();
+            return;
+          }
+        } catch(e) {}
+      }
+      // Fallback: allow if logged in (graceful degradation)
+      doGoReport();
+    });
+}
+
+function doGoReport() {
+  localStorage.removeItem('wf_redirect_after_auth');
+  var params = getParams();
+  var code = params.code || '000333';
+  var name = params.name || '';
+  var market = params.market || 'sz';
+  window.location.href = 'report.html?code=' + encodeURIComponent(code) +
+    '&market=' + encodeURIComponent(market) +
+    '&name=' + encodeURIComponent(name);
+}
+
+// ESC to close modals (login-subscribe.js handles its own modals)
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    var active = document.querySelector('.modal-overlay.active');
+    if (active) active.classList.remove('active');
+    var subPanel = document.querySelector('.subscribe-panel');
+    if (subPanel && subPanel.closest('.subscribe-overlay') && subPanel.closest('.subscribe-overlay').classList.contains('active')) {
+      closeSubscribe();
+    }
+  }
+});
+
+// ═══════ INIT ═══════
+(function init() {
+  var params = getParams();
+  var code = params.code || '000333';
+  var name = params.name || '';
+  var market = params.market || 'sz';
+
+  getStockDataAsync(code, market, function(data) {
+    if (data) {
+      renderDashboard(data);
+    } else {
+      renderNoData(name, code);
+    }
+  });
+})();
+</script>
+<script src="login-subscribe.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,90 @@
+# 🚀 一键部署到 Cloudflare (GitHub Actions)
+# 推送代码后自动部署 Workers API + Pages 前端
+
+name: Deploy to Cloudflare
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:  # 支持手动触发
+
+permissions:
+  contents: read
+
+jobs:
+  # ─── Job 1: 部署 Workers API ───
+  deploy-worker:
+    name: Deploy Workers API
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Wrangler
+        run: npm install -g wrangler@4
+
+      - name: Deploy Worker
+        working-directory: fullstack
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          wrangler deploy --keep-vars
+
+  # ─── Job 2: 部署 Pages 前端 ───
+  deploy-pages:
+    name: Deploy Pages Frontend
+    runs-on: ubuntu-latest
+    needs: deploy-worker  # 等 Worker 部署完再部署前端
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Deploy Pages
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          npx wrangler@4 pages deploy . \
+            --project-name=windforest \
+            --branch=main \
+            --commit-hash=${{ github.sha }}
+
+  # ─── Job 3: 种子数据（仅首次）───
+  seed-database:
+    name: Seed D1 Database (if needed)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'  # 仅手动触发时执行
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Seed D1 Database
+        working-directory: fullstack
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          # 检查是否已有数据
+          COUNT=$(wrangler d1 execute windforest-db --remote --command="SELECT COUNT(*) as cnt FROM stocks" --json | jq -r '.result[0].results[0].cnt')
+          if [ "$COUNT" -eq "0" ]; then
+            echo "Seeding database..."
+            wrangler d1 execute windforest-db --remote --file=src/db/seed.sql
+          else
+            echo "Database already seeded ($COUNT stocks), skipping."
+          fi

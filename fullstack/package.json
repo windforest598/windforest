@@ -1,0 +1,27 @@
+{
+  "name": "windforest-api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:init": "wrangler d1 execute windforest-db --file=src/db/schema.sql",
+    "db:seed": "wrangler d1 execute windforest-db --file=src/db/seed.sql",
+    "db:console": "wrangler d1 execute windforest-db --command=\"SELECT * FROM stocks LIMIT 5\"",
+    "compute": "npx tsx scripts/compute-analysis.ts",
+    "refresh": "npx tsx scripts/refresh-data.ts",
+    "alerts": "npx tsx scripts/send-alerts.ts"
+  },
+  "dependencies": {
+    "hono": "^4.6.0",
+    "jose": "^5.10.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250616.0",
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0",
+    "wrangler": "^4.101.0"
+  }
+}

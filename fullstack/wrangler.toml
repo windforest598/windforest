@@ -1,0 +1,40 @@
+name = "windforest-api"
+main = "src/index.ts"
+compatibility_date = "2025-06-16"
+
+[vars]
+ENV = "production"
+# JWT 签名密钥（请修改为随机长字符串）
+JWT_SECRET = "4410a056cb08d49d0e7af8b30ecafe2e412576b4278cca621e8187a9620547d1"
+
+# 微信支付（需从微信商户平台获取）
+WECHAT_MCH_ID = ""
+WECHAT_API_V3_KEY = ""
+WECHAT_SERIAL_NO = ""
+WECHAT_PRIVATE_KEY = ""   # PEM 公钥（换行用 \n 替代）
+WECHAT_NOTIFY_URL = "https://windforest-api.workers.dev/api/payment/wechat-notify"
+
+# 支付宝（需从支付宝开放平台获取）
+ALIPAY_APP_ID = ""
+ALIPAY_PRIVATE_KEY = ""    # PKCS8 PEM 私钥
+ALIPAY_PUBLIC_KEY = ""     # 支付宝公钥
+ALIPAY_NOTIFY_URL = "https://windforest-api.workers.dev/api/payment/alipay-notify"
+ALIPAY_RETURN_URL = "https://windforest.pages.dev/pay-success"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "windforest-db"
+database_id = "82948567-5831-4ed7-9934-35b1598a4499"
+
+# KV/R2 暂未创建，MVP 阶段先注释，部署成功后再启用
+# [[kv_namespaces]]
+# binding = "WIND_FOREST_KV"
+# id = "windforest-cache"
+
+# [[r2_buckets]]
+# binding = "WIND_FOREST_R2"
+# bucket_name = "windforest-assets"
+
+[observability]
+enabled = true
+head_sampling_rate = 1

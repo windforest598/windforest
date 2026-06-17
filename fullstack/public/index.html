@@ -1,0 +1,1670 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>风林慧策 · AI价值投资分析引擎</title>
+<style>
+:root {
+  --bg: #FFFFFF;
+  --navy: #1E40AF;
+  --navy2: #1E3A5F;
+  --gold: #CA8A04;
+  --gold-lt: #E5B80B;
+  --gold-pale: #FFF9E6;
+  --teal: #0D9488;
+  --amber: #B45309;
+  --purple: #7C3AED;
+  --blue: #1E40AF;
+  --blue-lt: #3B82F6;
+  --red: #C0392B;
+  --green: #2D7A3E;
+  --text: #1A1A2E;
+  --text2: #6B7280;
+  --text3: #9CA3AF;
+  --white: #FFFFFF;
+  --surface: #F8F9FA;
+  --border: #E5E7EB;
+  --border-focus: #CA8A04;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 1px 6px rgba(26,26,46,0.12);
+  --shadow-lg: 0 4px 20px rgba(0,0,0,0.10);
+  --shadow-xl: 0 8px 32px rgba(0,0,0,0.14);
+  --radius: 28px;
+  --radius-sm: 8px;
+  --radius-lg: 16px;
+  --font-cn: "PingFang SC", "Microsoft YaHei", -apple-system, "Helvetica Neue", sans-serif;
+  --font-ui: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  font-family: var(--font-ui);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-x: hidden;
+}
+
+/* ═══════════ TOP BAR ═══════════ */
+.top-bar {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 28px;
+  z-index: 10;
+  background: white;
+  border-bottom: 1px solid var(--border);
+}
+.top-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+.top-logo-area {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+.top-logo-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+}
+.top-logo-cn {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 3px;
+  line-height: 1.2;
+}
+.top-logo-en {
+  font-size: 0.5rem;
+  font-weight: 400;
+  color: var(--text3);
+  letter-spacing: 1.5px;
+  line-height: 1;
+}
+.top-nav {
+  display: flex;
+  gap: 24px;
+}
+.top-link {
+  font-size: 0.8rem;
+  color: var(--text2);
+  text-decoration: none;
+  transition: color 0.2s;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+}
+.top-link:hover { color: var(--navy); }
+.top-link-primary {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: white;
+  background: var(--navy);
+  border: none;
+  padding: 7px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: all 0.2s;
+}
+.top-link-primary:hover {
+  background: var(--navy2);
+  box-shadow: 0 2px 8px rgba(30,64,175,0.3);
+}
+
+/* ═══════════ MAIN CONTAINER ═══════════ */
+.main-container {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 88vh;
+  padding: 60px 24px 40px;
+  width: 100%;
+  max-width: 680px;
+}
+
+/* ═══════════ BRAND / LOGO ═══════════ */
+.brand {
+  text-align: center;
+  margin-bottom: 38px;
+  animation: fadeInUp 0.7s ease-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.brand-logo-svg {
+  display: block;
+  margin: 0 auto;
+  filter: drop-shadow(0 2px 8px rgba(30,64,175,0.12));
+}
+
+.brand-name {
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 8px;
+  line-height: 1.1;
+}
+
+.brand-english {
+  font-size: 0.82rem;
+  font-weight: 400;
+  color: var(--text2);
+  letter-spacing: 4px;
+}
+
+.brand-subtitle {
+  font-size: 0.72rem;
+  color: var(--text3);
+  letter-spacing: 2px;
+  margin-top: 4px;
+  font-weight: 400;
+}
+
+.brand-line {
+  width: 36px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  margin: 14px auto 0;
+  border-radius: 1px;
+}
+
+/* ═══════════ SEARCH CONTAINER ═══════════ */
+.search-wrapper {
+  width: 100%;
+  position: relative;
+  animation: fadeInUp 0.7s ease-out 0.12s both;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 4px 8px 4px 16px;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.25s ease;
+  height: 48px;
+}
+
+.search-box:hover {
+  box-shadow: var(--shadow-md);
+  border-color: #BDBDBD;
+}
+
+.search-box:focus-within {
+  box-shadow: var(--shadow-md), 0 0 0 3px rgba(202,138,4,0.10);
+  border-color: var(--border-focus);
+}
+
+.search-icon {
+  color: var(--text3);
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  margin-right: 10px;
+}
+.search-icon svg { width:20px; height:20px; }
+
+.search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 1.02rem;
+  font-family: var(--font-ui);
+  color: var(--text);
+  background: transparent;
+  padding: 10px 0;
+  min-width: 0;
+  line-height: 1.3;
+}
+.search-input::placeholder {
+  color: #B0B0B0;
+  letter-spacing: 0.3px;
+}
+
+.search-clear {
+  background: none; border: none;
+  color: var(--text3);
+  cursor: pointer;
+  padding: 6px;
+  font-size: 0.9rem;
+  display: none;
+  border-radius: 50%;
+  width: 28px; height: 28px;
+  align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+.search-clear:hover { background: var(--surface); color: var(--text); }
+.search-clear.visible { display: flex; }
+
+.search-divider {
+  width: 1px; height: 22px;
+  background: var(--border);
+  margin: 0 6px;
+  flex-shrink: 0;
+}
+
+.search-btn {
+  background: var(--navy);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  padding: 10px 22px;
+  font-size: 0.88rem;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: all 0.25s;
+  flex-shrink: 0;
+}
+.search-btn:hover {
+  background: #1E3A5F;
+  box-shadow: 0 2px 8px rgba(30,64,175,0.3);
+}
+.search-btn:active { transform: scale(0.97); }
+
+/* ═══════════ AUTOCOMPLETE DROPDOWN ═══════════ */
+.autocomplete-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  border: 1px solid var(--border);
+  max-height: 360px;
+  overflow-y: auto;
+  display: none;
+  z-index: 100;
+}
+.autocomplete-dropdown.active { display: block; }
+
+.autocomplete-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background 0.12s;
+  gap: 12px;
+}
+.autocomplete-item:first-child { border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+.autocomplete-item:last-child { border-radius: 0 0 var(--radius-lg) var(--radius-lg); }
+.autocomplete-item + .autocomplete-item { border-top: 1px solid #F1F3F4; }
+.autocomplete-item:hover,
+.autocomplete-item.selected { background: #F1F8FE; }
+
+.ac-code {
+  font-family: "JetBrains Mono", "SF Mono", "Consolas", monospace;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--navy);
+  min-width: 78px;
+  display: flex; align-items: center; gap: 4px;
+}
+.ac-name { font-size: 0.9rem; color: var(--text); flex: 1; }
+.ac-market {
+  font-size: 0.68rem;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+.ac-market.ashare { background: #FFEBEE; color: #C62828; }
+.ac-market.hkshare { background: #E3F2FD; color: #1565C0; }
+.ac-market.usshare { background: #E8F5E9; color: #2E7D32; }
+.ac-sector { font-size: 0.68rem; color: var(--text3); min-width: 50px; text-align: right; }
+
+.autocomplete-empty {
+  padding: 24px 16px;
+  text-align: center;
+  color: var(--text3);
+  font-size: 0.84rem;
+}
+.market-indicator { display:inline-block; width:5px; height:5px; border-radius:50%; margin-right:3px; flex-shrink:0; }
+.market-indicator.ashare { background: var(--red); }
+.market-indicator.hkshare { background: var(--blue); }
+.market-indicator.usshare { background: var(--green); }
+
+/* ═══════════ KEYBOARD HINT ═══════════ */
+.kbd-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.25s;
+  font-size: 0.72rem;
+  color: var(--text3);
+}
+.kbd-hint.visible { opacity: 1; }
+.kbd-key {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2px 7px;
+  font-size: 0.68rem;
+  color: var(--text2);
+  font-family: var(--font-ui);
+}
+
+/* ═══════════ HOT STOCKS ═══════════ */
+.hot-section {
+  margin-top: 34px;
+  animation: fadeInUp 0.7s ease-out 0.24s both;
+}
+.hot-title {
+  font-size: 0.72rem;
+  color: var(--text3);
+  letter-spacing: 2px;
+  text-align: center;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+.hot-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+.hot-chip {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 7px 15px;
+  font-size: 0.8rem;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.hot-chip:hover {
+  border-color: var(--gold);
+  color: var(--navy);
+  background: var(--gold-pale);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
+}
+
+/* ═══════════ MARKET STATUS ═══════════ */
+.market-status {
+  font-size: 0.7rem;
+  color: var(--text3);
+  margin-top: 22px;
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  animation: fadeInUp 0.7s ease-out 0.3s both;
+}
+.market-status-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 4px;
+}
+.market-status-dot.open { background: var(--green); }
+.market-status-dot.closed { background: var(--text3); }
+
+/* ═══════════ FOOTER ═══════════ */
+.page-footer {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  padding: 14px 32px;
+  text-align: center;
+  font-size: 0.68rem;
+  color: var(--text3);
+  letter-spacing: 0.5px;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+}
+
+/* ═══════════ LOADING OVERLAY ═══════════ */
+.loading-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(255,255,255,0.94);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  z-index: 1000;
+}
+.loading-overlay.active { display: flex; }
+.loading-spinner {
+  width: 40px; height: 40px;
+  border: 3px solid var(--border);
+  border-top: 3px solid var(--gold);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin-bottom: 16px;
+}
+.loading-text {
+  font-size: 0.88rem;
+  color: var(--text2);
+  letter-spacing: 0.5px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ═══════════ FRAMEWORK MODAL ═══════════ */
+.modal-overlay {
+  position: fixed; top:0; left:0; right:0; bottom:0;
+  background: rgba(26,26,46,0.55);
+  z-index: 1001;
+  display: none;
+  align-items: center; justify-content: center;
+  backdrop-filter: blur(3px);
+}
+.modal-overlay.active { display: flex; }
+.modal-panel {
+  background: white; border-radius: var(--radius-lg);
+  padding: 40px 36px 28px; max-width: 560px; width: 92%;
+  box-shadow: var(--shadow-xl);
+  position: relative;
+  animation: modalIn 0.3s ease-out;
+  max-height: 85vh; overflow-y: auto;
+}
+@keyframes modalIn { from { opacity:0; transform:translateY(20px) scale(0.96); } to { opacity:1; transform:translateY(0) scale(1); } }
+.modal-close {
+  position: absolute; top:14px; right:16px;
+  background: none; border: none; cursor: pointer;
+  color: var(--text3); font-size: 1.3rem;
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.modal-close:hover { background: var(--surface); color: var(--text); }
+.modal-panel h2 {
+  font-family: var(--font-cn); font-size: 1.4rem;
+  color: var(--navy); margin-bottom: 6px; letter-spacing: 2px;
+}
+.modal-panel h2 .gold { color: var(--gold); }
+.modal-panel .modal-sub { font-size: 0.78rem; color: var(--text3); margin-bottom: 22px; letter-spacing: 1px; }
+.modal-panel h3 {
+  font-size: 0.9rem; color: var(--navy); margin: 18px 0 8px;
+  display: flex; align-items: center; gap: 6px;
+}
+.modal-panel h3 .dot { width:8px; height:8px; border-radius:50%; background:var(--gold); flex-shrink:0; }
+.modal-panel p { font-size: 0.84rem; color: var(--text2); line-height: 1.7; margin-bottom: 8px; }
+.modal-panel .pill-row { display:flex; gap:8px; flex-wrap:wrap; margin:6px 0 12px; }
+.modal-panel .framework-pill {
+  padding: 6px 14px; border-radius: 16px; font-size: 0.75rem;
+  font-weight: 600; letter-spacing: 0.5px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--navy);
+}
+.modal-panel .framework-pill.highlight { border-color: var(--gold); background: var(--gold-pale); }
+.modal-panel .disclaimer {
+  font-size: 0.7rem; color: var(--text3); border-top: 1px solid var(--border);
+  padding-top: 14px; margin-top: 20px; line-height: 1.6;
+}
+
+/* ═════════════ LOGIN / REGISTER MODAL ═════════════ */
+.login-modal-overlay {
+  position: fixed; top:0; left:0; right:0; bottom:0;
+  background: rgba(26,26,46,0.55);
+  z-index: 1002;
+  display: none;
+  align-items: center; justify-content: center;
+  backdrop-filter: blur(3px);
+}
+.login-modal-overlay.active { display: flex; }
+.login-modal {
+  background: white; border-radius: var(--radius-lg);
+  padding: 0; width: 92%; max-width: 420px;
+  box-shadow: var(--shadow-xl);
+  position: relative;
+  animation: modalIn 0.3s ease-out;
+  max-height: 90vh; overflow-y: auto;
+}
+.login-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+}
+.login-tab {
+  flex: 1;
+  padding: 14px 0;
+  text-align: center;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all 0.2s;
+  border-bottom: 2px solid transparent;
+  background: none;
+  border-top: none; border-left: none; border-right: none;
+}
+.login-tab.active {
+  color: var(--navy);
+  border-bottom-color: var(--navy);
+}
+.login-tab:hover { color: var(--navy); }
+.login-body { padding: 28px 32px 32px; }
+.login-body h3 {
+  font-size: 1.1rem; color: var(--text);
+  margin-bottom: 4px; letter-spacing: 1px;
+}
+.login-body .subtitle {
+  font-size: 0.76rem; color: var(--text3);
+  margin-bottom: 20px;
+}
+.login-field {
+  margin-bottom: 16px;
+}
+.login-field label {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--text2);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+.login-field input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-family: var(--font-ui);
+  color: var(--text);
+  background: var(--bg);
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+.login-field input:focus {
+  border-color: var(--navy);
+  box-shadow: 0 0 0 3px rgba(30,64,175,0.08);
+}
+.login-btn {
+  width: 100%;
+  padding: 12px;
+  background: var(--navy);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: all 0.2s;
+  margin-top: 8px;
+}
+.login-btn:hover {
+  background: var(--navy2);
+  box-shadow: 0 2px 8px rgba(30,64,175,0.3);
+}
+.login-btn.gold-btn {
+  background: var(--gold);
+}
+.login-btn.gold-btn:hover {
+  background: var(--gold-lt);
+  box-shadow: 0 2px 8px rgba(202,138,4,0.3);
+}
+.login-hint {
+  font-size: 0.72rem;
+  color: var(--text3);
+  text-align: center;
+  margin-top: 14px;
+}
+.login-hint a {
+  color: var(--navy);
+  cursor: pointer;
+  text-decoration: none;
+  font-weight: 500;
+}
+.login-hint a:hover { text-decoration: underline; }
+.login-close {
+  position: absolute; top: 12px; right: 14px;
+  background: none; border: none; cursor: pointer;
+  color: var(--text3); font-size: 1.2rem;
+  width: 30px; height: 30px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+  z-index: 1;
+}
+.login-close:hover { background: var(--surface); color: var(--text); }
+
+/* ═════════════ SUBSCRIBE MODAL ═════════════ */
+.subscribe-overlay {
+  position: fixed; top:0; left:0; right:0; bottom:0;
+  background: rgba(26,26,46,0.6);
+  z-index: 1003;
+  display: none;
+  align-items: center; justify-content: center;
+  backdrop-filter: blur(4px);
+}
+.subscribe-overlay.active { display: flex; }
+.subscribe-panel {
+  background: white; border-radius: var(--radius-lg);
+  padding: 36px 32px 28px;
+  width: 92%; max-width: 520px;
+  box-shadow: var(--shadow-xl);
+  position: relative;
+  animation: modalIn 0.3s ease-out;
+  max-height: 90vh; overflow-y: auto;
+}
+.subscribe-panel h2 {
+  font-family: var(--font-cn);
+  font-size: 1.3rem;
+  color: var(--navy);
+  letter-spacing: 2px;
+  margin-bottom: 4px;
+}
+.subscribe-panel .subtitle {
+  font-size: 0.76rem;
+  color: var(--text3);
+  margin-bottom: 22px;
+  letter-spacing: 0.5px;
+}
+.plan-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.plan-card {
+  display: flex;
+  align-items: center;
+  padding: 16px 20px;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  gap: 16px;
+}
+.plan-card:hover {
+  border-color: var(--gold);
+  background: var(--gold-pale);
+}
+.plan-card.selected {
+  border-color: var(--gold);
+  background: var(--gold-pale);
+  box-shadow: 0 0 0 3px rgba(202,138,4,0.10);
+}
+.plan-icon {
+  font-size: 1.6rem;
+  flex-shrink: 0;
+}
+.plan-info { flex: 1; }
+.plan-name {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.plan-desc {
+  font-size: 0.74rem;
+  color: var(--text3);
+  margin-top: 2px;
+}
+.plan-price {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--navy);
+  white-space: nowrap;
+}
+.plan-price .unit {
+  font-size: 0.72rem;
+  font-weight: 400;
+  color: var(--text3);
+}
+.plan-card.free {
+  border-style: dashed;
+}
+.plan-card.free .plan-name { color: var(--green); }
+.subscribe-btn {
+  width: 100%;
+  padding: 13px;
+  background: var(--gold);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: all 0.2s;
+}
+.subscribe-btn:hover {
+  background: var(--gold-lt);
+  box-shadow: 0 4px 16px rgba(202,138,4,0.35);
+  transform: translateY(-1px);
+}
+.subscribe-btn:disabled {
+  background: var(--border);
+  color: var(--text3);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+.subscribe-hint {
+  font-size: 0.7rem;
+  color: var(--text3);
+  text-align: center;
+  margin-top: 12px;
+  line-height: 1.6;
+}
+.subscribe-close {
+  position: absolute; top: 12px; right: 14px;
+  background: none; border: none; cursor: pointer;
+  color: var(--text3); font-size: 1.2rem;
+  width: 30px; height: 30px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.subscribe-close:hover { background: var(--surface); color: var(--text); }
+
+/* ═══════════ ANIMATIONS ═══════════ */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ═══════════ RESPONSIVE ═══════════ */
+@media (max-width: 600px) {
+  .brand-logo-svg { width: 64px; height: 64px; }
+  .brand-name { font-size: 1.8rem; letter-spacing: 4px; }
+  .brand-english { font-size: 0.7rem; letter-spacing: 2px; }
+  .brand-subtitle { font-size: 0.68rem; }
+  .search-input { font-size: 0.9rem; }
+  .search-btn { padding: 8px 16px; font-size: 0.8rem; }
+  .main-container { padding: 48px 16px 28px; }
+  .top-bar { padding: 10px 14px; }
+  .top-nav { display: none; }
+  .modal-panel { padding: 28px 20px 20px; }
+}
+
+/* Scrollbar styling */
+.autocomplete-dropdown::-webkit-scrollbar { width: 6px; }
+.autocomplete-dropdown::-webkit-scrollbar-track { background: transparent; }
+.autocomplete-dropdown::-webkit-scrollbar-thumb { background: #DADCE0; border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- Top bar -->
+<div class="top-bar">
+  <div class="top-bar-left">
+    <a href="index.html" class="top-logo-area">
+      <svg width="26" height="26" viewBox="0 0 100 100" fill="none"><g transform="translate(50,50)"><path d="M0,-4 C6,-12 12,-26 6,-38 C4,-42 0,-42 -2,-38 C-8,-26 -4,-12 0,-4Z" fill="#1E40AF" transform="rotate(45)"/><path d="M0,-4 C6,-12 12,-26 6,-38 C4,-42 0,-42 -2,-38 C-8,-26 -4,-12 0,-4Z" fill="#0D9488" transform="rotate(135)"/><path d="M0,-4 C6,-12 12,-26 6,-38 C4,-42 0,-42 -2,-38 C-8,-26 -4,-12 0,-4Z" fill="#B45309" transform="rotate(225)"/><path d="M0,-4 C6,-12 12,-26 6,-38 C4,-42 0,-42 -2,-38 C-8,-26 -4,-12 0,-4Z" fill="#7C3AED" transform="rotate(315)"/><circle cx="0" cy="0" r="6" fill="#CA8A04"/></g></svg>
+      <div class="top-logo-text">
+        <span class="top-logo-cn">风林慧策</span>
+        <span class="top-logo-en">Wind Forest · Wisdom</span>
+      </div>
+    </a>
+    <div class="top-nav">
+      <a href="index.html" class="top-link" style="color:var(--text);font-weight:600;">首页</a>
+      <span class="top-link" onclick="openFramework()">分析框架</span>
+      <span class="top-link" onclick="openAbout()" style="cursor:pointer;">关于</span>
+    </div>
+  </div>
+  <div id="headerLoginArea" style="display:flex;align-items:center;gap:12px;"></div>
+</div>
+
+<!-- Framework Modal -->
+<div class="modal-overlay" id="frameworkModal">
+  <div class="modal-panel">
+    <button class="modal-close" onclick="closeFramework()">✕</button>
+    <h2><span class="gold">风</span>林<span class="gold">慧</span>策</h2>
+    <div class="modal-sub">PMQD 价值投资分析框架</div>
+
+    <h3><span class="dot"></span>核心理念</h3>
+    <p>源自《孙子兵法》军争篇——<strong>"其疾如风，其徐如林，侵掠如火，不动如山"</strong>。将古典兵法智慧注入现代价值投资分析，构建四维量化评估体系。</p>
+
+    <h3><span class="dot"></span>PMQD 分析框架</h3>
+    <p>从四个维度对上市公司的长期投资价值进行全面评估：</p>
+    <div class="pill-row">
+      <span class="framework-pill highlight">P 价格安全</span>
+      <span class="framework-pill">M 行业催化</span>
+      <span class="framework-pill">Q 硬质量</span>
+      <span class="framework-pill highlight">D 认知差</span>
+    </div>
+    <p>每个维度包含多层子指标，综合量化后形成 0-100 分的 PMQD 总分及对应的投资策略建议。</p>
+
+    <h3><span class="dot"></span>覆盖市场</h3>
+    <div class="pill-row">
+      <span class="framework-pill">A股 · 沪深两市</span>
+      <span class="framework-pill">港股 · 香港联交所</span>
+      <span class="framework-pill">美股 · 纳斯达克 / 纽交所</span>
+    </div>
+
+    <h3><span class="dot"></span>分析方法</h3>
+    <p>多源数据交叉验证 · 财务穿透精算 · 估值定价模型 · 偿债能力诊断 · 管理层诚信审查 · 预期泡沫识别 · 安全边际评估</p>
+
+    <h3><span class="dot"></span>设计哲学</h3>
+    <div class="pill-row">
+      <span class="framework-pill">风 · 其疾如风</span>
+      <span class="framework-pill">林 · 其徐如林</span>
+      <span class="framework-pill">火 · 侵掠如火</span>
+      <span class="framework-pill">山 · 不动如山</span>
+    </div>
+    <p>风 = 紧随市场变化，快速捕捉信号；林 = 沉心静气，深入基本面研究；火 = 估值到位果断行动；山 = 优质标的坚定持有。</p>
+
+    <h3><span class="dot"></span>三大价值投资策略</h3>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="background:var(--surface);border-radius:8px;padding:12px 14px;border-left:4px solid #1E40AF;">
+        <strong style="color:#1E40AF;">策略一 · 绝对低估套利</strong>
+        <p style="margin:4px 0 0;font-size:0.8rem;color:var(--text2);">寻找跌破净资产、市值低于净现金、或5年内自由现金流可覆盖有效市值的标的。五种判定门坎任一满足即合格，仓位上限40%。</p>
+      </div>
+      <div style="background:var(--surface);border-radius:8px;padding:12px 14px;border-left:4px solid #0D9488;">
+        <strong style="color:#0D9488;">策略二 · 高质量逆风</strong>
+        <p style="margin:4px 0 0;font-size:0.8rem;color:var(--text2);">ROE≥15% + PE<12×双门槛。在优质公司遭遇短期逆风、市场过度反应时介入。核心评估维度：护城河深度、管理层能力、行业东风。仓位上限30%。</p>
+      </div>
+      <div style="background:var(--surface);border-radius:8px;padding:12px 14px;border-left:4px solid #B45309;">
+        <strong style="color:#B45309;">策略三 · 事件驱动 / 并购套利</strong>
+        <p style="margin:4px 0 0;font-size:0.8rem;color:var(--text2);">基于已正式公告的事件（并购、重组、私有化），年化利差≥12%、完成概率>80%、底层资产通过策略一检验。仓位上限15%。</p>
+      </div>
+    </div>
+
+    <h3><span class="dot"></span>安全边际三问</h3>
+    <p style="margin-bottom:6px;">每问回答"是"得17分（满分50），任一"否"触发评级降级或排除：</p>
+    <div style="display:flex;flex-direction:column;gap:6px;">
+      <div style="font-size:0.8rem;color:var(--text2);padding:6px 10px;background:var(--surface);border-radius:6px;">❶ <strong style="color:var(--text);">即使行业不复苏，公司是否不会破产退市？</strong>→ 净现金为正 + 有息负债 < 50%资产</div>
+      <div style="font-size:0.8rem;color:var(--text2);padding:6px 10px;background:var(--surface);border-radius:6px;">❷ <strong style="color:var(--text);">股票再跌50%，净资产能否支撑市值？</strong>→ 净现金 > 半价市值50%</div>
+      <div style="font-size:0.8rem;color:var(--text2);padding:6px 10px;background:var(--surface);border-radius:6px;">❸ <strong style="color:var(--text);">5年累计自由现金流能否覆盖有效市值？</strong>→ 有效回本期 ≤ 5年</div>
+    </div>
+
+    <h3><span class="dot"></span>八维体检</h3>
+    <div class="pill-row" style="gap:5px;">
+      <span class="framework-pill" style="font-size:0.68rem;">量价收增长</span>
+      <span class="framework-pill" style="font-size:0.68rem;">毛利率趋势</span>
+      <span class="framework-pill" style="font-size:0.68rem;">费用控制</span>
+      <span class="framework-pill" style="font-size:0.68rem;">有息负债变化</span>
+      <span class="framework-pill" style="font-size:0.68rem;">净现金水位</span>
+      <span class="framework-pill" style="font-size:0.68rem;">经营CF vs Capex</span>
+      <span class="framework-pill" style="font-size:0.68rem;">Capex方向</span>
+      <span class="framework-pill" style="font-size:0.68rem;">增长引擎</span>
+    </div>
+    <p style="font-size:0.8rem;color:var(--text2);">每维0–4分（满分30），系统扫描量价关系、利润率、费用效率、债务水位、现金流质量与第二增长曲线。</p>
+
+    <h3><span class="dot"></span>凯利公式仓位计算</h3>
+    <div style="background:var(--surface);border-radius:8px;padding:14px;text-align:center;">
+      <p style="font-family:monospace;font-size:0.85rem;color:var(--navy);margin-bottom:6px;"><strong>f* = (b × p − q) / b</strong></p>
+      <p style="font-size:0.75rem;color:var(--text2);margin:0;line-height:1.6;">
+        赔率 b =（内在PE − 当前PE）/ 当前PE，内在PE基准12.5×<br>
+        胜率 p = 安全边际三问（50pt）+ 八维体检（30pt折算）+ 催化剂确定性（20pt）<br>
+        最终推荐仓位 = 半凯利 × 能力圈系数（0.4–1.0），受策略仓位上限约束
+      </p>
+    </div>
+
+    <h3><span class="dot"></span>分析师宪章</h3>
+    <div style="display:flex;flex-direction:column;gap:6px;">
+      <div style="font-size:0.78rem;color:var(--text2);padding:5px 10px;background:var(--surface);border-radius:6px;">🔍 <strong style="color:var(--text);">四不原则</strong> — 事实不清不出、来源不明不引、逻辑不全不推、未经核验不采</div>
+      <div style="font-size:0.78rem;color:var(--text2);padding:5px 10px;background:var(--surface);border-radius:6px;">📐 <strong style="color:var(--text);">数据精度铁律</strong> — 市值2位小数/营收1位/PE 2位/百分比1位；市值≈股价×总股数（偏差<2%）</div>
+      <div style="font-size:0.78rem;color:var(--text2);padding:5px 10px;background:var(--surface);border-radius:6px;">🔬 <strong style="color:var(--text);">六穿透原则</strong> — 业务穿透、净资产穿透、现金穿透、利润穿透、债务穿透、隐蔽资产穿透</div>
+      <div style="font-size:0.78rem;color:var(--text2);padding:5px 10px;background:var(--surface);border-radius:6px;">📋 <strong style="color:var(--text);">诚信审查一票否决</strong> — 非标审计/财务造假/管理层被查/核心数据偏差>5% → 冻结报告</div>
+      <div style="font-size:0.78rem;color:var(--text2);padding:5px 10px;background:var(--surface);border-radius:6px;">✍️ <strong style="color:var(--text);">署名规则</strong> — 每份研报末尾必须署名：PALA（老帕）· 风林慧策</div>
+    </div>
+
+    <div class="disclaimer">
+      ⚠ 免责声明：风林慧策为 AI 辅助投资分析工具，所有分析结论仅供参考，不构成任何投资建议。投资有风险，入市需谨慎。
+    </div>
+  </div>
+</div>
+
+<!-- About Modal -->
+<div class="modal-overlay" id="aboutModal">
+  <div class="modal-panel" style="max-width:600px;">
+    <button class="modal-close" onclick="closeAbout()">✕</button>
+    <h2 style="margin-bottom:4px;"><span class="gold">风</span>林<span class="gold">慧</span>策</h2>
+    <div class="modal-sub">PMQD 价值投资 AI 分析师（PALA · 帕拉，简称老帕 · LP）</div>
+
+    <h3><span class="dot"></span>使命</h3>
+    <p>让每一位普通投资者，都拥有一套科学、系统、可复用的价值投资决策框架。</p>
+
+    <h3><span class="dot"></span>愿景</h3>
+    <p>成为中国价值投资者首选的AI智能投资评估平台——不是荐股工具，不是数据终端，而是<strong>经得起追溯、经得起核验的理性决策系统</strong>。</p>
+
+    <h3><span class="dot"></span>核心价值观</h3>
+    <div class="pill-row">
+      <span class="framework-pill" style="border-color:#1E40AF;color:#1E40AF;">风 · 敏锐洞察</span>
+      <span class="framework-pill" style="border-color:#0D9488;color:#0D9488;">林 · 缜密研究</span>
+      <span class="framework-pill" style="border-color:#B45309;color:#B45309;">火 · 果断出击</span>
+      <span class="framework-pill" style="border-color:#7C3AED;color:#7C3AED;">山 · 坚守纪律</span>
+      <span class="framework-pill" style="border-color:#CA8A04;color:#CA8A04;">慧 · 穿透本质</span>
+      <span class="framework-pill" style="border-color:#1E40AF;color:#1E40AF;">策 · 科学决策</span>
+    </div>
+
+    <h3><span class="dot"></span>品牌宣言</h3>
+    <p style="font-size:1rem;font-weight:600;color:var(--text);text-align:center;padding:12px 0;">风林之道，慧策于芯。<br>让每一次投资决策，都成为一场智慧的胜利。</p>
+
+    <h3><span class="dot"></span>四不原则</h3>
+    <div class="pill-row">
+      <span class="framework-pill highlight">事实不清不出</span>
+      <span class="framework-pill highlight">来源不明不引</span>
+      <span class="framework-pill highlight">逻辑不全不推</span>
+      <span class="framework-pill highlight">未经核验不采</span>
+    </div>
+
+    <h3><span class="dot"></span>我们的不同</h3>
+    <p>不同于传统荐股工具和数据终端，风林慧策是一套完整的<strong>理性决策系统</strong>——每一份分析结论都可追溯来源、可交叉验证、可复现推演。我们不推荐股票，我们提供决策框架。</p>
+
+    <div class="disclaimer">
+      ⚠ 免责声明：风林慧策为 AI 辅助投资分析工具，所有分析结论仅供参考，不构成任何投资建议。投资有风险，入市需谨慎。
+    </div>
+  </div>
+</div>
+
+<!-- Login / Register Modal -->
+<div class="login-modal-overlay" id="loginModal">
+  <div class="login-modal">
+    <button class="login-close" onclick="closeLogin()">✕</button>
+    <div class="login-tabs">
+      <button class="login-tab active" id="loginTab" onclick="switchLoginTab('login')">老用户登录</button>
+      <button class="login-tab" id="registerTab" onclick="switchLoginTab('register')">注册新用户</button>
+    </div>
+    <div class="login-body" id="loginBody">
+      <!-- Login Form -->
+      <div id="loginForm">
+        <h3>欢迎回来</h3>
+        <div class="subtitle">登录后可同步订阅和分析报告记录</div>
+        <form onsubmit="handleLogin(event)">
+          <div class="login-field">
+            <label>手机号 / 邮箱</label>
+            <input type="text" id="loginAccount" placeholder="请输入手机号或邮箱" autocomplete="username">
+          </div>
+          <div class="login-field">
+            <label>密码</label>
+            <input type="password" id="loginPassword" placeholder="请输入密码" autocomplete="current-password">
+          </div>
+          <button type="submit" class="login-btn">登 录</button>
+        </form>
+        <div class="login-hint">
+          忘记密码？<a onclick="alert('重置密码功能开发中')">重置密码</a>
+        </div>
+      </div>
+      <!-- Register Form -->
+      <div id="registerForm" style="display:none;">
+        <h3>创建新账户</h3>
+        <div class="subtitle">注册即送 🎁 1次完整分析免费体验</div>
+        <form onsubmit="handleRegister(event)">
+          <div class="login-field">
+            <label>手机号 / 邮箱</label>
+            <input type="text" id="regAccount" placeholder="请输入手机号或邮箱" autocomplete="username">
+          </div>
+          <div class="login-field">
+            <label>设置密码</label>
+            <input type="password" id="regPassword" placeholder="6位以上密码" autocomplete="new-password">
+          </div>
+          <div class="login-field">
+            <label>确认密码</label>
+            <input type="password" id="regPassword2" placeholder="再次输入密码" autocomplete="new-password">
+          </div>
+          <button type="submit" class="login-btn gold-btn">注册并领取免费体验</button>
+        </form>
+        <div class="login-hint">
+          已有账户？<a onclick="switchLoginTab('login')">去登录</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Subscribe Modal -->
+<div class="subscribe-overlay" id="subscribeModal">
+  <div class="subscribe-panel">
+    <button class="subscribe-close" onclick="closeSubscribe()">✕</button>
+    <h2>🔓 解锁完整分析</h2>
+    <div class="subtitle">选择订阅方案，畅享风林慧策全部功能</div>
+
+    <div class="plan-cards" id="planCards">
+      <div class="plan-card" onclick="selectPlan(0)">
+        <span class="plan-icon">📅</span>
+        <div class="plan-info">
+          <div class="plan-name">年费会员</div>
+          <div class="plan-desc">最划算，约 ¥49.8/月，不限次分析</div>
+        </div>
+        <div class="plan-price">¥598<span class="unit">/年</span></div>
+      </div>
+      <div class="plan-card selected" onclick="selectPlan(1)">
+        <span class="plan-icon">📆</span>
+        <div class="plan-info">
+          <div class="plan-name">月费会员</div>
+          <div class="plan-desc">灵活订阅，随时取消，不限次分析</div>
+        </div>
+        <div class="plan-price">¥60<span class="unit">/月</span></div>
+      </div>
+      <div class="plan-card" onclick="selectPlan(2)">
+        <span class="plan-icon">⏳</span>
+        <div class="plan-info">
+          <div class="plan-name">10天体验</div>
+          <div class="plan-desc">体验价，不限次分析，有效期内畅享</div>
+        </div>
+        <div class="plan-price">¥30<span class="unit">/10天</span></div>
+      </div>
+      <div class="plan-card free" onclick="selectPlan(3)">
+        <span class="plan-icon">🎁</span>
+        <div class="plan-info">
+          <div class="plan-name">免费体验一次</div>
+          <div class="plan-desc">注册即送1次完整分析，无需付费</div>
+        </div>
+        <div class="plan-price" style="color:var(--green);">免费</div>
+      </div>
+    </div>
+
+    <button class="subscribe-btn" id="subscribeBtn" onclick="handleSubscribe()">立即订阅 · ¥60/月</button>
+    <div class="subscribe-hint">
+      🔒 支付安全 · 微信/支付宝均可 · 订阅后可随时取消<br>
+      如有疑问请联系客服：workbuddy@example.com
+    </div>
+  </div>
+</div>
+
+<!-- Main content -->
+<div class="main-container">
+
+  <!-- Brand Logo -->
+  <div class="brand">
+    <svg class="brand-logo-svg" width="88" height="88" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <g transform="translate(50,50)">
+        <path d="M0,-4 C6,-12 12,-26 6,-38 C4,-42 0,-42 -2,-38 C-8,-26 -4,-12 0,-4Z" fill="#1E40AF" transform="rotate(45)"/>
+        <path d="M0,-4 C6,-12 12,-26 6,-38 C4,-42 0,-42 -2,-38 C-8,-26 -4,-12 0,-4Z" fill="#0D9488" transform="rotate(135)"/>
+        <path d="M0,-4 C6,-12 12,-26 6,-38 C4,-42 0,-42 -2,-38 C-8,-26 -4,-12 0,-4Z" fill="#B45309" transform="rotate(225)"/>
+        <path d="M0,-4 C6,-12 12,-26 6,-38 C4,-42 0,-42 -2,-38 C-8,-26 -4,-12 0,-4Z" fill="#7C3AED" transform="rotate(315)"/>
+        <circle cx="0" cy="0" r="6" fill="#CA8A04"/>
+        <circle cx="0" cy="0" r="10" fill="none" stroke="#CA8A04" stroke-width="0.8" opacity="0.25"/>
+      </g>
+    </svg>
+    <div class="brand-name">风林慧策</div>
+    <div class="brand-english">Wind Forest · Wisdom</div>
+    <div class="brand-subtitle">PMQD 价值投资 AI 分析师（PALA · 帕拉，简称老帕 · LP）</div>
+    <div class="brand-line"></div>
+  </div>
+
+  <!-- Search -->
+  <div class="search-wrapper">
+    <div class="search-box">
+      <span class="search-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg>
+      </span>
+      <input
+        type="text"
+        class="search-input"
+        id="searchInput"
+        placeholder="输入股票代码或公司名称 — 覆盖 A股 · 港股 · 美股"
+        autocomplete="off"
+        autofocus
+      >
+      <button class="search-clear" id="searchClear" title="清除">✕</button>
+      <div class="search-divider"></div>
+      <button class="search-btn" id="searchBtn">分 析</button>
+    </div>
+
+    <!-- Autocomplete dropdown -->
+    <div class="autocomplete-dropdown" id="autocomplete"></div>
+  </div>
+
+  <!-- Keyboard hint -->
+  <div class="kbd-hint" id="kbdHint">
+    <span class="kbd-key">↑</span><span class="kbd-key">↓</span> 导航
+    <span class="kbd-key">Enter</span> 分析
+    <span class="kbd-key">Esc</span> 关闭
+  </div>
+
+  <!-- Hot stocks -->
+  <div class="hot-section">
+    <div class="hot-title">热门标的</div>
+    <div class="hot-chips" id="hotChips">
+      <!-- Generated by JS -->
+    </div>
+  </div>
+
+  <!-- Market status -->
+  <div class="market-status" id="marketStatus">
+    <!-- Generated by JS -->
+  </div>
+
+</div>
+
+<!-- Footer -->
+<div class="page-footer">
+  风林慧策 AI 价值投资分析 · 数据来源 westock-data / tushare-finance · 不构成投资建议
+</div>
+
+<!-- Loading overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text" id="loadingText">正在获取实时数据...</div>
+</div>
+
+<!-- ═══════════════ FRAMEWORK MODAL JS ═══════════════ -->
+<script>
+function openFramework() {
+  document.getElementById('frameworkModal').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+function closeFramework() {
+  document.getElementById('frameworkModal').classList.remove('active');
+  document.body.style.overflow = '';
+}
+document.getElementById('frameworkModal').addEventListener('click', function(e) {
+  if (e.target === this) closeFramework();
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeFramework();
+});
+</script>
+
+<!-- ═══════════════ STOCK DATABASE ═══════════════ -->
+<script>
+// ── API Configuration (Cloudflare Workers) ──
+var API_BASE = (function () {
+  if (location.hostname.endsWith('.pages.dev')) return 'https://windforest-api.workers.dev';
+  if (location.hostname === 'localhost' || location.port) return 'http://localhost:8787';
+  return 'https://windforest-api.workers.dev';
+})();
+var API_AVAILABLE = true;
+
+var STOCK_DB = [
+  // === A-SHARE (沪深) ===
+  // 大金融
+  {c:"600036",n:"招商银行",m:"sh",mk:"ashare",s:"银行",p:"CMB"},
+  {c:"601398",n:"工商银行",m:"sh",mk:"ashare",s:"银行",p:"ICBC"},
+  {c:"601288",n:"农业银行",m:"sh",mk:"ashare",s:"银行",p:"ABC"},
+  {c:"601939",n:"建设银行",m:"sh",mk:"ashare",s:"银行",p:"CCB"},
+  {c:"601328",n:"交通银行",m:"sh",mk:"ashare",s:"银行"},
+  {c:"000001",n:"平安银行",m:"sz",mk:"ashare",s:"银行"},
+  {c:"601166",n:"兴业银行",m:"sh",mk:"ashare",s:"银行"},
+  {c:"600016",n:"民生银行",m:"sh",mk:"ashare",s:"银行"},
+  {c:"600030",n:"中信证券",m:"sh",mk:"ashare",s:"券商"},
+  {c:"601688",n:"华泰证券",m:"sh",mk:"ashare",s:"券商"},
+  {c:"300059",n:"东方财富",m:"sz",mk:"ashare",s:"券商"},
+  {c:"601318",n:"中国平安",m:"sh",mk:"ashare",s:"保险"},
+  {c:"601628",n:"中国人寿",m:"sh",mk:"ashare",s:"保险"},
+  {c:"601601",n:"中国太保",m:"sh",mk:"ashare",s:"保险"},
+  // 白酒/消费
+  {c:"600519",n:"贵州茅台",m:"sh",mk:"ashare",s:"白酒",p:"Moutai"},
+  {c:"000858",n:"五粮液",m:"sz",mk:"ashare",s:"白酒",p:"Wuliangye"},
+  {c:"000568",n:"泸州老窖",m:"sz",mk:"ashare",s:"白酒"},
+  {c:"002304",n:"洋河股份",m:"sz",mk:"ashare",s:"白酒"},
+  {c:"600809",n:"山西汾酒",m:"sh",mk:"ashare",s:"白酒"},
+  {c:"000596",n:"古井贡酒",m:"sz",mk:"ashare",s:"白酒"},
+  {c:"600887",n:"伊利股份",m:"sh",mk:"ashare",s:"乳业"},
+  {c:"002714",n:"牧原股份",m:"sz",mk:"ashare",s:"养殖"},
+  {c:"600690",n:"海尔智家",m:"sh",mk:"ashare",s:"家电"},
+  {c:"000651",n:"格力电器",m:"sz",mk:"ashare",s:"家电",p:"Gree"},
+  {c:"000333",n:"美的集团",m:"sz",mk:"ashare",s:"家电",p:"Midea"},
+  {c:"002032",n:"苏泊尔",m:"sz",mk:"ashare",s:"家电"},
+  // 新能源/汽车
+  {c:"300750",n:"宁德时代",m:"sz",mk:"ashare",s:"电池",p:"CATL"},
+  {c:"002594",n:"比亚迪",m:"sz",mk:"ashare",s:"汽车",p:"BYD"},
+  {c:"601012",n:"隆基绿能",m:"sh",mk:"ashare",s:"光伏"},
+  {c:"600438",n:"通威股份",m:"sh",mk:"ashare",s:"光伏"},
+  {c:"002459",n:"晶澳科技",m:"sz",mk:"ashare",s:"光伏"},
+  {c:"688223",n:"晶科能源",m:"sh",mk:"ashare",s:"光伏"},
+  {c:"601899",n:"紫金矿业",m:"sh",mk:"ashare",s:"矿业"},
+  {c:"600585",n:"海螺水泥",m:"sh",mk:"ashare",s:"建材"},
+  {c:"000002",n:"万科A",m:"sz",mk:"ashare",s:"地产"},
+  // 医药
+  {c:"600276",n:"恒瑞医药",m:"sh",mk:"ashare",s:"医药"},
+  {c:"300760",n:"迈瑞医疗",m:"sz",mk:"ashare",s:"器械",p:"Mindray"},
+  {c:"000538",n:"云南白药",m:"sz",mk:"ashare",s:"中药"},
+  {c:"600436",n:"片仔癀",m:"sh",mk:"ashare",s:"中药"},
+  {c:"300015",n:"爱尔眼科",m:"sz",mk:"ashare",s:"医疗"},
+  {c:"603259",n:"药明康德",m:"sh",mk:"ashare",s:"CRO"},
+  {c:"300122",n:"智飞生物",m:"sz",mk:"ashare",s:"疫苗"},
+  {c:"000661",n:"长春高新",m:"sz",mk:"ashare",s:"生物"},
+  // 半导体/科技
+  {c:"688981",n:"中芯国际",m:"sh",mk:"ashare",s:"芯片",p:"SMIC"},
+  {c:"002371",n:"北方华创",m:"sz",mk:"ashare",s:"设备"},
+  {c:"603986",n:"兆易创新",m:"sh",mk:"ashare",s:"存储"},
+  {c:"688012",n:"中微公司",m:"sh",mk:"ashare",s:"设备"},
+  {c:"002415",n:"海康威视",m:"sz",mk:"ashare",s:"安防",p:"Hikvision"},
+  {c:"002236",n:"大华股份",m:"sz",mk:"ashare",s:"安防"},
+  {c:"000725",n:"京东方A",m:"sz",mk:"ashare",s:"面板",p:"BOE"},
+  {c:"002475",n:"立讯精密",m:"sz",mk:"ashare",s:"电子",p:"Luxshare"},
+  {c:"300433",n:"蓝思科技",m:"sz",mk:"ashare",s:"电子"},
+  {c:"688111",n:"金山办公",m:"sh",mk:"ashare",s:"软件"},
+  // 能源/公用事业
+  {c:"601857",n:"中国石油",m:"sh",mk:"ashare",s:"石油",p:"PetroChina"},
+  {c:"600028",n:"中国石化",m:"sh",mk:"ashare",s:"石化",p:"Sinopec"},
+  {c:"601088",n:"中国神华",m:"sh",mk:"ashare",s:"煤炭"},
+  {c:"600900",n:"长江电力",m:"sh",mk:"ashare",s:"水电"},
+  {c:"600905",n:"三峡能源",m:"sh",mk:"ashare",s:"新能源"},
+  {c:"600886",n:"国投电力",m:"sh",mk:"ashare",s:"电力"},
+  {c:"003816",n:"中国广核",m:"sz",mk:"ashare",s:"核电"},
+  // 通信/互联网
+  {c:"600941",n:"中国移动",m:"sh",mk:"ashare",s:"电信"},
+  {c:"601728",n:"中国电信",m:"sh",mk:"ashare",s:"电信"},
+  {c:"600050",n:"中国联通",m:"sh",mk:"ashare",s:"电信"},
+  {c:"002230",n:"科大讯飞",m:"sz",mk:"ashare",s:"AI"},
+  {c:"300033",n:"同花顺",m:"sz",mk:"ashare",s:"金融IT"},
+  {c:"300124",n:"汇川技术",m:"sz",mk:"ashare",s:"工控"},
+  {c:"002050",n:"三花智控",m:"sz",mk:"ashare",s:"制冷"},
+  // 军工/高端制造
+  {c:"600760",n:"中航沈飞",m:"sh",mk:"ashare",s:"军工"},
+  {c:"600893",n:"航发动力",m:"sh",mk:"ashare",s:"发动机"},
+  {c:"000768",n:"中航西飞",m:"sz",mk:"ashare",s:"军工"},
+  {c:"601989",n:"中国重工",m:"sh",mk:"ashare",s:"造船"},
+  {c:"600150",n:"中国船舶",m:"sh",mk:"ashare",s:"造船"},
+  // ETF
+  {c:"510300",n:"沪深300ETF",m:"sh",mk:"ashare",s:"ETF"},
+  {c:"510050",n:"上证50ETF",m:"sh",mk:"ashare",s:"ETF"},
+  {c:"510500",n:"中证500ETF",m:"sh",mk:"ashare",s:"ETF"},
+  {c:"159915",n:"创业板ETF",m:"sz",mk:"ashare",s:"ETF"},
+  {c:"588000",n:"科创50ETF",m:"sh",mk:"ashare",s:"ETF"},
+
+  // === HK SHARES ===
+  {c:"00700",n:"腾讯控股",m:"hk",mk:"hkshare",s:"互联网",p:"Tencent"},
+  {c:"09988",n:"阿里巴巴-SW",m:"hk",mk:"hkshare",s:"电商",p:"Alibaba"},
+  {c:"09999",n:"网易-S",m:"hk",mk:"hkshare",s:"游戏",p:"NetEase"},
+  {c:"03690",n:"美团-W",m:"hk",mk:"hkshare",s:"本地生活",p:"Meituan"},
+  {c:"09618",n:"京东集团-SW",m:"hk",mk:"hkshare",s:"电商",p:"JD"},
+  {c:"01810",n:"小米集团-W",m:"hk",mk:"hkshare",s:"消费电子",p:"Xiaomi"},
+  {c:"09888",n:"百度集团-SW",m:"hk",mk:"hkshare",s:"搜索",p:"Baidu"},
+  {c:"02015",n:"理想汽车-W",m:"hk",mk:"hkshare",s:"汽车",p:"LiAuto"},
+  {c:"09866",n:"蔚来-SW",m:"hk",mk:"hkshare",s:"汽车",p:"NIO"},
+  {c:"09868",n:"小鹏汽车-W",m:"hk",mk:"hkshare",s:"汽车",p:"XPeng"},
+  {c:"01211",n:"比亚迪股份",m:"hk",mk:"hkshare",s:"汽车",p:"BYD"},
+  {c:"02269",n:"药明生物",m:"hk",mk:"hkshare",s:"CRO"},
+  {c:"02382",n:"舜宇光学科技",m:"hk",mk:"hkshare",s:"光学"},
+  {c:"02020",n:"安踏体育",m:"hk",mk:"hkshare",s:"体育",p:"Anta"},
+  {c:"02331",n:"李宁",m:"hk",mk:"hkshare",s:"体育"},
+  {c:"09626",n:"哔哩哔哩-W",m:"hk",mk:"hkshare",s:"视频",p:"Bilibili"},
+  {c:"09660",n:"地平线机器人-W",m:"hk",mk:"hkshare",s:"AI"},
+  {c:"01347",n:"华虹半导体",m:"hk",mk:"hkshare",s:"芯片"},
+  {c:"00981",n:"中芯国际",m:"hk",mk:"hkshare",s:"芯片",p:"SMIC"},
+  {c:"00175",n:"吉利汽车",m:"hk",mk:"hkshare",s:"汽车"},
+  {c:"00388",n:"香港交易所",m:"hk",mk:"hkshare",s:"交易所",p:"HKEX"},
+  {c:"00005",n:"汇丰控股",m:"hk",mk:"hkshare",s:"银行",p:"HSBC"},
+  {c:"01299",n:"友邦保险",m:"hk",mk:"hkshare",s:"保险",p:"AIA"},
+  {c:"01398",n:"工商银行",m:"hk",mk:"hkshare",s:"银行"},
+  {c:"03988",n:"中国银行",m:"hk",mk:"hkshare",s:"银行"},
+  {c:"00883",n:"中国海洋石油",m:"hk",mk:"hkshare",s:"石油",p:"CNOOC"},
+  {c:"00941",n:"中国移动",m:"hk",mk:"hkshare",s:"电信"},
+  {c:"00728",n:"中国电信",m:"hk",mk:"hkshare",s:"电信"},
+  {c:"02057",n:"中通快递-W",m:"hk",mk:"hkshare",s:"物流",p:"ZTO"},
+  {c:"09901",n:"新东方-S",m:"hk",mk:"hkshare",s:"教育"},
+  {c:"02628",n:"中国人寿",m:"hk",mk:"hkshare",s:"保险"},
+  {c:"02318",n:"中国平安",m:"hk",mk:"hkshare",s:"保险"},
+  {c:"01024",n:"快手-W",m:"hk",mk:"hkshare",s:"短视频",p:"Kuaishou"},
+  {c:"01833",n:"平安好医生",m:"hk",mk:"hkshare",s:"医疗"},
+  {c:"06098",n:"碧桂园服务",m:"hk",mk:"hkshare",s:"物业"},
+  {c:"06060",n:"众安在线",m:"hk",mk:"hkshare",s:"保险科技"},
+  {c:"01928",n:"金沙中国",m:"hk",mk:"hkshare",s:"博彩"},
+  {c:"00027",n:"银河娱乐",m:"hk",mk:"hkshare",s:"博彩"},
+  {c:"02828",n:"恒生中国企业ETF",m:"hk",mk:"hkshare",s:"ETF"},
+  {c:"02800",n:"盈富基金",m:"hk",mk:"hkshare",s:"ETF"},
+
+  // === US SHARES ===
+  {c:"AAPL",n:"Apple Inc.",m:"us",mk:"usshare",s:"科技",p:"苹果"},
+  {c:"MSFT",n:"Microsoft",m:"us",mk:"usshare",s:"科技",p:"微软"},
+  {c:"GOOGL",n:"Alphabet (Google)",m:"us",mk:"usshare",s:"科技",p:"谷歌"},
+  {c:"AMZN",n:"Amazon",m:"us",mk:"usshare",s:"电商",p:"亚马逊"},
+  {c:"NVDA",n:"NVIDIA",m:"us",mk:"usshare",s:"芯片",p:"英伟达"},
+  {c:"META",n:"Meta Platforms",m:"us",mk:"usshare",s:"社交",p:"脸书"},
+  {c:"TSLA",n:"Tesla",m:"us",mk:"usshare",s:"汽车",p:"特斯拉"},
+  {c:"BRK.B",n:"Berkshire Hathaway",m:"us",mk:"usshare",s:"投资",p:"伯克希尔"},
+  {c:"JPM",n:"JPMorgan Chase",m:"us",mk:"usshare",s:"银行",p:"摩根大通"},
+  {c:"V",n:"Visa",m:"us",mk:"usshare",s:"支付"},
+  {c:"JNJ",n:"Johnson & Johnson",m:"us",mk:"usshare",s:"医药",p:"强生"},
+  {c:"WMT",n:"Walmart",m:"us",mk:"usshare",s:"零售",p:"沃尔玛"},
+  {c:"PG",n:"Procter & Gamble",m:"us",mk:"usshare",s:"消费品",p:"宝洁"},
+  {c:"XOM",n:"Exxon Mobil",m:"us",mk:"usshare",s:"石油",p:"埃克森美孚"},
+  {c:"UNH",n:"UnitedHealth",m:"us",mk:"usshare",s:"医疗"},
+  {c:"COST",n:"Costco",m:"us",mk:"usshare",s:"零售",p:"好市多"},
+  {c:"HD",n:"Home Depot",m:"us",mk:"usshare",s:"零售"},
+  {c:"AVGO",n:"Broadcom",m:"us",mk:"usshare",s:"芯片"},
+  {c:"CRM",n:"Salesforce",m:"us",mk:"usshare",s:"软件"},
+  {c:"AMD",n:"AMD",m:"us",mk:"usshare",s:"芯片"},
+  {c:"NFLX",n:"Netflix",m:"us",mk:"usshare",s:"流媒体",p:"奈飞"},
+  {c:"DIS",n:"Walt Disney",m:"us",mk:"usshare",s:"娱乐",p:"迪士尼"},
+  {c:"BAC",n:"Bank of America",m:"us",mk:"usshare",s:"银行"},
+  {c:"KO",n:"Coca-Cola",m:"us",mk:"usshare",s:"饮料",p:"可口可乐"},
+  {c:"PEP",n:"PepsiCo",m:"us",mk:"usshare",s:"饮料",p:"百事"},
+  {c:"ADBE",n:"Adobe",m:"us",mk:"usshare",s:"软件"},
+  {c:"QCOM",n:"Qualcomm",m:"us",mk:"usshare",s:"芯片",p:"高通"},
+  {c:"TXN",n:"Texas Instruments",m:"us",mk:"usshare",s:"芯片"},
+  {c:"ASML",n:"ASML Holding",m:"us",mk:"usshare",s:"设备",p:"阿斯麦"},
+  {c:"BABA",n:"Alibaba Group",m:"us",mk:"usshare",s:"电商",p:"阿里巴巴"},
+  {c:"JD",n:"JD.com",m:"us",mk:"usshare",s:"电商",p:"京东"},
+  {c:"PDD",n:"PDD Holdings",m:"us",mk:"usshare",s:"电商",p:"拼多多"},
+  {c:"BIDU",n:"Baidu",m:"us",mk:"usshare",s:"搜索",p:"百度"},
+  {c:"NIO",n:"NIO Inc.",m:"us",mk:"usshare",s:"汽车",p:"蔚来"},
+  {c:"XPEV",n:"XPeng Inc.",m:"us",mk:"usshare",s:"汽车",p:"小鹏"},
+  {c:"LI",n:"Li Auto",m:"us",mk:"usshare",s:"汽车",p:"理想"},
+  {c:"TME",n:"Tencent Music",m:"us",mk:"usshare",s:"音乐",p:"腾讯音乐"},
+  {c:"BILI",n:"Bilibili",m:"us",mk:"usshare",s:"视频",p:"哔哩哔哩"},
+  {c:"NTES",n:"NetEase",m:"us",mk:"usshare",s:"游戏",p:"网易"},
+  {c:"ZTO",n:"ZTO Express",m:"us",mk:"usshare",s:"物流",p:"中通快递"},
+  {c:"BEKE",n:"KE Holdings",m:"us",mk:"usshare",s:"房产",p:"贝壳"},
+  {c:"YUMC",n:"Yum China",m:"us",mk:"usshare",s:"餐饮",p:"百胜中国"},
+  {c:"DIDIY",n:"DiDi Global",m:"us",mk:"usshare",s:"出行",p:"滴滴"},
+  {c:"FUTU",n:"Futu Holdings",m:"us",mk:"usshare",s:"券商",p:"富途"},
+  {c:"SPY",n:"SPDR S&P 500 ETF",m:"us",mk:"usshare",s:"ETF"},
+  {c:"QQQ",n:"Invesco QQQ Trust",m:"us",mk:"usshare",s:"ETF"},
+  {c:"IWM",n:"iShares Russell 2000",m:"us",mk:"usshare",s:"ETF"},
+  {c:"GLD",n:"SPDR Gold Trust",m:"us",mk:"usshare",s:"黄金"},
+  {c:"VOO",n:"Vanguard S&P 500",m:"us",mk:"usshare",s:"ETF"}
+];
+</script>
+
+<!-- ═══════════════ SEARCH LOGIC ═══════════════ -->
+<script>
+(function(){
+  var input = document.getElementById('searchInput');
+  var dropdown = document.getElementById('autocomplete');
+  var clearBtn = document.getElementById('searchClear');
+  var searchBtn = document.getElementById('searchBtn');
+  var kbdHint = document.getElementById('kbdHint');
+  var loadingOverlay = document.getElementById('loadingOverlay');
+  var loadingText = document.getElementById('loadingText');
+  var selectedIndex = -1;
+  var currentResults = [];
+
+  function fuzzyMatch(query, stock) {
+    var q = query.toLowerCase().trim();
+    if (!q) return 0;
+    if (stock.c === q) return 1000;
+    if (stock.c.toLowerCase().startsWith(q)) return 900;
+    if (stock.c.toLowerCase().includes(q)) return 800;
+    if (stock.p && stock.p.toLowerCase() === q) return 700;
+    if (stock.p && stock.p.toLowerCase().startsWith(q)) return 600;
+    if (stock.p && stock.p.toLowerCase().includes(q)) return 500;
+    if (stock.n === query) return 400;
+    if (stock.n.startsWith(query)) return 300;
+    if (stock.n.includes(query)) return 200;
+    if (stock.s.includes(query)) return 100;
+    var score = 0;
+    var lastIdx = -1;
+    for (var i = 0; i < q.length; i++) {
+      var ch = q[i];
+      var idxInCode = stock.c.toLowerCase().indexOf(ch);
+      var idxInName = stock.n.indexOf(ch);
+      var idxInPY = stock.p ? stock.p.toLowerCase().indexOf(ch) : -1;
+      if (idxInCode > lastIdx) { score += 15; lastIdx = idxInCode; }
+      else if (idxInName > lastIdx) { score += 10; lastIdx = idxInName; }
+      else if (idxInPY > lastIdx) { score += 5; lastIdx = idxInPY; }
+      else { score -= 5; }
+    }
+    return score;
+  }
+
+  function searchLocal(query) {
+    if (!query || query.trim().length < 1) { currentResults = []; return []; }
+    var scored = STOCK_DB.map(function(s) {
+      return { stock: s, score: fuzzyMatch(query, s) };
+    }).filter(function(x) { return x.score > 0; });
+    scored.sort(function(a, b) { return b.score - a.score; });
+    currentResults = scored.slice(0, 12);
+    return currentResults;
+  }
+
+  // Primary: API search with local fallback
+  function search(query) {
+    if (!query || query.trim().length < 1) {
+      currentResults = [];
+      renderDropdown([]);
+      return;
+    }
+    // Show local results immediately (fast)
+    var local = searchLocal(query);
+    currentResults = local;
+    renderDropdown(local);
+
+    // Try API in background for richer results
+    if (API_AVAILABLE) {
+      (function(q) {
+        fetch(API_BASE + '/api/search?q=' + encodeURIComponent(q))
+          .then(function(r) { return r.json(); })
+          .then(function(data) {
+            if (data.results && data.results.length > 0) {
+              // Convert API results to local format
+              var apiResults = data.results.map(function(r) {
+                var localMatch = STOCK_DB.find(function(s) {
+                  return s.c === r.code && (s.m === r.market);
+                });
+                return {
+                  stock: localMatch || {
+                    c: r.code, n: r.name, m: r.market,
+                    mk: r.market_type, s: r.sector || '',
+                    p: ''
+                  },
+                  score: 100
+                };
+              });
+              // Merge: keep existing local results + add new API results
+              currentResults = mergeAndDedup(currentResults, apiResults, 12);
+              renderDropdown(currentResults);
+            }
+          })
+          .catch(function() {
+            // API unavailable, local results already shown
+            API_AVAILABLE = false;
+          });
+      })(query);
+    }
+  }
+
+  function mergeAndDedup(local, api, max) {
+    var seen = {};
+    var merged = [];
+    var all = local.concat(api);
+    for (var i = 0; i < all.length; i++) {
+      var key = all[i].stock.c + '|' + all[i].stock.m;
+      if (!seen[key]) {
+        seen[key] = true;
+        merged.push(all[i]);
+        if (merged.length >= max) break;
+      }
+    }
+    return merged;
+  }
+
+  function renderDropdown(results) {
+    dropdown.innerHTML = '';
+    if (results.length === 0) {
+      dropdown.innerHTML = '<div class="autocomplete-empty">未找到匹配的股票，请尝试输入代码或名称</div>';
+      dropdown.classList.add('active');
+      return;
+    }
+    results.forEach(function(item, idx) {
+      var s = item.stock;
+      var div = document.createElement('div');
+      div.className = 'autocomplete-item' + (idx === selectedIndex ? ' selected' : '');
+      div.setAttribute('data-index', idx);
+      var marketLabel = s.mk === 'ashare' ? 'A股' : s.mk === 'hkshare' ? '港股' : '美股';
+      var marketDot = '<span class="market-indicator ' + s.mk + '"></span>';
+      div.innerHTML =
+        '<span class="ac-code">' + marketDot + s.c + '</span>' +
+        '<span class="ac-name">' + s.n + '</span>' +
+        '<span class="ac-market ' + s.mk + '">' + marketLabel + '</span>' +
+        '<span class="ac-sector">' + s.s + '</span>';
+      div.addEventListener('mousedown', function(e) {
+        e.preventDefault();
+        selectStock(s);
+      });
+      dropdown.appendChild(div);
+    });
+    dropdown.classList.add('active');
+  }
+
+  function selectStock(stock) {
+    input.value = stock.n + ' · ' + stock.c;
+    dropdown.classList.remove('active');
+    kbdHint.classList.remove('visible');
+    input.setAttribute('data-selected-code', stock.c);
+    input.setAttribute('data-selected-market', stock.m);
+    input.setAttribute('data-selected-name', stock.n);
+  }
+
+  function doAnalysis() {
+    var code = input.getAttribute('data-selected-code');
+    var market = input.getAttribute('data-selected-market');
+    var name = input.getAttribute('data-selected-name');
+    if (!code) {
+      var val = input.value.trim();
+      var directMatch = STOCK_DB.find(function(s) {
+        return s.c === val || s.n === val || (s.p && s.p.toLowerCase() === val.toLowerCase());
+      });
+      if (directMatch) { code = directMatch.c; market = directMatch.m; name = directMatch.n; }
+    }
+    if (code) {
+      loadingOverlay.classList.add('active');
+      loadingText.textContent = '正在获取 ' + (name || code) + ' 实时数据...';
+      setTimeout(function() {
+        var params = 'code=' + encodeURIComponent(code) +
+                     '&market=' + encodeURIComponent(market || 'sz') +
+                     '&name=' + encodeURIComponent(name || code);
+        window.location.href = 'dashboard.html?' + params;
+      }, 600);
+    } else {
+      var results = search(input.value.trim());
+      if (results.length > 0) { selectStock(results[0].stock); doAnalysis(); }
+    }
+  }
+
+  input.addEventListener('input', function() {
+    var val = input.value.trim();
+    clearBtn.classList.toggle('visible', val.length > 0);
+    selectedIndex = -1;
+    input.removeAttribute('data-selected-code');
+    input.removeAttribute('data-selected-market');
+    input.removeAttribute('data-selected-name');
+    var results = search(val);
+    renderDropdown(results);
+    kbdHint.classList.toggle('visible', results.length > 0);
+  });
+
+  input.addEventListener('focus', function() {
+    var val = input.value.trim();
+    if (val.length >= 1) {
+      var results = search(val);
+      renderDropdown(results);
+      kbdHint.classList.toggle('visible', results.length > 0);
+    }
+  });
+
+  input.addEventListener('keydown', function(e) {
+    var items = dropdown.querySelectorAll('.autocomplete-item');
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (items.length > 0) { selectedIndex = Math.min(selectedIndex + 1, items.length - 1); updateSelection(items); }
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (items.length > 0) { selectedIndex = Math.max(selectedIndex - 1, 0); updateSelection(items); }
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (selectedIndex >= 0 && currentResults[selectedIndex]) {
+        selectStock(currentResults[selectedIndex].stock);
+        doAnalysis();
+      } else { doAnalysis(); }
+    } else if (e.key === 'Escape') {
+      dropdown.classList.remove('active');
+      kbdHint.classList.remove('visible');
+      input.blur();
+    }
+  });
+
+  function updateSelection(items) {
+    items.forEach(function(item, idx) {
+      item.classList.toggle('selected', idx === selectedIndex);
+      if (idx === selectedIndex) item.scrollIntoView({ block: 'nearest' });
+    });
+  }
+
+  clearBtn.addEventListener('click', function() {
+    input.value = '';
+    input.focus();
+    clearBtn.classList.remove('visible');
+    dropdown.classList.remove('active');
+    kbdHint.classList.remove('visible');
+    input.removeAttribute('data-selected-code');
+    input.removeAttribute('data-selected-market');
+    input.removeAttribute('data-selected-name');
+  });
+
+  searchBtn.addEventListener('click', doAnalysis);
+
+  document.addEventListener('click', function(e) {
+    var sw = document.querySelector('.search-wrapper');
+    if (!sw.contains(e.target)) { dropdown.classList.remove('active'); kbdHint.classList.remove('visible'); }
+  });
+
+  // Hot chips
+  var hotStocks = [
+    {c:"000333",n:"美的集团",m:"sz"},{c:"600519",n:"贵州茅台",m:"sh"},{c:"300750",n:"宁德时代",m:"sz"},
+    {c:"00700",n:"腾讯控股",m:"hk"},{c:"AAPL",n:"Apple Inc.",m:"us"},{c:"002594",n:"比亚迪",m:"sz"},
+    {c:"09988",n:"阿里巴巴-SW",m:"hk"},{c:"NVDA",n:"NVIDIA",m:"us"},{c:"601318",n:"中国平安",m:"sh"},
+    {c:"03690",n:"美团-W",m:"hk"},{c:"BABA",n:"Alibaba(美股)",m:"us"},{c:"000651",n:"格力电器",m:"sz"}
+  ];
+  var hotChipsEl = document.getElementById('hotChips');
+  hotStocks.forEach(function(s) {
+    var chip = document.createElement('span');
+    chip.className = 'hot-chip';
+    chip.textContent = s.n;
+    chip.addEventListener('click', function() {
+      var stock = STOCK_DB.find(function(x) { return x.c === s.c; });
+      if (stock) { selectStock(stock); doAnalysis(); }
+    });
+    hotChipsEl.appendChild(chip);
+  });
+
+  // Market status
+  var marketStatusEl = document.getElementById('marketStatus');
+  var now = new Date();
+  var beijingHour = now.getUTCHours() + 8;
+  var beijingMin = now.getUTCMinutes();
+  var weekday = now.getUTCDay();
+
+  function isAStockOpen(h,m,w) {
+    if (w===0||w===6) return false;
+    if (h<9||h>15) return false;
+    if (h===9&&m<30) return false;
+    if (h===11&&m>=30&&h<13) return false;
+    if (h===11&&m<30) return true;
+    if (h>=13&&h<15) return true;
+    if (h===9&&m>=30) return true;
+    if (h>=10&&h<11) return true;
+    return false;
+  }
+  function isHKOpen(h,m,w) {
+    if (w===0||w===6) return false;
+    if (h<9||h>16) return false;
+    if (h===9&&m<30) return false;
+    if (h===12&&m>=0&&h<13) return false;
+    if (h>=9&&h<12&&!(h===9&&m<30)) return true;
+    if (h>=13&&h<=16) return true;
+    return false;
+  }
+  function isUSOpen(h,m,w) {
+    if (w===0||w===6) return false;
+    var usH = h-13; if (usH<0) usH+=24;
+    return usH>=9&&usH<16;
+  }
+
+  var aOpen = isAStockOpen(beijingHour,beijingMin,weekday);
+  var hkOpen = isHKOpen(beijingHour,beijingMin,weekday);
+  var usOpen = isUSOpen(beijingHour,beijingMin,weekday);
+  marketStatusEl.innerHTML =
+    '<span><span class="market-status-dot '+(aOpen?'open':'closed')+'"></span>A股 '+(aOpen?'交易中':'已收盘')+'</span>' +
+    '<span><span class="market-status-dot '+(hkOpen?'open':'closed')+'"></span>港股 '+(hkOpen?'交易中':'已收盘')+'</span>' +
+    '<span><span class="market-status-dot '+(usOpen?'open':'closed')+'"></span>美股 '+(usOpen?'交易中':'已收盘')+'</span>';
+})();
+</script>
+
+<script src="login-subscribe.js"></script>
+
+</body>
+</html>

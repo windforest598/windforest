@@ -1,0 +1,68 @@
+// ═══════════════════════════════════════════════
+// 风林慧策 API — /api/search 路由
+// 模糊搜索股票（代码/名称/拼音/行业）
+// ═══════════════════════════════════════════════
+import { Hono } from 'hono';
+import { getDB } from '../db/client';
+export const searchRoute = new Hono();
+searchRoute.get('/', async (c) => {
+    const q = c.req.query('q')?.trim();
+    if (!q || q.length < 1) {
+        return c.json({ results: [], count: 0 });
+    }
+    try {
+        const db = getDB(c);
+        // 精确代码匹配优先
+        const exactMatch = await db.prepare(`SELECT code, full_code, market, market_type, name, sector
+       FROM stocks
+       WHERE code = ? OR full_code = ?
+       LIMIT 5`).bind(q, q).all();
+        if (exactMatch.results.length > 0) {
+            return c.json({
+                results: exactMatch.results.map(row => ({
+                    code: row.code,
+                    full_code: row.full_code,
+                    market: row.market,
+                    market_type: row.market_type,
+                    name: row.name,
+                    sector: row.sector,
+                })),
+                count: exactMatch.results.length,
+            });
+        }
+        // 模糊搜索
+        const likePattern = `%${q}%`;
+        const fuzzyMatch = await db.prepare(`SELECT code, full_code, market, market_type, name, sector
+       FROM stocks
+       WHERE name LIKE ?1
+          OR code LIKE ?1
+          OR pinyin LIKE ?1
+          OR sector LIKE ?1
+       ORDER BY
+         CASE WHEN name = ?2 THEN 0
+              WHEN name LIKE ?3 THEN 1
+              WHEN code LIKE ?3 THEN 2
+              ELSE 3 END,
+         is_tracked DESC
+       LIMIT 20`).bind(likePattern, q, q + '%').all();
+        return c.json({
+            results: fuzzyMatch.results.map(row => ({
+                code: row.code,
+                full_code: row.full_code,
+                market: row.market,
+                market_type: row.market_type,
+                name: row.name,
+                sector: row.sector,
+            })),
+            count: fuzzyMatch.results.length,
+        });
+    }
+    catch (err) {
+        console.error('Search error:', err);
+        return c.json({
+            results: [],
+            count: 0,
+        }, 500);
+    }
+});
+//# sourceMappingURL=search.js.map

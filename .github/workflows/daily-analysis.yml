@@ -1,0 +1,71 @@
+# ═══════════════════════════════════════════════
+# 风林慧策 — 每日PMQD分析流水线
+# 运行时间: 每个工作日 08:00 北京时间 (UTC 00:00)
+# ═══════════════════════════════════════════════
+
+name: Daily PMQD Analysis
+
+on:
+  schedule:
+    # 08:00 Beijing Time = 00:00 UTC weekdays
+    - cron: '0 0 * * 1-5'
+  workflow_dispatch:
+    inputs:
+      stock_code:
+        description: 'Stock code to analyze (leave empty for all tracked)'
+        required: false
+        type: string
+      market:
+        description: 'Market (sh/sz/hk/us)'
+        required: false
+        type: string
+        default: 'sz'
+      force_refresh:
+        description: 'Force refresh even if data is fresh'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: fullstack/package-lock.json
+
+      - name: Install dependencies
+        working-directory: fullstack
+        run: npm ci
+
+      - name: Fetch market data & compute PMQD
+        working-directory: fullstack
+        env:
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+          STOCK_CODE: ${{ inputs.stock_code || '' }}
+          MARKET: ${{ inputs.market || '' }}
+          FORCE_REFRESH: ${{ inputs.force_refresh || 'false' }}
+        run: npx tsx scripts/compute-analysis.ts
+
+      - name: Send subscription alerts
+        working-directory: fullstack
+        env:
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+          MAILCHANNELS_FROM: ${{ secrets.MAILCHANNELS_FROM }}
+          FRONTEND_URL: ${{ secrets.FRONTEND_URL || 'https://windforest.pages.dev' }}
+        run: npx tsx scripts/send-alerts.ts
+
+      - name: Log completion
+        run: |
+          echo "✅ Daily PMQD analysis complete at $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          echo "📊 Results pushed to Turso database"
