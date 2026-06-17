@@ -28,6 +28,10 @@ jobs:
       - name: Install Wrangler
         run: npm install -g wrangler@4
 
+      - name: Install Dependencies
+        working-directory: fullstack
+        run: npm install
+
       - name: Deploy Worker
         working-directory: fullstack
         env:
