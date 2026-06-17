@@ -1,1 +1,0 @@
-{"version":3,"file":"subscribe.d.ts","sourceRoot":"","sources":["../../../src/routes/subscribe.ts"],"names":[],"mappings":"AAKA,OAAO,EAAE,IAAI,EAAE,MAAM,MAAM,CAAC;AAK5B,KAAK,SAAS,GAAG;IAAE,IAAI,EAAE;QAAE,MAAM,EAAE,MAAM,CAAC;QAAC,OAAO,EAAE,MAAM,CAAA;KAAE,CAAA;CAAE,CAAC;AAC/D,eAAO,MAAM,cAAc;eAAyB,SAAS;yCAAK,CAAC"}

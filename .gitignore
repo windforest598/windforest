@@ -1,0 +1,16 @@
+# ─── Dependencies ───
+fullstack/node_modules/
+node_modules/
+
+# ─── Build artifacts ───
+fullstack/dist/multipart_body.bin
+fullstack/dist/tsc/
+*.log
+
+# ─── Wrangler local state ───
+fullstack/.wrangler/
+.fullstack/.wrangler/
+
+# ─── OS ───
+.DS_Store
+Thumbs.db
