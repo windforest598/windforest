@@ -1629,6 +1629,7 @@ var API_AVAILABLE = true;
       div.addEventListener('mousedown', function(e) {
         e.preventDefault();
         selectStock(s);
+        doAnalysis();  // immediately navigate to dashboard
       });
       dropdown.appendChild(div);
     });
