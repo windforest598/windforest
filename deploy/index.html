@@ -1661,13 +1661,26 @@ var API_AVAILABLE = true;
     }
     if (code) {
       loadingOverlay.classList.add('active');
-      loadingText.textContent = '正在获取 ' + (name || code) + ' 实时数据...';
+      loadingText.textContent = '正在启动 ' + (name || code) + ' 实时分析…';
+
+      // Fire-and-forget: trigger real-time PMQD analysis in background
+      var apiBase = location.hostname.endsWith('.pages.dev') ?
+        'https://windforest-api.414946437.workers.dev' : 'https://api.windforest.cn';
+      var cleanCode = code.replace(/^(sh|sz|bj|hk|us)/,'');
+      try {
+        fetch(apiBase + '/api/trigger-analysis', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code: cleanCode, market: market || 'sz' })
+        }).catch(function(){});
+      } catch(_) {}
+
       setTimeout(function() {
         var params = 'code=' + encodeURIComponent(code) +
                      '&market=' + encodeURIComponent(market || 'sz') +
                      '&name=' + encodeURIComponent(name || code);
         window.location.href = 'dashboard.html?' + params;
-      }, 600);
+      }, 800);
     } else {
       var results = search(input.value.trim());
       if (results.length > 0) { selectStock(results[0].stock); doAnalysis(); }
