@@ -1,0 +1,58 @@
+{
+  "meta": { "version": "1.0", "stock": { "code": "002594", "market": "sz", "name": "比亚迪" }, "generated": "2026-06-18T12:00:00+08:00", "engine": "PMQD V5.9 · 凯利 V5.2" },
+  "pmqd": {
+    "total": 62, "verdict": "估值合理，保持观察", "stars": "★★★☆☆",
+    "dimensions": {
+      "P": { "score": 16, "max": 40, "label": "价格安全边际", "color": "#1E40AF" },
+      "M": { "score": 16, "max": 18, "label": "行业/结构催化", "color": "#0D9488" },
+      "Q": { "score": 26, "max": 30, "label": "不可替代硬质量", "color": "#B45309" },
+      "D": { "score": 4, "max": 12, "label": "市场认知差", "color": "#7C3AED" }
+    },
+    "strategy": "成长观察",
+    "strategy_reason": "全球新能源车龙头，FY2025营收8040亿净利润326亿，但行业竞争白热化、估值偏高，需等待更好买点"
+  },
+  "valuation": { "pe": 28.0, "pb": 4.5, "roe": 18.0, "div_yield": 1.2, "market_cap": "¥9,200亿", "net_cash": "-¥450亿", "price": 320.00, "change_pct": -0.55 },
+  "kelly": { "f": 0, "verdict": "暂不建议配置" },
+  "safety": [
+    { "q": "即便行业不复苏，是否不会破产？", "status": "✅", "pass": true },
+    { "q": "股价再跌50%，企业价值是否依然坚挺？", "status": "⚠️", "pass": false },
+    { "q": "5年自由现金流能否覆盖有效市值？", "status": "❌", "pass": false }
+  ],
+  "health": [
+    { "name": "盈利能力", "status": "良好 ROE 18%", "ok": true },
+    { "name": "成长性", "status": "强劲 营收+30%", "ok": true },
+    { "name": "现金流", "status": "偏紧 资本开支大", "ok": false },
+    { "name": "资产负债", "status": "偏高 负债率 77%", "ok": false },
+    { "name": "运营效率", "status": "优秀 垂直整合", "ok": true },
+    { "name": "分红回报", "status": "偏低 1.2%", "ok": false },
+    { "name": "估值水平", "status": "偏高 PE 28×", "ok": false },
+    { "name": "管理层质量", "status": "优秀 战略清晰", "ok": true }
+  ],
+  "finance_rules": [
+    { "name": "类现金资产", "value": "¥850亿", "desc": "类现金尚可但资本开支大", "pass": true },
+    { "name": "有息负债率", "value": "38%", "desc": "有息负债偏高", "pass": false },
+    { "name": "永续债风险", "value": "无", "pass": true },
+    { "name": "股息率", "value": "1.2%", "desc": "低于2%门槛", "pass": false }
+  ],
+  "debt": [
+    { "label": "流动比率", "val": "0.85", "ok": false },
+    { "label": "速动比率", "val": "0.55", "ok": false },
+    { "label": "利息覆盖", "val": "6.0×", "ok": true },
+    { "label": "净负债/Ebitda", "val": "1.5×", "ok": false },
+    { "label": "短债占比", "val": "55%", "ok": false },
+    { "label": "现金/短债", "val": "0.8×", "ok": false },
+    { "label": "FCF/总负债", "val": "0.08", "ok": false }
+  ],
+  "insights": [
+    "全球新能源车销量冠军，规模效应持续显现",
+    "垂直一体化布局(电池+芯片+整车)构建深厚壁垒",
+    "海外市场扩张加速，泰国/巴西工厂投产",
+    "刀片电池和DM-i技术领先，产品力持续提升"
+  ],
+  "risks": [
+    "新能源车行业价格战加剧，毛利率持续承压",
+    "资本开支巨大，自由现金流为负",
+    "海外市场政策风险(欧盟反补贴关税)",
+    "智能化竞争落后于华为/小鹏等新势力"
+  ]
+}

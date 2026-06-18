@@ -1,0 +1,58 @@
+{
+  "meta": { "version": "1.0", "stock": { "code": "01114", "market": "hk", "name": "华晨中国" }, "generated": "2026-06-18T12:00:00+08:00", "engine": "PMQD V5.9 · 凯利 V5.2" },
+  "pmqd": {
+    "total": 48, "verdict": "估值合理，保持观察", "stars": "★★★☆☆",
+    "dimensions": {
+      "P": { "score": 18, "max": 40, "label": "价格安全边际", "color": "#1E40AF" },
+      "M": { "score": 10, "max": 18, "label": "行业/结构催化", "color": "#0D9488" },
+      "Q": { "score": 14, "max": 30, "label": "不可替代硬质量", "color": "#B45309" },
+      "D": { "score": 6, "max": 12, "label": "市场认知差", "color": "#7C3AED" }
+    },
+    "strategy": "特殊机会",
+    "strategy_reason": "华晨宝马利润奶牛，但母公司自主品牌亏损，分红依赖宝马合资公司。FY2025 EPS 0.44港元，PE约6.5×。作为特殊机会标的，需密切关注宝马中国战略调整"
+  },
+  "valuation": { "pe": 6.5, "pb": 0.45, "roe": 8.5, "div_yield": 12.0, "market_cap": "¥142亿（折算人民币）", "net_cash": "¥180亿（类现金充裕）", "price": 2.84, "change_pct": -1.5 },
+  "kelly": { "f": 35.0, "verdict": "特殊机会需深入尽调" },
+  "safety": [
+    { "q": "即便行业不复苏，是否不会破产？", "status": "✅", "pass": true },
+    { "q": "股价再跌50%，企业价值是否依然坚挺？", "status": "⚠️", "pass": false },
+    { "q": "5年自由现金流能否覆盖有效市值？", "status": "✅", "pass": true }
+  ],
+  "health": [
+    { "name": "盈利能力", "status": "依赖合资公司", "ok": true },
+    { "name": "成长性", "status": "乏力 自主业务萎缩", "ok": false },
+    { "name": "现金流", "status": "充沛 特别分红", "ok": true },
+    { "name": "资产负债", "status": "极佳 净现金", "ok": true },
+    { "name": "运营效率", "status": "依赖宝马体系", "ok": false },
+    { "name": "分红回报", "status": "极高 12%+特别分红", "ok": true },
+    { "name": "估值水平", "status": "极低 PE 6.5×", "ok": true },
+    { "name": "管理层质量", "status": "一般", "ok": false }
+  ],
+  "finance_rules": [
+    { "name": "类现金资产", "value": "¥188亿", "desc": "账面净现金极为充裕", "pass": true },
+    { "name": "有息负债率", "value": "5%", "desc": "基本无有息负债", "pass": true },
+    { "name": "永续债风险", "value": "无", "pass": true },
+    { "name": "股息率", "value": "12%", "desc": "极高股息率，含大额特别分红", "pass": true }
+  ],
+  "debt": [
+    { "label": "流动比率", "val": "5.25", "ok": true },
+    { "label": "速动比率", "val": "4.90", "ok": true },
+    { "label": "利息覆盖", "val": "∞（无债）", "ok": true },
+    { "label": "净负债/Ebitda", "val": "-5.0×", "ok": true },
+    { "label": "短债占比", "val": "2%", "ok": true },
+    { "label": "现金/短债", "val": "25×", "ok": true },
+    { "label": "FCF/总负债", "val": "8.5", "ok": true }
+  ],
+  "insights": [
+    "华晨宝马合资公司利润贡献占比超90%，是核心价值来源",
+    "账面净现金¥188亿接近市值，提供极强安全边际",
+    "2024年曾派发特别股息每股4.30港元，股东回报意愿强",
+    "宝马计划2026年提升华晨宝马持股至75%，需关注股权变动"
+  ],
+  "risks": [
+    "宝马增持华晨宝马股权后利润贡献将大幅下降",
+    "自主品牌(中华、金杯)业务持续亏损拖累整体",
+    "公司治理存在不确定性（历史股权纠纷）",
+    "中国汽车市场竞争加剧，宝马市场份额面临挑战"
+  ]
+}

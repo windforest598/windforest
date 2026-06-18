@@ -1,0 +1,58 @@
+{
+  "meta": { "version": "1.0", "stock": { "code": "000651", "market": "sz", "name": "格力电器" }, "generated": "2026-06-18T12:00:00+08:00", "engine": "PMQD V5.9 · 凯利 V5.2" },
+  "pmqd": {
+    "total": 64, "verdict": "估值合理，保持观察", "stars": "★★★☆☆",
+    "dimensions": {
+      "P": { "score": 26, "max": 40, "label": "价格安全边际", "color": "#1E40AF" },
+      "M": { "score": 9, "max": 18, "label": "行业/结构催化", "color": "#0D9488" },
+      "Q": { "score": 24, "max": 30, "label": "不可替代硬质量", "color": "#B45309" },
+      "D": { "score": 5, "max": 12, "label": "市场认知差", "color": "#7C3AED" }
+    },
+    "strategy": "价值配置",
+    "strategy_reason": "空调龙头地位稳固，FY2025营收1704亿净利润290亿，但多元化转型缓慢，市场给予一定折价"
+  },
+  "valuation": { "pe": 8.5, "pb": 1.8, "roe": 22.5, "div_yield": 6.8, "market_cap": "¥2,500亿", "net_cash": "¥980亿", "price": 44.20, "change_pct": 0.15 },
+  "kelly": { "f": 22.0, "verdict": "值得配置" },
+  "safety": [
+    { "q": "即便行业不复苏，是否不会破产？", "status": "✅", "pass": true },
+    { "q": "股价再跌50%，企业价值是否依然坚挺？", "status": "✅", "pass": true },
+    { "q": "5年自由现金流能否覆盖有效市值？", "status": "✅", "pass": true }
+  ],
+  "health": [
+    { "name": "盈利能力", "status": "优秀 ROE 22.5%", "ok": true },
+    { "name": "成长性", "status": "放缓 增长乏力", "ok": false },
+    { "name": "现金流", "status": "极佳 类现金充沛", "ok": true },
+    { "name": "资产负债", "status": "健康 负债率 60%", "ok": true },
+    { "name": "运营效率", "status": "优秀", "ok": true },
+    { "name": "分红回报", "status": "卓越 股息率 6.8%", "ok": true },
+    { "name": "估值水平", "status": "低估 PE 8.5×", "ok": true },
+    { "name": "管理层质量", "status": "存在争议", "ok": false }
+  ],
+  "finance_rules": [
+    { "name": "类现金资产", "value": "¥1,350亿", "desc": "类现金极为充裕，覆盖有息负债绰绰有余", "pass": true },
+    { "name": "有息负债率", "value": "15%", "desc": "有息负债率极低", "pass": true },
+    { "name": "永续债风险", "value": "无", "pass": true },
+    { "name": "股息率", "value": "6.8%", "desc": "高股息率，现金流分红能力强", "pass": true }
+  ],
+  "debt": [
+    { "label": "流动比率", "val": "1.45", "ok": true },
+    { "label": "速动比率", "val": "1.15", "ok": true },
+    { "label": "利息覆盖", "val": "15×", "ok": true },
+    { "label": "净负债/Ebitda", "val": "-0.5×", "ok": true },
+    { "label": "短债占比", "val": "25%", "ok": true },
+    { "label": "现金/短债", "val": "3.8×", "ok": true },
+    { "label": "FCF/总负债", "val": "0.45", "ok": true }
+  ],
+  "insights": [
+    "中国空调行业龙头，品牌认知度极高",
+    "类现金极为充裕，净现金状态，财务安全性一流",
+    "6.8%股息率极具吸引力，股息回报稳定",
+    "多元化转型(手机/新能源/芯片)投入大但成效有限"
+  ],
+  "risks": [
+    "空调市场趋于饱和，成长空间有限",
+    "多元化战略屡屡受挫，市场信心不足",
+    "管理层接班人问题悬而未决",
+    "美的集团全品类竞争压力持续加大"
+  ]
+}

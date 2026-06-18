@@ -1,0 +1,58 @@
+{
+  "meta": { "version": "1.0", "stock": { "code": "600690", "market": "sh", "name": "海尔智家" }, "generated": "2026-06-18T12:00:00+08:00", "engine": "PMQD V5.9 · 凯利 V5.2" },
+  "pmqd": {
+    "total": 70, "verdict": "优质低估，值得配置", "stars": "★★★★☆",
+    "dimensions": {
+      "P": { "score": 24, "max": 40, "label": "价格安全边际", "color": "#1E40AF" },
+      "M": { "score": 12, "max": 18, "label": "行业/结构催化", "color": "#0D9488" },
+      "Q": { "score": 26, "max": 30, "label": "不可替代硬质量", "color": "#B45309" },
+      "D": { "score": 8, "max": 12, "label": "市场认知差", "color": "#7C3AED" }
+    },
+    "strategy": "价值配置",
+    "strategy_reason": "全球白电龙头，海外收入占比超50%，FY2025营收3023亿净利润196亿，品牌矩阵(海尔+卡萨帝+GE+Fisher&Paykel)护城河深厚"
+  },
+  "valuation": { "pe": 14.5, "pb": 2.1, "roe": 17.2, "div_yield": 3.5, "market_cap": "¥2,880亿", "net_cash": "¥350亿", "price": 30.70, "change_pct": -0.85 },
+  "kelly": { "f": 14.0, "verdict": "适度配置" },
+  "safety": [
+    { "q": "即便行业不复苏，是否不会破产？", "status": "✅", "pass": true },
+    { "q": "股价再跌50%，企业价值是否依然坚挺？", "status": "✅", "pass": true },
+    { "q": "5年自由现金流能否覆盖有效市值？", "status": "⚠️", "pass": false }
+  ],
+  "health": [
+    { "name": "盈利能力", "status": "良好 ROE 17.2%", "ok": true },
+    { "name": "成长性", "status": "稳健 营收+8%", "ok": true },
+    { "name": "现金流", "status": "充沛", "ok": true },
+    { "name": "资产负债", "status": "健康 负债率 62%", "ok": true },
+    { "name": "运营效率", "status": "优秀 全球化运营", "ok": true },
+    { "name": "分红回报", "status": "良好 股息率 3.5%", "ok": true },
+    { "name": "估值水平", "status": "合理偏低 PE 14.5×", "ok": true },
+    { "name": "管理层质量", "status": "优秀 国际化经验", "ok": true }
+  ],
+  "finance_rules": [
+    { "name": "类现金资产", "value": "¥680亿", "desc": "类现金覆盖短期有息负债", "pass": true },
+    { "name": "有息负债率", "value": "28%", "desc": "有息负债率可控", "pass": true },
+    { "name": "永续债风险", "value": "无", "pass": true },
+    { "name": "股息率", "value": "3.5%", "desc": "持续稳定增长", "pass": true }
+  ],
+  "debt": [
+    { "label": "流动比率", "val": "1.25", "ok": true },
+    { "label": "速动比率", "val": "0.95", "ok": true },
+    { "label": "利息覆盖", "val": "8.5×", "ok": true },
+    { "label": "净负债/Ebitda", "val": "0.8×", "ok": true },
+    { "label": "短债占比", "val": "40%", "ok": true },
+    { "label": "现金/短债", "val": "1.5×", "ok": true },
+    { "label": "FCF/总负债", "val": "0.22", "ok": true }
+  ],
+  "insights": [
+    "全球白电市占率第一，海尔+卡萨帝+GE+Fisher&Paykel多品牌覆盖全价位",
+    "海外收入占比超50%，全球化布局对冲单一市场风险",
+    "卡萨帝高端品牌增长强劲，毛利率领先行业",
+    "智能家居生态布局前瞻，U+平台用户数持续增长"
+  ],
+  "risks": [
+    "原材料（钢、塑料）价格波动影响毛利率",
+    "海外市场汇率波动风险",
+    "房地产下行拖累国内白电需求",
+    "美的集团等竞争对手价格战压力"
+  ]
+}

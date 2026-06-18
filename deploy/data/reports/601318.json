@@ -1,0 +1,58 @@
+{
+  "meta": { "version": "1.0", "stock": { "code": "601318", "market": "sh", "name": "中国平安" }, "generated": "2026-06-18T12:00:00+08:00", "engine": "PMQD V5.9 · 凯利 V5.2" },
+  "pmqd": {
+    "total": 66, "verdict": "优质低估，值得配置", "stars": "★★★★☆",
+    "dimensions": {
+      "P": { "score": 28, "max": 40, "label": "价格安全边际", "color": "#1E40AF" },
+      "M": { "score": 12, "max": 18, "label": "行业/结构催化", "color": "#0D9488" },
+      "Q": { "score": 20, "max": 30, "label": "不可替代硬质量", "color": "#B45309" },
+      "D": { "score": 6, "max": 12, "label": "市场认知差", "color": "#7C3AED" }
+    },
+    "strategy": "价值配置",
+    "strategy_reason": "综合金融龙头，FY2025营运利润1877亿，内含价值持续增长，低利率环境下EV折价显著"
+  },
+  "valuation": { "pe": 7.5, "pb": 0.85, "roe": 14.0, "div_yield": 5.2, "market_cap": "¥1.05万亿", "net_cash": "--（保险集团不适用）", "price": 57.60, "change_pct": -0.35 },
+  "kelly": { "f": 25.0, "verdict": "值得重配" },
+  "safety": [
+    { "q": "即便行业不复苏，是否不会破产？", "status": "✅", "pass": true },
+    { "q": "股价再跌50%，企业价值是否依然坚挺？", "status": "✅", "pass": true },
+    { "q": "5年自由现金流能否覆盖有效市值？", "status": "✅", "pass": true }
+  ],
+  "health": [
+    { "name": "盈利能力", "status": "良好 ROE 14%", "ok": true },
+    { "name": "成长性", "status": "缓慢 转型期", "ok": false },
+    { "name": "现金流", "status": "充沛", "ok": true },
+    { "name": "资产负债", "status": "保险行业特征", "ok": true },
+    { "name": "运营效率", "status": "良好 综合金融", "ok": true },
+    { "name": "分红回报", "status": "优秀 股息率 5.2%", "ok": true },
+    { "name": "估值水平", "status": "低估 PB 0.85×", "ok": true },
+    { "name": "管理层质量", "status": "优秀 经验丰富", "ok": true }
+  ],
+  "finance_rules": [
+    { "name": "内含价值", "value": "¥1.5万亿", "desc": "EV持续增长，当前股价折价显著", "pass": true },
+    { "name": "偿付能力", "value": "充足", "desc": "综合偿付能力充足率 > 200%", "pass": true },
+    { "name": "投资收益率", "value": "4.5%", "desc": "低利率环境下承压但可控", "pass": true },
+    { "name": "股息率", "value": "5.2%", "desc": "高股息稳定回报", "pass": true }
+  ],
+  "debt": [
+    { "label": "内含价值/股", "val": "¥82.0", "ok": true },
+    { "label": "PB(含EV)", "val": "0.70×", "ok": true },
+    { "label": "新业务价值率", "val": "30.2%", "ok": true },
+    { "label": "代理人数量", "val": "35万", "ok": false },
+    { "label": "综合偿付率", "val": "218%", "ok": true },
+    { "label": "总投资收益率", "val": "4.5%", "ok": true },
+    { "label": "寿险EV增速", "val": "8.5%", "ok": true }
+  ],
+  "insights": [
+    "中国最大综合金融集团，保险+银行+科技金控平台",
+    "内含价值持续增长，当前PB 0.85×处于历史低位",
+    "寿险改革持续推进，代理人质量提升",
+    "5.2%股息率提供安全垫，适合长期持有"
+  ],
+  "risks": [
+    "低利率环境持续压缩利差空间",
+    "房地产风险敞口（华夏幸福等）仍需消化",
+    "寿险新业务价值增速放缓",
+    "科技板块（陆金所、好医生等）估值回调"
+  ]
+}
