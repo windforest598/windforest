@@ -1,6 +1,3 @@
-# 🌐 部署前端到 GitHub Pages（绕过 RKN 对 Cloudflare 大响应的截断）
-# 前端静态文件走 GitHub Pages（不受限），API 走 Cloudflare Workers（小请求正常）
-
 name: Deploy Frontend to GitHub Pages
 
 on:
@@ -8,21 +5,27 @@ on:
     branches: [main, master]
     paths:
       - 'deploy/**'
+      - '.github/workflows/deploy-pages.yml'
   workflow_dispatch:
 
+# 必须权限
 permissions:
   contents: read
   pages: write
   id-token: write
 
+# 同一时间只允许一个 Pages 部署
 concurrency:
   group: "pages"
   cancel-in-progress: false
 
 jobs:
-  build:
-    name: Build Pages
+  build-and-deploy:
+    name: Build and Deploy Pages
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -30,19 +33,11 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      - name: Upload artifact
+      - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: deploy
 
-  deploy:
-    name: Deploy to GitHub Pages
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
