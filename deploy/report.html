@@ -246,10 +246,13 @@ footer { text-align:center; padding:24px; color:var(--text3); font-size:0.75rem;
 
     var apiBase = location.hostname.endsWith('.pages.dev') ?
       'https://windforest-api.414946437.workers.dev' : 'https://api.windforest.cn';
+    var token = localStorage.getItem('wf_token') || '';
+    var headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = 'Bearer ' + token;
 
     fetch(apiBase + '/api/trigger-analysis', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: headers,
       body: JSON.stringify({ code: code, market: market })
     })
     .then(function(r) { return r.json(); })

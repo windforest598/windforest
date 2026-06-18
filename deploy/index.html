@@ -1667,10 +1667,13 @@ var API_AVAILABLE = true;
       var apiBase = location.hostname.endsWith('.pages.dev') ?
         'https://windforest-api.414946437.workers.dev' : 'https://api.windforest.cn';
       var cleanCode = code.replace(/^(sh|sz|bj|hk|us)/,'');
+      var token = localStorage.getItem('wf_token') || '';
       try {
+        var headers = { 'Content-Type': 'application/json' };
+        if (token) headers['Authorization'] = 'Bearer ' + token;
         fetch(apiBase + '/api/trigger-analysis', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: headers,
           body: JSON.stringify({ code: cleanCode, market: market || 'sz' })
         }).catch(function(){});
       } catch(_) {}
