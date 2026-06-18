@@ -1105,6 +1105,50 @@ footer strong { color:var(--text); }
   数据截至 2026-06-17 收盘 · 基于 FY2025 年报 (2026-04披露) · 通达信实时行情
 </footer>
 
+
+<!-- ═══════════════ DYNAMIC HEADER ═══════════════ -->
+<script>
+(function(){
+  var params = {};
+  (location.search || '').replace(/^\?/,'').split('&').forEach(function(s){
+    var p = s.split('=');
+    if (p[0]) params[decodeURIComponent(p[0])] = decodeURIComponent(p[1] || '');
+  });
+
+  var code = params.code, market = params.market || 'sz', name = params.name;
+  if (code && name) {
+    var fullCode = code;
+    // Format code with market suffix
+    var suffix = market === 'sh' ? '.SH' : market === 'hk' ? '.HK' : market === 'us' ? '.US' : '.SZ';
+    document.getElementById('headerStockName').textContent = name + ' · ' + code + suffix;
+    document.getElementById('headerStockPrice').textContent = '加载中…';
+    document.getElementById('headerStockChange').textContent = '';
+    // Update report meta
+    var meta = document.querySelector('.report-meta');
+    if (meta) meta.textContent = '数据加载中 · PALA（老帕）';
+    
+    // Try loading live quote
+    var API = (function(){
+      if (location.hostname.endsWith('.pages.dev')) return 'https://windforest-api.414946437.workers.dev';
+      return 'https://api.windforest.cn';
+    })();
+    fetch(API + '/api/quote/' + encodeURIComponent(market + code))
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        var price = d.price || d.close || 0;
+        var chg = d.change_pct || 0;
+        var color = chg >= 0 ? 'var(--red)' : 'var(--green)';
+        var arrow = chg >= 0 ? '▲' : '▼';
+        document.getElementById('headerStockPrice').textContent = '¥' + (price ? price.toFixed(2) : '--');
+        var chgEl = document.getElementById('headerStockChange');
+        chgEl.textContent = arrow + ' ' + (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
+        chgEl.style.color = color;
+      })
+      .catch(function(){});
+  }
+})();
+</script>
+
 <!-- ═══════════════ CHART.JS VISUALIZATION SCRIPTS ═══════════════ -->
 <script>
 (function(){
