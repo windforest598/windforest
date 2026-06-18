@@ -1434,10 +1434,9 @@ function renderNoData(name, code) {
 
 // ═══════ NAVIGATION ═══════
 function openReport() {
-  // 1. Check if user is logged in
+  // 1. Check if user is logged in (localStorage first, instant)
   var token = typeof getToken === 'function' ? getToken() : localStorage.getItem('wf_token');
   if (!token) {
-    // Store the intent to redirect after login
     localStorage.setItem('wf_redirect_after_auth', 'report');
     if (typeof openLogin === 'function') {
       openLogin();
@@ -1447,43 +1446,9 @@ function openReport() {
     return;
   }
 
-  // 2. Check subscription status via API
-  fetch(API_BASE + '/api/auth/me', {
-    headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }
-  })
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      if (data.data && data.data.plan && data.data.plan !== 'free') {
-        // Has valid subscription → proceed to report
-        doGoReport();
-      } else if (data.data && data.data.free_trial_used === 0) {
-        // Has free trial → proceed
-        doGoReport();
-      } else {
-        // No valid subscription → show subscribe modal
-        localStorage.setItem('wf_redirect_after_auth', 'report');
-        if (typeof openSubscribe === 'function') {
-          openSubscribe();
-        } else {
-          alert('请先订阅后再查看完整分析报告');
-        }
-      }
-    })
-    .catch(function() {
-      // API unavailable — fallback: check localStorage
-      var user = localStorage.getItem('wf_user');
-      if (user) {
-        try {
-          var u = JSON.parse(user);
-          if (u.plan && u.plan !== 'free') {
-            doGoReport();
-            return;
-          }
-        } catch(e) {}
-      }
-      // Fallback: allow if logged in (graceful degradation)
-      doGoReport();
-    });
+  // 2. Immediate redirect — don't wait for API
+  // Subscription validation happens on report page itself
+  doGoReport();
 }
 
 function doGoReport() {
