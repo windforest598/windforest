@@ -1,8 +1,10 @@
 /* ══════ LOGIN / REGISTER / SUBSCRIBE — 真实后端版 ══════ */
 var API_BASE = (function () {
-  if (location.hostname.endsWith('.pages.dev')) return 'https://windforest-api.workers.dev';
+  if (location.hostname.endsWith('.pages.dev')) return 'https://windforest-api.414946437.workers.dev';
+  if (location.hostname === 'windforest.cn' || location.hostname === 'www.windforest.cn') return 'https://api.windforest.cn';
+  if (location.hostname.endsWith('github.io')) return 'https://api.windforest.cn';
   if (location.hostname === 'localhost' || location.port) return 'http://localhost:8787';
-  return '';  // same-origin
+  return 'https://api.windforest.cn';
 })();
 var currentPlan = 1;
 
