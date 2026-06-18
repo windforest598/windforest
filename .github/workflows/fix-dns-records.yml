@@ -1,0 +1,110 @@
+name: Fix DNS Records (v3)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create DNS Records
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -e
+          ZONE_ID=$(curl -s "https://api.cloudflare.com/client/v4/zones?name=windforest.cn" \
+            -H "Authorization: Bearer $CF_TOKEN" | jq -r '.result[0].id')
+          echo "ZONE_ID=$ZONE_ID"
+
+          # 1. CNAME api → windforest-api.414946437.workers.dev (PROXIED)
+          echo ""
+          echo "=== 1. Add CNAME api → Worker ==="
+          RES=$(curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records" \
+            -H "Authorization: Bearer $CF_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data '{"type":"CNAME","name":"api","content":"windforest-api.414946437.workers.dev","proxied":true,"ttl":1}')
+          echo "$RES" | jq '{success: .success, id: .result.id, name: .result.name, content: .result.content, proxied: .result.proxied}'
+          if [ "$(echo "$RES" | jq -r '.success')" != "true" ]; then
+            echo "ERRORS:"
+            echo "$RES" | jq '.errors'
+          fi
+
+          # 2. CNAME windforest.cn → windforest-api.414946437.workers.dev (PROXIED)
+          echo ""
+          echo "=== 2. Add CNAME @ → Worker ==="
+          RES=$(curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records" \
+            -H "Authorization: Bearer $CF_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data '{"type":"CNAME","name":"@","content":"windforest-api.414946437.workers.dev","proxied":true,"ttl":1}')
+          echo "$RES" | jq '{success: .success, id: .result.id, name: .result.name, content: .result.content, proxied: .result.proxied}'
+          if [ "$(echo "$RES" | jq -r '.success')" != "true" ]; then
+            echo "ERRORS:"
+            echo "$RES" | jq '.errors'
+          fi
+
+          # 3. CNAME www → windforest-api.414946437.workers.dev (PROXIED)
+          echo ""
+          echo "=== 3. Add CNAME www → Worker ==="
+          RES=$(curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records" \
+            -H "Authorization: Bearer $CF_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data '{"type":"CNAME","name":"www","content":"windforest-api.414946437.workers.dev","proxied":true,"ttl":1}')
+          echo "$RES" | jq '{success: .success, id: .result.id, name: .result.name, content: .result.content, proxied: .result.proxied}'
+          if [ "$(echo "$RES" | jq -r '.success')" != "true" ]; then
+            echo "ERRORS:"
+            echo "$RES" | jq '.errors'
+          fi
+
+          # 4. Worker Route for windforest.cn → windforest-api
+          echo ""
+          echo "=== 4. Add Worker Route windforest.cn/* ==="
+          RES=$(curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/workers/routes" \
+            -H "Authorization: Bearer $CF_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data '{"pattern":"windforest.cn/*","script":"windforest-api"}')
+          echo "$RES" | jq '{success: .success, id: .result.id, pattern: .result.pattern}'
+          if [ "$(echo "$RES" | jq -r '.success')" != "true" ]; then
+            ERR=$(echo "$RES" | jq -r '.errors[0].message // ""')
+            if echo "$ERR" | grep -qi "already"; then
+              echo "⚠️ Route already exists (OK)"
+            else
+              echo "ERRORS:"
+              echo "$RES" | jq '.errors'
+            fi
+          fi
+
+          # 5. Worker Route for www.windforest.cn
+          echo ""
+          echo "=== 5. Add Worker Route www.windforest.cn/* ==="
+          RES=$(curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/workers/routes" \
+            -H "Authorization: Bearer $CF_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data '{"pattern":"www.windforest.cn/*","script":"windforest-api"}')
+          echo "$RES" | jq '{success: .success, id: .result.id, pattern: .result.pattern}'
+          if [ "$(echo "$RES" | jq -r '.success')" != "true" ]; then
+            ERR=$(echo "$RES" | jq -r '.errors[0].message // ""')
+            if echo "$ERR" | grep -qi "already"; then
+              echo "⚠️ Route already exists (OK)"
+            else
+              echo "ERRORS:"
+              echo "$RES" | jq '.errors'
+            fi
+          fi
+
+      - name: Verify DNS
+        run: |
+          echo "=== DNS Resolution ==="
+          for d in windforest.cn www.windforest.cn api.windforest.cn; do
+            echo -n "$d → "
+            dig +short $d @1.1.1.1 2>/dev/null | head -1 || echo "FAILED"
+          done
+
+          echo ""
+          echo "=== HTTP Test ==="
+          curl -sI --connect-timeout 10 https://api.windforest.cn/ 2>&1 | head -5
+          echo ""
+          curl -sI --connect-timeout 10 https://windforest.cn/ 2>&1 | head -5 || echo "(may not resolve yet)"
