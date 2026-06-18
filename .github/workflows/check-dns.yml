@@ -1,0 +1,66 @@
+name: Check DNS Status
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Zone + DNS Records
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          ZONE_ID=$(curl -s "https://api.cloudflare.com/client/v4/zones?name=windforest.cn" \
+            -H "Authorization: Bearer $CF_TOKEN" | jq -r '.result[0].id // "NOT_FOUND"')
+          echo "Zone ID: $ZONE_ID"
+
+          if [ "$ZONE_ID" != "NOT_FOUND" ]; then
+            echo ""
+            echo "=== ZONE STATUS ==="
+            curl -s "https://api.cloudflare.com/client/v4/zones/$ZONE_ID" \
+              -H "Authorization: Bearer $CF_TOKEN" | jq '{name: .result.name, status: .result.status, name_servers: .result.name_servers}'
+
+            echo ""
+            echo "=== DNS RECORDS ==="
+            curl -s "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records?per_page=50" \
+              -H "Authorization: Bearer $CF_TOKEN" | jq '.result[] | {name: .name, type: .type, content: .content, proxied: .proxied, ttl: .ttl}'
+
+            echo ""
+            echo "=== WORKER ROUTES ==="
+            curl -s "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/workers/routes" \
+              -H "Authorization: Bearer $CF_TOKEN" | jq '.result[] | {pattern: .pattern, script: .script}'
+
+            echo ""
+            echo "=== WORKER CUSTOM DOMAINS ==="
+            WORKER_ID=$(curl -s "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/workers/scripts/windforest-api" \
+              -H "Authorization: Bearer $CF_TOKEN" | jq -r '.result.id // "NOT_FOUND"')
+            echo "Worker script ID: $WORKER_ID"
+
+            echo ""
+            echo "=== RESOLVE from GitHub ==="
+            echo "api.windforest.cn:"
+            dig +short api.windforest.cn A @1.1.1.1
+            dig +short api.windforest.cn AAAA @1.1.1.1
+            echo ""
+            echo "windforest.cn:"
+            dig +short windforest.cn A @1.1.1.1
+            dig +short windforest.cn AAAA @1.1.1.1
+          else
+            echo "❌ Zone not found!"  
+          fi
+
+      - name: Curl test from GitHub
+        run: |
+          echo "=== curl api.windforest.cn ==="
+          curl -sI --connect-timeout 10 https://api.windforest.cn/ 2>&1 | head -15
+          echo ""
+          echo "=== FULL HTML (first 500 chars) ==="
+          curl -s --connect-timeout 10 https://api.windforest.cn/ 2>&1 | head -20
+          echo ""
+          echo "=== API health ==="
+          curl -s --connect-timeout 10 https://api.windforest.cn/api/health 2>&1
