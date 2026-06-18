@@ -32,14 +32,8 @@
 * { margin:0; padding:0; box-sizing:border-box; }
 body { background:var(--bg0); color:var(--text); font-family:var(--font); line-height:1.6; }
 
-/* ══ STOCK SWITCHER ══ */
-.stock-tabs { display:flex; background:var(--bg1); border-bottom:2px solid var(--border); position:sticky; top:0; z-index:200; }
-.stock-tab { flex:1; padding:12px 20px; text-align:center; cursor:pointer; font-size:0.88rem; font-weight:600; border:none; background:none; transition:all 0.2s; color:var(--text2); border-bottom:3px solid transparent; }
-.stock-tab.active { color:var(--navy); border-bottom-color:var(--navy); background:white; }
-.stock-tab:hover:not(.active) { background:#EEF2FF; }
-.stock-tab .tab-code { font-size:0.68rem; font-weight:400; opacity:0.7; display:block; }
 
-/* Header */
+/* ══ HEADER ══ */
 header {
   background: var(--white);
   color: var(--text);
@@ -76,9 +70,8 @@ header {
 }
 .data-bar .badge { background:#43A047; color:white; padding:2px 8px; border-radius:10px; font-size:0.7rem; }
 
-/* Report content panel */
-.report-panel { display:none; }
-.report-panel.active { display:block; }
+
+/* Report content panel — single stock, always visible */
 
 /* Main Layout */
 main { max-width:1300px; margin:0 auto; padding:24px 24px 60px; display:flex; flex-direction:column; gap:20px; }
@@ -248,6 +241,90 @@ footer strong { color:var(--text); }
 
 /* highlight row */
 .hl-row { background:#FFF9C4 !important; font-weight:600; }
+
+/* ═══════════ APPENDIX REDESIGN ═══════════ */
+.appendix-subtitle {
+  font-size: 0.92rem; color: var(--navy); margin: 28px 0 14px;
+  padding-bottom: 8px; border-bottom: 2px solid #EEF2FF;
+}
+
+/* Pipeline row */
+.pipeline-row {
+  display: flex; align-items: center; gap: 0;
+  padding: 20px 16px; background: var(--bg1);
+  border-radius: 12px; margin-bottom: 8px;
+  overflow-x: auto;
+}
+.pipeline-step {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px; background: white;
+  border-radius: 10px; border: 1px solid var(--border);
+  min-width: 140px;
+}
+.pipeline-num {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-weight: 700; font-size: 0.78rem; flex-shrink: 0;
+}
+.pipeline-name { font-size: 0.78rem; font-weight: 600; color: var(--text); }
+.pipeline-desc { font-size: 0.68rem; color: var(--text3); margin-top: 2px; }
+.pipeline-arrow { font-size: 1.2rem; color: var(--text3); flex-shrink: 0; padding: 0 6px; }
+
+/* Verify cards */
+.verify-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px; margin-bottom: 8px;
+}
+.verify-card {
+  padding: 16px; background: var(--bg1); border-radius: 10px;
+  border: 1px solid var(--border);
+}
+.verify-label { font-size: 0.82rem; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+.verify-values { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+.verify-values span {
+  font-size: 0.75rem; color: var(--text2);
+  padding: 3px 10px; background: white; border-radius: 6px;
+}
+.verify-status { font-size: 0.73rem; font-weight: 600; }
+.verify-status.pass { color: var(--green); }
+
+/* Skill cards */
+.skill-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px; margin-bottom: 8px;
+}
+.skill-card {
+  padding: 16px 18px; background: var(--bg1);
+  border-radius: 10px; border: 1px solid var(--border);
+  border-left: 4px solid;
+}
+.skill-name { font-size: 0.82rem; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.skill-sub { font-size: 0.72rem; color: var(--text2); margin-bottom: 6px; }
+.skill-desc { font-size: 0.7rem; color: var(--text3); line-height: 1.5; }
+
+/* Source list */
+.source-list { margin-bottom: 8px; }
+.source-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px; border-bottom: 1px solid #F3F4F6;
+}
+.source-item:last-child { border-bottom: none; }
+.source-badge {
+  padding: 3px 10px; border-radius: 10px;
+  font-size: 0.68rem; font-weight: 700;
+  background: #DCFCE7; color: #166534; flex-shrink: 0;
+}
+.source-badge.alt { background: #DBEAFE; color: #1E40AF; }
+.source-name { font-size: 0.8rem; font-weight: 600; color: var(--text); min-width: 140px; }
+.source-desc { font-size: 0.76rem; color: var(--text2); flex: 1; }
+.source-time { font-size: 0.7rem; color: var(--text3); flex-shrink: 0; }
+
+.appendix-footer {
+  margin-top: 20px; padding: 16px 20px;
+  background: #EEF2FF; border-radius: 10px;
+  font-size: 0.8rem; color: var(--text2); line-height: 1.7;
+}
+.mt-8 { margin-top: 8px; }
 </style>
 </head>
 <body>
@@ -276,18 +353,6 @@ footer strong { color:var(--text); }
   </div>
 </header>
 
-<!-- ═══════════════ STOCK TABS ═══════════════ -->
-<div class="stock-tabs">
-  <button class="stock-tab active" onclick="switchStock('midea')" id="tab-midea">
-    美的集团
-    <span class="tab-code">000333.SZ · ¥79.22 ▲+0.33%</span>
-  </button>
-  <button class="stock-tab" onclick="switchStock('moutai')" id="tab-moutai">
-    贵州茅台
-    <span class="tab-code">600519.SH · ¥1,240 ▼-1.25%</span>
-  </button>
-</div>
-
 <!-- ═══════════════ DATA QUALITY BAR ═══════════════ -->
 <div class="data-bar">
   <span class="badge">L1 实时数据</span>
@@ -300,7 +365,6 @@ footer strong { color:var(--text); }
 <!-- ══════════════════════════════════════════════════
      REPORT 1: 美的集团
 ══════════════════════════════════════════════════ -->
-<div id="panel-midea" class="report-panel active">
 
 <!-- 免责声明 -->
 <div class="disclaimer-banner" style="margin:12px 24px 0;">
@@ -865,726 +929,175 @@ footer strong { color:var(--text); }
   </div>
 </div>
 
-<!-- MODULE 12: 附录 -->
+<!-- ═══════════════ 附录 ═══════════════ -->
 <div class="section">
   <div class="section-header">
     <span class="icon">📎</span>
-    <h2>附录 · 数据来源索引 & 验证报告</h2>
+    <h2>附录 · 数据来源与验证</h2>
   </div>
   <div class="section-body">
-    <h3 style="font-size:0.9rem;color:var(--blue);margin-bottom:8px;">三源交叉验证</h3>
-    <table>
-      <tr><th>指标</th><th class="num">源A: 通达信实时行情</th><th class="num">源B: 2025年报</th><th class="num">源C: 一致预期</th><th>偏差</th><th>状态</th></tr>
-      <tr><td>PE(TTM)</td><td class="num">13.63×</td><td class="num">~13.7×</td><td class="num">12.5×(FWD)</td><td>&lt;1%</td><td><span class="tag tag-pass">✅</span></td></tr>
-      <tr><td>总市值</td><td class="num">¥60,283亿</td><td class="num">（计算值）</td><td class="num">—</td><td>&lt;0.1%</td><td><span class="tag tag-pass">✅</span></td></tr>
-      <tr><td>归母净利润</td><td class="num">¥435亿（TTM）</td><td class="num">¥439亿（FY25）</td><td class="num">—</td><td>&lt;1%</td><td><span class="tag tag-pass">✅</span></td></tr>
-      <tr><td>每股净资产</td><td class="num">¥30.55</td><td class="num">¥31.09</td><td class="num">—</td><td>1.8%</td><td><span class="tag tag-pass">✅</span></td></tr>
-    </table>
 
-    <h3 style="font-size:0.9rem;color:var(--blue);margin:16px 0 8px;">技能集成管线 · Skill Pipeline</h3>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:16px;">
-      <div style="padding:14px;background:#EEF2FF;border-radius:8px;border-left:4px solid #1E40AF;">
-        <div style="font-weight:700;color:#1E40AF;font-size:0.85rem;">westock-data · 腾讯自选股</div>
-        <div style="font-size:0.78rem;color:var(--text2);margin-top:4px;">实时行情 · K线 · 财务报表 · 分红 · 公司简况 · 资金流向</div>
-        <div style="font-size:0.7rem;color:var(--text3);margin-top:4px;">→ 第1-4章 · 行情+财务数据采集</div>
+    <!-- 5-Phase Pipeline -->
+    <h3 class="appendix-subtitle">标准化分析流程</h3>
+    <div class="pipeline-row">
+      <div class="pipeline-step">
+        <span class="pipeline-num" style="background:var(--navy);">1</span>
+        <div class="pipeline-text">
+          <div class="pipeline-name">数据采集</div>
+          <div class="pipeline-desc">westock-data · tushare · 通达信</div>
+        </div>
       </div>
-      <div style="padding:14px;background:#F0FDF4;border-radius:8px;border-left:4px solid #0D9488;">
-        <div style="font-weight:700;color:#0D9488;font-size:0.85rem;">tushare-finance · Tushare Pro</div>
-        <div style="font-size:0.78rem;color:var(--text2);margin-top:4px;">A股备源数据 · 220+接口 · 财务/行情/指数</div>
-        <div style="font-size:0.7rem;color:var(--text3);margin-top:4px;">→ 交叉验证 · 数据备源</div>
+      <div class="pipeline-arrow">→</div>
+      <div class="pipeline-step">
+        <span class="pipeline-num" style="background:#0D9488;">2</span>
+        <div class="pipeline-text">
+          <div class="pipeline-name">交叉验证</div>
+          <div class="pipeline-desc">三源比对 · 偏差检测</div>
+        </div>
       </div>
-      <div style="padding:14px;background:#FFF7ED;border-radius:8px;border-left:4px solid #B45309;">
-        <div style="font-weight:700;color:#B45309;font-size:0.85rem;">AAA-financial-report-analysis</div>
-        <div style="font-size:0.78rem;color:var(--text2);margin-top:4px;">类现金5层框架 · 有息负债甄别 · 偿债能力7维度</div>
-        <div style="font-size:0.7rem;color:var(--text3);margin-top:4px;">→ 第4-4.5章 · 财务穿透+偿债分析</div>
+      <div class="pipeline-arrow">→</div>
+      <div class="pipeline-step">
+        <span class="pipeline-num" style="background:#B45309;">3</span>
+        <div class="pipeline-text">
+          <div class="pipeline-name">财务穿透</div>
+          <div class="pipeline-desc">类现金5层 · 偿债7维</div>
+        </div>
       </div>
-      <div style="padding:14px;background:#F5F3FF;border-radius:8px;border-left:4px solid #7C3AED;">
-        <div style="font-weight:700;color:#7C3AED;font-size:0.85rem;">financial-data-verifier</div>
-        <div style="font-size:0.78rem;color:var(--text2);margin-top:4px;">三源交叉验证 · PE×EPS三角验证 · 偏差检测</div>
-        <div style="font-size:0.7rem;color:var(--text3);margin-top:4px;">→ 数据质量栏 · 交叉验证表</div>
+      <div class="pipeline-arrow">→</div>
+      <div class="pipeline-step">
+        <span class="pipeline-num" style="background:#7C3AED;">4</span>
+        <div class="pipeline-text">
+          <div class="pipeline-name">PMQD引擎</div>
+          <div class="pipeline-desc">评分 · 凯利 · 安全边际</div>
+        </div>
       </div>
-      <div style="padding:14px;background:#FFFBEB;border-radius:8px;border-left:4px solid #CA8A04;">
-        <div style="font-weight:700;color:#CA8A04;font-size:0.85rem;">wind-forest-value-investing-analysis</div>
-        <div style="font-size:0.78rem;color:var(--text2);margin-top:4px;">PMQD V5.9引擎 · 凯利V5.2 · 安全边际三问 · 8维体检</div>
-        <div style="font-size:0.7rem;color:var(--text3);margin-top:4px;">→ 第5-9章 · PMQD评分+估值仓位</div>
-      </div>
-      <div style="padding:14px;background:#F3F4F6;border-radius:8px;border-left:4px solid #6B7280;">
-        <div style="font-weight:700;color:#6B7280;font-size:0.85rem;">tdx-connector · 通达信</div>
-        <div style="font-size:0.78rem;color:var(--text2);margin-top:4px;">L1实时行情 · 盘口数据 · 筛选器 · 问达资讯</div>
-        <div style="font-size:0.7rem;color:var(--text3);margin-top:4px;">→ 行情基准 · 筛选初筛</div>
+      <div class="pipeline-arrow">→</div>
+      <div class="pipeline-step">
+        <span class="pipeline-num" style="background:#CA8A04;">5</span>
+        <div class="pipeline-text">
+          <div class="pipeline-name">报告生成</div>
+          <div class="pipeline-desc">15模块 · 可视化输出</div>
+        </div>
       </div>
     </div>
 
-    <h3 style="font-size:0.9rem;color:var(--blue);margin:16px 0 8px;">标准化分析流程 · Standard Workflow</h3>
-    <div style="padding:16px;background:var(--bg1);border-radius:8px;font-size:0.8rem;line-height:2;">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-        <span style="background:var(--navy);color:white;padding:3px 10px;border-radius:10px;font-size:0.7rem;font-weight:700;">Phase 1</span>
-        <span style="color:var(--text);font-weight:600;">数据采集与验证</span>
-        <span style="color:var(--text3);font-size:0.72rem;">westock-data + tushare-finance + tdx-connector</span>
+    <!-- Cross-verification -->
+    <h3 class="appendix-subtitle">三源交叉验证</h3>
+    <div class="verify-grid">
+      <div class="verify-card">
+        <div class="verify-label">PE (TTM)</div>
+        <div class="verify-values">
+          <span>通达信 13.63×</span>
+          <span>年报 ~13.7×</span>
+          <span>一致预期 12.5×</span>
+        </div>
+        <div class="verify-status pass">✅ 偏差 &lt; 1%</div>
       </div>
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-        <span style="background:#0D9488;color:white;padding:3px 10px;border-radius:10px;font-size:0.7rem;font-weight:700;">Phase 2</span>
-        <span style="color:var(--text);font-weight:600;">三源交叉验证</span>
-        <span style="color:var(--text3);font-size:0.72rem;">financial-data-verifier → 偏差检测 + 质量评分</span>
+      <div class="verify-card">
+        <div class="verify-label">归母净利润</div>
+        <div class="verify-values">
+          <span>TTM ¥435亿</span>
+          <span>FY25 ¥439亿</span>
+        </div>
+        <div class="verify-status pass">✅ 偏差 &lt; 1%</div>
       </div>
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-        <span style="background:#B45309;color:white;padding:3px 10px;border-radius:10px;font-size:0.7rem;font-weight:700;">Phase 3</span>
-        <span style="color:var(--text);font-weight:600;">财务穿透精算</span>
-        <span style="color:var(--text3);font-size:0.72rem;">AAA-financial-report-analysis → 类现金5层 + 有息负债甄别 + 偿债能力</span>
+      <div class="verify-card">
+        <div class="verify-label">总市值</div>
+        <div class="verify-values">
+          <span>实时 ¥60,283亿</span>
+          <span>计算值 匹配</span>
+        </div>
+        <div class="verify-status pass">✅ 偏差 &lt; 0.1%</div>
       </div>
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-        <span style="background:#7C3AED;color:white;padding:3px 10px;border-radius:10px;font-size:0.7rem;font-weight:700;">Phase 4</span>
-        <span style="color:var(--text);font-weight:600;">PMQD分析引擎</span>
-        <span style="color:var(--text3);font-size:0.72rem;">wind-forest-value-investing-analysis → 评分+凯利+安全边际+体检</span>
-      </div>
-      <div style="display:flex;align-items:center;gap:10px;">
-        <span style="background:#CA8A04;color:white;padding:3px 10px;border-radius:10px;font-size:0.7rem;font-weight:700;">Phase 5</span>
-        <span style="color:var(--text);font-weight:600;">报告生成与输出</span>
-        <span style="color:var(--text3);font-size:0.72rem;">结构化15模块报告 + 可视化图表 + 终审意见</span>
+      <div class="verify-card">
+        <div class="verify-label">每股净资产</div>
+        <div class="verify-values">
+          <span>通达信 ¥30.55</span>
+          <span>年报 ¥31.09</span>
+        </div>
+        <div class="verify-status pass">✅ 偏差 1.8%</div>
       </div>
     </div>
 
-    <h3 style="font-size:0.9rem;color:var(--blue);margin:16px 0 8px;">数据来源</h3>
-    <table class="src-table">
-      <tr><th>数据源</th><th>层级</th><th>用途</th><th>更新时间</th></tr>
-      <tr><td>通达信行情系统 (tdx-connector)</td><td><span class="tag tag-pass">L1</span></td><td>实时股价、PE/PB、市值、盘口</td><td>2026-06-17 15:33 实时</td></tr>
-      <tr><td>腾讯自选股 (westock-data)</td><td><span class="tag tag-pass">L1</span></td><td>行情、财务报表、分红、公司简况</td><td>2026-06-17 实时</td></tr>
-      <tr><td>美的集团 FY2025 年度报告</td><td><span class="tag tag-pass">L1</span></td><td>财务报表、附注、分红记录</td><td>2026-03-31 披露</td></tr>
-      <tr><td>Tushare Pro (tushare-finance)</td><td><span class="tag tag-info">L2</span></td><td>财务数据备源验证</td><td>2026-06-17</td></tr>
-      <tr><td>分析师一致预期</td><td><span class="tag tag-info">L2</span></td><td>Forward PE、盈利预测</td><td>2026-06</td></tr>
-    </table>
+    <!-- Skill Pipeline -->
+    <h3 class="appendix-subtitle">技能集成管线</h3>
+    <div class="skill-grid">
+      <div class="skill-card" style="border-left-color: #1E40AF;">
+        <div class="skill-name">westock-data</div>
+        <div class="skill-sub">腾讯自选股数据源</div>
+        <div class="skill-desc">行情 · K线 · 财报 · 分红 · 资金流向</div>
+      </div>
+      <div class="skill-card" style="border-left-color: #0D9488;">
+        <div class="skill-name">tushare-finance</div>
+        <div class="skill-sub">Tushare Pro 备源</div>
+        <div class="skill-desc">220+接口 · 财务/行情交叉验证</div>
+      </div>
+      <div class="skill-card" style="border-left-color: #B45309;">
+        <div class="skill-name">AAA 财务分析</div>
+        <div class="skill-sub">财报深度穿透</div>
+        <div class="skill-desc">类现金5层 · 有息负债甄别 · 偿债7维</div>
+      </div>
+      <div class="skill-card" style="border-left-color: #7C3AED;">
+        <div class="skill-name">data-verifier</div>
+        <div class="skill-sub">三源交叉验证引擎</div>
+        <div class="skill-desc">PE×EPS三角验证 · 偏差检测 · 质量评分</div>
+      </div>
+      <div class="skill-card" style="border-left-color: #CA8A04;">
+        <div class="skill-name">PMQD V5.9 引擎</div>
+        <div class="skill-sub">价值投资核心</div>
+        <div class="skill-desc">PMQD评分 · 凯利V5.2 · 安全边际 · 8维体检</div>
+      </div>
+      <div class="skill-card" style="border-left-color: #6B7280;">
+        <div class="skill-name">tdx-connector</div>
+        <div class="skill-sub">通达信实时行情</div>
+        <div class="skill-desc">L1盘口 · 筛选器 · 问达资讯</div>
+      </div>
+    </div>
 
-    <div style="margin-top:16px;padding:14px 20px;background:var(--bg1);border-radius:8px;font-size:0.8rem;color:var(--text2);">
-      <strong>下次复评触发条件</strong>：①股价触及¥65以下 ②FY2025年报财务异常 ③竞争格局重大变化（格力/海尔战略调整）④库卡机器人业务增速<br>
-      <strong style="margin-top:6px;display:inline-block;">分析引擎版本</strong>：PMQD V5.9 · 凯利 V5.2 · 类现金5层框架 V3 · 偿债能力7维度 V2
+    <!-- Data Sources -->
+    <h3 class="appendix-subtitle">数据来源</h3>
+    <div class="source-list">
+      <div class="source-item">
+        <span class="source-badge">L1</span>
+        <span class="source-name">通达信行情系统</span>
+        <span class="source-desc">实时股价、PE/PB、市值、盘口</span>
+        <span class="source-time">2026-06-17 实时</span>
+      </div>
+      <div class="source-item">
+        <span class="source-badge">L1</span>
+        <span class="source-name">腾讯自选股</span>
+        <span class="source-desc">行情、财务报表、分红、公司简况</span>
+        <span class="source-time">2026-06-17 实时</span>
+      </div>
+      <div class="source-item">
+        <span class="source-badge">L1</span>
+        <span class="source-name">美的集团 FY2025 年报</span>
+        <span class="source-desc">财务报表、附注、分红记录</span>
+        <span class="source-time">2026-03-31 披露</span>
+      </div>
+      <div class="source-item">
+        <span class="source-badge alt">L2</span>
+        <span class="source-name">Tushare Pro</span>
+        <span class="source-desc">财务数据备源验证</span>
+        <span class="source-time">2026-06-17</span>
+      </div>
+      <div class="source-item">
+        <span class="source-badge alt">L2</span>
+        <span class="source-name">分析师一致预期</span>
+        <span class="source-desc">Forward PE、盈利预测</span>
+        <span class="source-time">2026-06</span>
+      </div>
+    </div>
+
+    <!-- Footer note -->
+    <div class="appendix-footer">
+      <div><strong>下次复评条件</strong>：股价 &lt; ¥65 或年报异常或竞争格局重大变化</div>
+      <div class="mt-8"><strong>引擎版本</strong>：PMQD V5.9 · 凯利 V5.2 · 类现金5层 V3 · 偿债7维 V2</div>
     </div>
   </div>
 </div>
 
 </main>
-</div><!-- end panel-midea -->
-
-
-<!-- ══════════════════════════════════════════════════
-     REPORT 2: 贵州茅台
-══════════════════════════════════════════════════ -->
-<div id="panel-moutai" class="report-panel">
-
-<!-- 免责声明 -->
-<div class="disclaimer-banner" style="margin:12px 24px 0;">
-  <strong>⚖️ 免责声明</strong>：本报告不构成投资建议。所有分析基于公开数据与 PMQD V5.9 价值投资框架，仅供专业研究参考。数据截至 2026-06-17 收盘，基于 FY2025 年报 (2026-04-17 披露)。
-</div>
-
-<main>
-
-<!-- MODULE 1: 核心结论卡 -->
-<div class="section">
-  <div class="section-header">
-    <span class="icon">📊</span>
-    <h2>核心结论卡 · 贵州茅台</h2>
-    <span class="badge">前10秒即知结论</span>
-  </div>
-  <div class="section-body">
-    <div class="conclusions-grid">
-      <div class="conclusion-item highlight">
-        <div class="label">PMQD 综合评分</div>
-        <div class="value">48/100</div>
-        <div class="sub">★★☆☆☆ 观察等待级</div>
-      </div>
-      <div class="conclusion-item">
-        <div class="label">策略归属</div>
-        <div class="value">策略二高估区</div>
-        <div class="sub">ROE 32.5% >> 门槛</div>
-      </div>
-      <div class="conclusion-item">
-        <div class="label">有效PE</div>
-        <div class="value">17.3×</div>
-        <div class="sub">股价¥1,240 · 净现金扣除后</div>
-      </div>
-      <div class="conclusion-item">
-        <div class="label">类现金</div>
-        <div class="value">¥1,264亿</div>
-        <div class="sub">期末现金等价物口径</div>
-      </div>
-      <div class="conclusion-item">
-        <div class="label">建议仓位</div>
-        <div class="value" style="color:var(--red)">0%</div>
-        <div class="sub">凯利f*=0 · 等待买点</div>
-      </div>
-      <div class="conclusion-item">
-        <div class="label">安全边际三问</div>
-        <div class="value" style="color:#E65100">1/3 通过</div>
-        <div class="sub">第2、3问未通过</div>
-      </div>
-    </div>
-    <div class="analysis-text red-border" style="margin-top:14px;">
-      <p>贵州茅台（600519.SH）当前股价 <strong>¥1,240</strong>，对应有效PE <strong>17.3×</strong>，远高于策略二12×上限和内在价值锚点12.5×。这是"伟大的公司，糟糕的价格"的教科书案例。茅台的品牌护城河是中国最强（接近满分），但当前估值完全透支了未来3-5年的增长，凯利公式给出0%仓位，需等待更优买点。</p>
-    </div>
-  </div>
-</div>
-
-<!-- MODULE 2: 摘要 -->
-<div class="section">
-  <div class="section-header">
-    <span class="icon">📋</span>
-    <h2>执行摘要</h2>
-  </div>
-  <div class="section-body">
-    <div class="kpi-row" style="margin-bottom:16px;">
-      <div class="kpi-card green"><div class="kpi-label">ROE</div><div class="kpi-val">32.5%</div><div class="kpi-sub">A股最高质量之一</div></div>
-      <div class="kpi-card red"><div class="kpi-label">有效PE</div><div class="kpi-val">17.3×</div><div class="kpi-sub">高于内在锚点38%</div></div>
-      <div class="kpi-card gold"><div class="kpi-label">类现金</div><div class="kpi-val">¥1,264亿</div><div class="kpi-sub">现金等价物期末余额</div></div>
-      <div class="kpi-card blue"><div class="kpi-label">净利润(FY25)</div><div class="kpi-val">¥823亿</div><div class="kpi-sub">同比+6.9%</div></div>
-      <div class="kpi-card orange"><div class="kpi-label">安全边际</div><div class="kpi-val">1/3</div><div class="kpi-sub">仅第1问通过</div></div>
-    </div>
-    <p style="margin-bottom:8px;">❶ <strong>贵州茅台是A股最顶级的护城河资产</strong>，品牌定价权无与伦比，产能不可复制（12987酿酒工艺+赤水河水源），ROE 32.5%连续多年稳定，净利率接近50%，这是全球消费品中极为罕见的财务特征。</p>
-    <p style="margin-bottom:8px;">❷ <strong>但当前估值严重偏高</strong>，有效PE 17.3×（扣除类现金¥1,264亿后），远超策略二上限12×和内在价值锚点12.5×。按格雷厄姆安全边际原则，这意味着为未来高确定性增长支付了过高溢价。</p>
-    <p style="margin-bottom:8px;">❸ <strong>增长催化处于高基数下行阶段</strong>，FY2025营收同比-0.7%（¥1,688亿 vs FY2024¥1,709亿），出现首次营收下滑，反映高端酒类消费需求阶段性放缓，茅系酒整体承压。</p>
-    <p>❹ <strong>分红极其慷慨</strong>，FY2025三季报已派¥239.57/10股，FY2025年报预计派¥280.24/10股（股东大会预案），全年合计约¥519元/10股，对应股息率约4.2%（如按¥1,240），是茅台少见的高性价比时刻，但PE估值仍是核心障碍。</p>
-  </div>
-</div>
-
-<!-- MODULE 3: 投资结论 -->
-<div class="section">
-  <div class="section-header">
-    <span class="icon">🎯</span>
-    <h2>第1章 · 投资结论</h2>
-  </div>
-  <div class="section-body">
-    <table>
-      <tr><th style="width:160px">评级维度</th><th>结果</th><th>依据</th></tr>
-      <tr><td>PMQD总分</td><td><strong>48/100 ★★☆☆☆</strong></td><td>P:6 + M:12 + Q:24 + D:6</td></tr>
-      <tr><td>策略归属</td><td>策略二高估区</td><td>ROE 32.5%>>15%✅ · 有效PE 17.3×>>12×❌❌</td></tr>
-      <tr><td>仓位建议</td><td><span class="tag tag-fail">0% (凯利f*=0)</span></td><td>b=(12.5-17.3)/17.3=−0.277，PE大幅高于内在价值</td></tr>
-      <tr><td>安全边际</td><td>1/3问通过</td><td>第2问（跌50%净资产支撑）、第3问（5年FCF）均不通过</td></tr>
-      <tr><td>核心风险</td><td colspan="2">估值高企·高端酒需求放缓·营收首次负增长·PE历史高分位</td></tr>
-      <tr><td>核心机会</td><td colspan="2">品牌护城河无与伦比·产能稀缺·国际化空间·高股息</td></tr>
-      <tr class="hl-row"><td>最优买点</td><td colspan="2">股价回落至 <strong>¥800-950</strong> (PE 11-13×) 触发策略二信号</td></tr>
-    </table>
-    <div class="analysis-text" style="margin-top:14px;">
-      <p><strong>历史估值参考</strong>：茅台历史上提供过多次绝佳买点——2012年¥100-150（PE 8-12×），2018年¥490-580（PE 15-18×调整期），2020年初¥900（PE 28×，风险期）。当前¥1,240对应PE 18.7×（报表PE），处于历史中高位。参考2021年高点¥2,600，已回调52%，但离价值投资买点（PE 11-13×）尚有40-50%空间。</p>
-    </div>
-  </div>
-</div>
-
-<!-- MODULE 4: 公司素描 + 策略判定 -->
-<div class="two-col">
-  <div class="section">
-    <div class="section-header">
-      <span class="icon">🏢</span>
-      <h2>第2章 · 公司素描</h2>
-    </div>
-    <div class="section-body">
-      <p><strong>贵州茅台</strong> (600519.SH)，2001年上市，总部贵州仁怀。主营：<strong>酱香型白酒</strong>（茅台酒+系列酒）。</p>
-      <table style="margin-top:12px;">
-        <tr><td>总市值（2026-06-17）</td><td class="num"><strong>¥15,501亿</strong></td></tr>
-        <tr><td>总股本（流通）</td><td class="num">12.50亿股（全流通）</td></tr>
-        <tr><td>FY2025营收</td><td class="num">¥1,688亿（−0.7% YoY）</td></tr>
-        <tr><td>FY2025归母净利润</td><td class="num">¥823.2亿（+6.9%）</td></tr>
-        <tr><td>FY2025 ROE</td><td class="num">32.5%</td></tr>
-        <tr><td>归母净资产</td><td class="num">¥2,446亿</td></tr>
-        <tr><td>FY2025净利率</td><td class="num">48.7%</td></tr>
-      </table>
-      <div class="analysis-text gold-border" style="margin-top:12px;">
-        <p>茅台的护城河是A股最强：<strong>品牌</strong>（53年国宴用酒，不可替代的文化符号）、<strong>产能壁垒</strong>（酿造用水和微生物环境唯一性）、<strong>价格控制权</strong>（出厂价1169元，市场价约2000元，渠道存在约800元/瓶溢价空间，品牌溢价极度坚固）。唯一的护城河风险是"消费代际更替"——Z世代对白酒的偏好是否延续，是10-20年内的长期观察点。</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="section-header">
-      <span class="icon">⚖️</span>
-      <h2>第3章 · 策略判定</h2>
-    </div>
-    <div class="section-body">
-      <div class="pipeline">
-        <div class="pipeline-step pass">
-          <div class="step-num">STEP 1</div>
-          <div class="step-label">诚信审查</div>
-          <div class="step-val">✅ 9条全通过</div>
-        </div>
-        <div class="pipeline-step pass">
-          <div class="step-num">STEP 2</div>
-          <div class="step-label">质量门槛</div>
-          <div class="step-val">ROE 32.5% >> 15%</div>
-        </div>
-        <div class="pipeline-step fail">
-          <div class="step-num">STEP 3</div>
-          <div class="step-label">估值门槛</div>
-          <div class="step-val">有效PE 17.3×>>12×</div>
-        </div>
-        <div class="pipeline-step fail">
-          <div class="step-num">RESULT</div>
-          <div class="step-label">高估区</div>
-          <div class="step-val">不建议建仓</div>
-        </div>
-      </div>
-      <div class="analysis-text red-border" style="margin-top:12px;">
-        <p><strong>策略判定逻辑</strong>：茅台是PMQD框架中Q（质量）维度接近满分的公司，ROE 32.5%甚至超过策略一的顶级门槛。但有效PE 17.3×是策略二上限（12×）的1.44倍，估值溢价极高。</p>
-        <p style="margin-top:6px;">按PMQD V5.9规则：<strong>即使护城河最强的公司，也必须等待合理价格</strong>。"伟大的公司，糟糕的价格"是价值投资最危险的陷阱。茅台在合理价格时（PE 11-13×）将是极佳投资，但当前不是那个时刻。</p>
-      </div>
-      <div style="margin-top:12px;padding:14px 20px;background:var(--bg1);border-radius:10px;border-left:4px solid var(--red);line-height:1.85;font-size:0.82rem;color:var(--text2);">
-        <strong style="color:var(--text);">📊 策略管道流四步详解 — 贵州茅台</strong><br>
-        <strong>STEP 1 诚信审查（✅ 通过）</strong>：9条诚信红线全部通过。茅台作为央企控股公司，公司治理规范度极高，无关联交易侵占、无财务造假记录、无大额商誉（商誉≈0），上市20余年分红记录完美。<br>
-        <strong>STEP 2 质量门槛（✅ 通过）</strong>：ROE 32.5%远超策略二15%门槛，甚至达到策略一顶级标准。品牌护城河接近满分，产能不可复制，定价权无与伦比，OCF稳定，净利率48.7%全球罕见。质量维度是茅台最大的确定性。<br>
-        <strong>STEP 3 估值门槛（❌ 严重未通过）</strong>：有效PE 17.3× 是12×上限的1.44倍，属于严重超标。扣除类现金¥1,264亿后的真实估值仍远超策略框架允许范围。这是管道流中最致命的断点。<br>
-        <strong>RESULT 高估区（❌ 不建议建仓）</strong>：即使质量满分，估值严重偏高时仍不建议建仓。PMQD V5.9规则明确——"伟大的公司，糟糕的价格"是价值投资最危险的陷阱。茅台最优买点：股价¥800-950（PE 11-13×），需从当前¥1,240下跌约23-35%。
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- MODULE 5: 财务穿透 -->
-<div class="section">
-  <div class="section-header">
-    <span class="icon">🔍</span>
-    <h2>第4章 · 财务穿透精算</h2>
-    <span class="badge">四条铁律</span>
-  </div>
-  <div class="section-body">
-    <div class="two-col">
-      <div>
-        <h3 style="font-size:0.9rem;margin-bottom:8px;color:var(--blue);">铁律一：类现金穿透（FY2025）</h3>
-        <table>
-          <tr><th>科目</th><th class="num">金额(亿)</th><th>处理</th></tr>
-          <tr><td>货币资金</td><td class="num">516.9</td><td>✅ 全额计入</td></tr>
-          <tr><td>短期理财（含义票）</td><td class="num">~1,950</td><td>✅ 现金等价物</td></tr>
-          <tr><td>合同负债（预收酒款）</td><td class="num">−800.7</td><td>⚠️ 非现金资产，需扣减</td></tr>
-          <tr><td>一年内到期非流动资产</td><td class="num">268.7</td><td>✅ 短期理财</td></tr>
-          <tr class="hl-row"><td><strong>期末现金等价物余额</strong></td><td class="num"><strong>1,264.3</strong></td><td>现金流量表期末数</td></tr>
-        </table>
-      </div>
-      <div>
-        <h3 style="font-size:0.9rem;margin-bottom:8px;color:var(--green);">铁律二：有息负债甄别</h3>
-        <table>
-          <tr><th>科目</th><th class="num">金额(亿)</th></tr>
-          <tr><td>短期借款</td><td class="num">0</td></tr>
-          <tr><td>一年内到期非流动负债</td><td class="num">4.4</td></tr>
-          <tr><td>长期借款</td><td class="num">0</td></tr>
-          <tr><td>应付债券</td><td class="num">0</td></tr>
-          <tr class="hl-row"><td><strong>有息负债合计（≈0）</strong></td><td class="num"><strong>4.4</strong></td></tr>
-        </table>
-        <p style="font-size:0.75rem;color:var(--green);margin-top:8px;">✅ 茅台几乎无有息负债，是极纯粹的净现金企业</p>
-      </div>
-    </div>
-    <div style="margin-top:16px;padding:14px 20px;background:var(--navy);color:white;border-radius:8px;text-align:center;">
-      <span style="font-size:0.8rem;color:#94A3B8;">铁律三·永续债：</span> 无永续债 ✅
-      &nbsp;&nbsp;|&nbsp;&nbsp;
-      <span style="font-size:0.8rem;color:#94A3B8;">类现金（期末现金等价物口径）：</span>
-      <strong>¥1,264亿</strong>
-      &nbsp;&nbsp;|&nbsp;&nbsp;
-      <span style="font-size:0.8rem;color:#8AACC8;">有效市值 = </span>
-      <strong>¥15,501亿 − ¥1,264亿 = ¥14,237亿</strong>
-    </div>
-    <div class="chart-row" style="margin-top:16px;">
-      <div class="chart-box"><h4>营收 vs 净利润趋势（亿元）</h4><canvas id="t_chartRevenue" height="200"></canvas></div>
-      <div class="chart-box"><h4>PE比较：有效PE vs 报表PE vs Forward PE</h4><canvas id="t_chartPE" height="200"></canvas></div>
-    </div>
-    <div class="analysis-text gold-border" style="margin-top:14px;">
-      <p><strong>茅台财务穿透特殊性</strong>：茅台资产负债表中的"合同负债"（¥800亿）代表经销商预交的打款，这是茅台独特的预收酒款模式——渠道愿意提前付款锁货。这不是负债，而是品牌强度的财务体现。但在计算净现金时，这部分对应的是"未来需要交货的酒"，不能直接视为可用现金，因此采用现金流量表期末余额口径（¥1,264亿）更严谨。</p>
-      <p><strong>铁律四·股息率</strong>：FY2025年三季报派息¥239.57/10股（实施），年报预计派¥280.24/10股（预案），全年约¥519.81/10股。以¥1,240股价计算，股息率约 <strong>4.19%</strong>，创近年新高，提供较高的持有安全垫。</p>
-    </div>
-    <div style="margin-top:12px;padding:14px 20px;background:var(--bg1);border-radius:10px;border-left:4px solid var(--green);line-height:1.85;font-size:0.82rem;color:var(--text2);">
-      <strong style="color:var(--text);">📊 财务柱状图解读</strong><br>
-      <strong>左图：营收 vs 净利润趋势</strong> — FY2025营收¥1,688亿（-0.7% YoY），出现上市以来首次年度营收下滑。但净利润¥823亿（+6.9%），利润率进一步提升至48.7%。这种"增收不增利"转为"减收反增利"的结构，反映茅台通过产品结构升级（提高茅台酒占比、减少系列酒）对冲了营收下滑。<br>
-      <strong>右图：PE对比</strong> — 有效PE 17.3×（扣除类现金¥1,264亿后）显著低于报表PE 18.74×，类现金对估值虚增效应约1.4×。Forward PE约14.2×反映一致预期下盈利增长可消化部分估值，但仍远高于内在价值锚点12.5×。三者的差距清晰表明：即使最乐观预期下，当前价格仍偏高。
-    </div>
-    <table style="margin-top:12px;">
-      <tr><th>指标</th><th>计算过程</th><th class="num">结果（以¥1,240计）</th></tr>
-      <tr><td>总市值</td><td>¥1,240 × 12.50亿股</td><td class="num">¥15,501亿</td></tr>
-      <tr><td>有效市值</td><td>¥15,501亿 − ¥1,264亿</td><td class="num"><strong>¥14,237亿</strong></td></tr>
-      <tr class="hl-row"><td>有效PE</td><td>¥14,237亿 ÷ ¥823亿</td><td class="num"><strong>17.3×</strong></td></tr>
-      <tr><td>报表PE(TTM)</td><td>通达信实时数据</td><td class="num">18.74×</td></tr>
-      <tr><td>FY2025净利率</td><td>¥823亿 ÷ ¥1,688亿</td><td class="num">48.7%</td></tr>
-      <tr><td>铁律四·股息率</td><td>约¥51.98元/股 ÷ ¥1,240</td><td class="num">4.19%</td></tr>
-    </table>
-  </div>
-</div>
-
-<!-- MODULE 6: PMQD评分 -->
-<div class="section">
-  <div class="section-header">
-    <span class="icon">📐</span>
-    <h2>第5章 · PMQD 四维评分</h2>
-    <span class="badge">策略二评分细则</span>
-  </div>
-  <div class="section-body">
-    <div class="doughnut-grid">
-      <div class="doughnut-item">
-        <canvas id="t_doughnutP" width="140" height="140"></canvas>
-        <div class="doughnut-label" style="color:#C0392B;">P · 价格安全边际</div>
-        <div class="doughnut-sub">6 / 40 分</div>
-        <div class="doughnut-detail">有效PE 17.3× >> 12×</div>
-      </div>
-      <div class="doughnut-item">
-        <canvas id="t_doughnutM" width="140" height="140"></canvas>
-        <div class="doughnut-label" style="color:#D4A43A;">M · 行业/结构催化</div>
-        <div class="doughnut-sub">12 / 18 分</div>
-        <div class="doughnut-detail">消费升级+国际化</div>
-      </div>
-      <div class="doughnut-item">
-        <canvas id="t_doughnutQ" width="140" height="140"></canvas>
-        <div class="doughnut-label" style="color:#2D7A3E;">Q · 不可替代硬质量</div>
-        <div class="doughnut-sub">24 / 30 分</div>
-        <div class="doughnut-detail">ROE 32.5% · 顶级护城河</div>
-      </div>
-      <div class="doughnut-item">
-        <canvas id="t_doughnutD" width="140" height="140"></canvas>
-        <div class="doughnut-label" style="color:#1A5FA5;">D · 市场认知差</div>
-        <div class="doughnut-sub">6 / 12 分</div>
-        <div class="doughnut-detail">消费悲观预期有一定错杀</div>
-      </div>
-    </div>
-    <div class="radar-box">
-      <h4>PMQD 四维雷达图 — 贵州茅台（百分比）</h4>
-      <canvas id="t_chartRadar" height="280"></canvas>
-    </div>
-    <div class="analysis-text" style="margin-top:14px;">
-      <p><strong>PMQD评分解读</strong>：茅台 Q（质量）维度80%，是全A股少数能达到此水平的公司。但 P（价格）维度仅15%，是最致命的短板。M 和 D 维度处于中等水平，反映市场对茅台增长前景存在一定分歧（FY2025营收负增长加剧了市场悲观情绪），给 D 维度提供了轻微的"认知差"机会。</p>
-      <p><strong>历史类比</strong>：2012年茅台 PMQD 约85分（PE 8×），当时是史诗级买点。2015年约75分（PE 12-14×），是次优买点。当前48分说明距离理想买点还有相当差距。</p>
-    </div>
-    <div style="margin-top:16px;padding:16px 20px;background:var(--bg1);border-radius:10px;border-left:4px solid var(--navy);line-height:1.85;font-size:0.85rem;color:var(--text2);">
-      <strong style="color:var(--text);">📊 PMQD四维环形图详解 — 贵州茅台</strong><br>
-      <span style="color:#C0392B;font-weight:700;">P·价格安全边际（6/40，15%）</span> — 有效PE 17.3×是策略二上限12×的1.44倍，价格端安全边际极度不足。市值/内在价值折价仅得3/22分（溢价38%），盈利回本周期约17年得3/18分。P维度得分率15%是A股蓝筹中最低之一，也是茅台PMQD总分被严重拖累的根本原因。<br>
-      <span style="color:#D4A43A;font-weight:700;">M·行业/结构催化（12/18，66.7%）</span> — 高端酒短期消费承压但长期消费升级趋势不变得5/9分；产能绝对稀缺无法复制得6/6分（满分）；国际化+系列酒扩张催化确定性不足得1/3分。供给壁垒是茅台最强的催化维度。<br>
-      <span style="color:#2D7A3E;font-weight:700;">Q·不可替代硬质量（24/30，80%）</span> — 护城河深度得满分12/12（品牌9分+产能7分超满分）；ROE 32.5%极高且稳定得9/10分；国企管理层平稳但非市场化激励机制得1/8分；OCF加分+2。Q维度得分率80%是全A股顶尖水平。<br>
-      <span style="color:#1A5FA5;font-weight:700;">D·市场认知差（6/12，50%）</span> — FY2025营收首次-0.7%引发市场过度悲观得4/7分（轻微认知差机会）；PE 18.7×处历史中高位非极端低点得2/5分。消费悲观预期提供了一定"错杀"空间但远不足以构成买入信号。
-    </div>
-    <div class="two-col" style="margin-top:20px;">
-      <div>
-        <h3 style="font-size:0.9rem;color:var(--blue);margin-bottom:8px;">P · 价格安全边际评分 (6/40)</h3>
-        <table>
-          <tr><td>市值/内在价值折价</td><td>有效PE 17.3×>>12×，溢价38%</td><td class="num">3/22</td></tr>
-          <tr><td>盈利回本周期</td><td>17×对应~17年回本</td><td class="num">3/18</td></tr>
-        </table>
-        <p style="font-size:0.78rem;color:var(--text2);margin-top:8px;">P得分极低（6/40）是评分关键拖累。若股价回落至¥900（PE≈13×），P分约15分，总分约57分；若至¥800（PE≈11.5×），P分约20分，总分约62分，接近买入阈值。</p>
-        <h3 style="font-size:0.9rem;color:var(--gold);margin:12px 0 8px;">M · 行业/结构催化 (12/18)</h3>
-        <table>
-          <tr><td>行业顺风</td><td>高端酒短期承压，长期消费升级</td><td class="num">5/9</td></tr>
-          <tr><td>供给壁垒</td><td>产能绝对稀缺，无法复制</td><td class="num">6/6</td></tr>
-          <tr><td>催化确定性</td><td>国际化+系列酒扩张</td><td class="num">1/3</td></tr>
-        </table>
-      </div>
-      <div>
-        <h3 style="font-size:0.9rem;color:var(--green);margin-bottom:8px;">Q · 不可替代硬质量 (24/30)</h3>
-        <table>
-          <tr><td>护城河深度</td><td>品牌9+产能7=16/12（超额分）</td><td class="num">12/12</td></tr>
-          <tr><td>ROE与财务质量</td><td>32.5%，极高且稳定</td><td class="num">9/10</td></tr>
-          <tr><td>管理层</td><td>国企，管理层平稳</td><td class="num">1/8</td></tr>
-          <tr><td>现金流</td><td>OCF/NP 0.72×（FY2025略低）</td><td class="num">+2</td></tr>
-        </table>
-        <h3 style="font-size:0.9rem;color:var(--red);margin:12px 0 8px;">D · 市场认知差 (6/12)</h3>
-        <table>
-          <tr><td>营收下滑过度悲观</td><td>FY2025营收-0.7%，市场估计持续下行</td><td class="num">4/7</td></tr>
-          <tr><td>PE历史分位</td><td>18.7×，中高位，非极端高点</td><td class="num">2/5</td></tr>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- MODULE 7: 安全边际三问 -->
-<div class="section">
-  <div class="section-header">
-    <span class="icon">🛡️</span>
-    <h2>第6章 · 安全边际三问</h2>
-    <span class="badge">满分50 · 仅通过1/3</span>
-  </div>
-  <div class="section-body">
-    <table>
-      <tr><th>#</th><th style="width:260px">问题</th><th style="width:80px">判定</th><th style="width:60px">得分</th><th>得分率</th><th>依据</th></tr>
-      <tr>
-        <td>1</td>
-        <td><strong>行业不复苏，公司会否破产/退市？</strong></td>
-        <td><span class="tag tag-pass">✅ 通过</span></td>
-        <td class="num">20/20</td>
-        <td><div class="progress-track"><div class="progress-fill good" style="width:100%"></div></div></td>
-        <td>类现金¥1,264亿·有息负债≈0·货币资金完全覆盖短期负债</td>
-      </tr>
-      <tr>
-        <td>2</td>
-        <td><strong>股价再跌50%，净资产是否仍支撑？</strong></td>
-        <td><span class="tag tag-fail">❌ 不通过</span></td>
-        <td class="num">4/20</td>
-        <td><div class="progress-track"><div class="progress-fill danger" style="width:20%"></div></div></td>
-        <td>跌50%市值¥7,751亿 >> 净资产¥2,446亿（3.2×），显著高估</td>
-      </tr>
-      <tr>
-        <td>3</td>
-        <td><strong>未来5年FCF能否覆盖有效市值？</strong></td>
-        <td><span class="tag tag-fail">❌ 不通过</span></td>
-        <td class="num">0/10</td>
-        <td><div class="progress-track"><div class="progress-fill danger" style="width:0%"></div></div></td>
-        <td>5年FCF≈¥3,500亿（按FY25 OCF¥615亿+5%增长）&lt;&lt; 有效市值¥14,237亿</td>
-      </tr>
-      <tr style="background:var(--bg1);">
-        <td colspan="2"><strong>安全边际三问总分</strong></td>
-        <td><span class="tag tag-fail">1/3通过</span></td>
-        <td class="num"><strong>24/50</strong></td>
-        <td><div class="progress-track"><div class="progress-fill danger" style="width:48%"></div></div></td>
-        <td>第2、3问均不通过 → 当前价格不提供安全边际</td>
-      </tr>
-    </table>
-    <div class="analysis-text red-border" style="margin-top:14px;">
-      <p><strong>第2问深度解析</strong>：跌50%对应市值¥7,751亿，而净资产仅¥2,446亿，市净率仍高达3.2×。这说明茅台的价值主要来自"品牌溢价"而非有形资产，这在会计上是无形的，遇到极端情景（禁酒令、消费代际转变）时存在溢价坍塌风险。</p>
-      <p><strong>第3问深度解析</strong>：按FY2025 OCF ¥615亿，5%复合增长估算，5年累计约¥3,400亿。与有效市值¥14,237亿相比，需要约20年FCF才能回本——这在价值投资框架中是不可接受的。茅台的"合理买点"需要有效市值降至¥6,000-7,000亿以下（对应¥960-1,120股价）。</p>
-    </div>
-    <div style="margin-top:12px;padding:14px 20px;background:var(--bg1);border-radius:10px;border-left:4px solid #E65100;line-height:1.85;font-size:0.82rem;color:var(--text2);">
-      <strong style="color:var(--text);">📊 安全边际进度条逐问解读</strong><br>
-      <strong>第一问（20/20，✅ 通过，满分）</strong>：即使白酒行业不复苏，茅台也绝不会破产或退市。类现金¥1,264亿远大于零，有息负债≈0，货币资金¥517亿完全覆盖所有短期负债，品牌价值远超账面净资产。这是PMQD框架中极为罕见的满分——茅台是A股最不可能破产的公司。<br>
-      <strong>第二问（4/20，❌ 不通过）</strong>：跌50%市值¥7,751亿仍远高于净资产¥2,446亿（3.2×PB）。茅台价值核心是无形资产（品牌），而非有形净资产，在极端情景下品牌溢价可能大幅缩水，净资产支撑力度不足。<br>
-      <strong>第三问（0/10，❌ 不通过）</strong>：5年FCF约¥3,400亿仅覆盖有效市值¥14,237亿的24%，需要约20年才能完全回本。这在格雷厄姆安全边际框架中是完全不可接受的——即使茅台每年稳定赚¥800亿+，也需要极长时间才能"赚回"当前买入成本。
-    </div>
-  </div>
-</div>
-
-<!-- MODULE 8: 8维体检 -->
-<div class="section">
-  <div class="section-header">
-    <span class="icon">🩺</span>
-    <h2>第7章 · 8维深度体检</h2>
-    <span class="badge">21/32</span>
-  </div>
-  <div class="section-body">
-    <table>
-      <tr><th>#</th><th style="width:120px">维度</th><th style="width:180px">核心问题</th><th>判定</th><th style="width:50px">得分</th><th style="width:100px">得分率</th></tr>
-      <tr><td>1</td><td>产能-价格-收入</td><td>增长来自量增还是价涨？</td><td style="color:var(--red)">FY2025营收-0.7%，首次下滑，量价均承压</td><td class="num">1/4</td><td><div class="progress-track"><div class="progress-fill danger" style="width:25%"></div></div></td></tr>
-      <tr><td>2</td><td>毛利率</td><td>盈利能力趋势？</td><td>毛利率91.9%，全球消费品最高水平之一，持续稳定</td><td class="num">4/4</td><td><div class="progress-track"><div class="progress-fill good" style="width:100%"></div></div></td></tr>
-      <tr><td>3</td><td>成本控制</td><td>三费是否侵蚀利润？</td><td>期间费用率&lt;10%，超低费用率，极强定价权</td><td class="num">4/4</td><td><div class="progress-track"><div class="progress-fill good" style="width:100%"></div></div></td></tr>
-      <tr><td>4</td><td>有息负债</td><td>借的钱在变多还是变少？</td><td>有息负债≈0，无杠杆，财务极度保守</td><td class="num">4/4</td><td><div class="progress-track"><div class="progress-fill good" style="width:100%"></div></div></td></tr>
-      <tr><td>5</td><td>净现金</td><td>安全垫增厚还是消耗？</td><td>FY2025类现金¥1,264亿，但因大额分红，现金较FY2024略减</td><td class="num">3/4</td><td><div class="progress-track"><div class="progress-fill info" style="width:75%"></div></div></td></tr>
-      <tr><td>6</td><td>经营现金流</td><td>赚的钱够不够花？</td><td>FY2025 OCF ¥615亿 / NP ¥823亿 = 0.75×，稍低但因大额分红合理</td><td class="num">2/4</td><td><div class="progress-track"><div class="progress-fill warn" style="width:50%"></div></div></td></tr>
-      <tr><td>7</td><td>资本开支投向</td><td>烧钱为了维持还是未来？</td><td>产能扩张投入（1万吨储酒库），布局未来</td><td class="num">3/4</td><td><div class="progress-track"><div class="progress-fill info" style="width:75%"></div></div></td></tr>
-      <tr><td>8</td><td>增长引擎</td><td>有没有第二曲线？</td><td style="color:var(--red)">系列酒增速放缓，国际化尚早，第二曲线不清晰</td><td class="num">0/4</td><td><div class="progress-track"><div class="progress-fill danger" style="width:0%"></div></div></td></tr>
-      <tr style="background:var(--bg1);"><td colspan="3"><strong>8维深度体检合计</strong></td><td></td><td class="num"><strong>21/32</strong></td><td><div class="progress-track"><div class="progress-fill warn" style="width:65.6%"></div></div></td></tr>
-    </table>
-    <div class="analysis-text" style="margin-top:14px;">
-      <p><strong>体检解读</strong>：茅台8维体检通过率65.6%，低于美的（93.75%）。关键扣分项：①FY2025营收首次负增长（-0.7%），量价均面临压力；②OCF/NP 0.75×，低于1×（部分原因是FY2025大额分红）；③缺乏清晰第二增长曲线（系列酒整体承压，国际化尚未有实质突破）。</p>
-      <p><strong>核心洞察</strong>：茅台是一个"看天吃饭"的特殊公司——当高端消费环境好时，财务数据接近完美；当消费周期下行时，体检分数明显下降。这不是护城河问题，而是宏观敏感性问题。历史经验表明，每次消费下行期（如2012-2015年反腐、2021-2026年消费降级），都是最好的茅台买点。</p>
-    </div>
-    <div style="margin-top:12px;padding:14px 20px;background:var(--bg1);border-radius:10px;border-left:4px solid var(--blue);line-height:1.85;font-size:0.82rem;color:var(--text2);">
-      <strong style="color:var(--text);">📊 8维体检进度条逐项解读</strong><br>
-      <strong>1.产能-价格-收入（1/4）</strong> — FY2025营收-0.7%首次下滑，量价均承压。高端酒消费受宏观经济放缓影响，茅台系列酒增速也明显放缓。这是当前最大的基本面瑕疵。<br>
-      <strong>2.毛利率（4/4）</strong> — 毛利率91.9%全球消费品最高水平之一，持续稳定。无论经济如何波动，茅台的定价权确保毛利率始终维持90%+。<br>
-      <strong>3.成本控制（4/4）</strong> — 期间费用率低于10%，超低费用率源于品牌自动获客能力，几乎不需要营销投入。这是"躺着赚钱"的财务体现。<br>
-      <strong>4.有息负债（4/4）</strong> — 有息负债≈0，无杠杆，财务极度保守。茅台根本不需要借钱——预收经销商款项（合同负债¥800亿）已提供充足运营资金。<br>
-      <strong>5.净现金（3/4）</strong> — FY2025类现金¥1,264亿，但因大额分红（全年约¥650亿）现金较FY2024略减。扣1分因现金消耗速度快于积累速度。<br>
-      <strong>6.经营现金流（2/4）</strong> — OCF ¥615亿 / NP ¥823亿 = 0.75×，略低于1×。主要因FY2025大额分红影响现金流口径，核心经营获现能力仍然强劲。<br>
-      <strong>7.资本开支投向（3/4）</strong> — 1万吨储酒库产能扩张，布局未来基酒储备。茅台扩产是确定性最高的投资，因基酒储存3-5年后自动增值。<br>
-      <strong>8.增长引擎（0/4）</strong> — 系列酒增速放缓，国际化尚处于极早期（海外营收占比<5%），缺乏清晰第二增长曲线。这是茅台8维体检中最致命的短板。
-    </div>
-  </div>
-</div>
-
-<!-- MODULE 9: 风险 + 估值 -->
-<div class="two-col">
-  <div class="section">
-    <div class="section-header">
-      <span class="icon">⚠️</span>
-      <h2>第8章 · 综合风险预警</h2>
-    </div>
-    <div class="section-body">
-      <div class="risk-row">
-        <div class="risk-icon">🔴        <div class="risk-icon">🔴</div>
-        <div class="risk-content">
-          <div class="risk-name">估值严重偏高</div>
-          <div class="risk-desc">有效PE 17.3×远超策略二12×上限和内在价值12.5×。当前价格不提供任何安全边际。若消费预期恶化，PE可能快速回落至13-15×。</div>
-          <span class="tag tag-fail">核心风险</span>
-        </div>
-      </div>
-      <div class="risk-row">
-        <div class="risk-icon">🟡</div>
-        <div class="risk-content">
-          <div class="risk-name">高端消费放缓</div>
-          <div class="risk-desc">FY2025营收-0.7%，首次出现负增长。宏观经济+消费降级叠加，高端白酒需求面临结构性挑战。</div>
-          <span class="tag tag-warn">中等风险</span>
-        </div>
-      </div>
-      <div class="risk-row">
-        <div class="risk-icon">🟡</div>
-        <div class="risk-content">
-          <div class="risk-name">消费代际更替</div>
-          <div class="risk-desc">Z世代对白酒的偏好是否延续，是10-20年内的长期风险。虽然茅台品牌价值极度坚固，但饮用场景的长期变化不可忽视。</div>
-          <span class="tag tag-warn">长期风险</span>
-        </div>
-      </div>
-      <div class="risk-row">
-        <div class="risk-icon">🟢</div>
-        <div class="risk-content">
-          <div class="risk-name">政策 / 财务风险</div>
-          <div class="risk-desc">有息负债≈0，类现金¥1,264亿。无质押、无永续债、无财务造假记录。政策端（贵州政府持股关系）稳定。</div>
-          <span class="tag tag-pass">极低</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="section-header">
-      <span class="icon">🎲</span>
-      <h2>第9章 · 估值与仓位</h2>
-      <span class="badge">凯利公式 V5.2</span>
-    </div>
-    <div class="section-body">
-      <div class="kelly-box">
-        <div class="kelly-value" style="color:var(--red)">0.00%</div>
-        <div class="kelly-label">凯利最优仓位 f* = 0 · PE远高于内在价值</div>
-      </div>
-      <table style="margin-top:12px;">
-        <tr><td>赔率 b</td><td class="num">(12.5 − 17.3) ÷ 17.3 = <span style="color:var(--red)">−0.277</span></td></tr>
-        <tr><td>胜率 p（基于PMQD质量维度）</td><td class="num">(24 + 12) ÷ 100 = <strong>0.36</strong></td></tr>
-        <tr><td>经典凯利 f*</td><td class="num">b&lt;0 → <strong>f* = 0</strong>（赔率为负，不参与）</td></tr>
-        <tr><td>半凯利</td><td class="num"><strong>0%</strong></td></tr>
-        <tr><td>策略二上限</td><td class="num">30%</td></tr>
-        <tr class="hl-row"><td>建议仓位区间</td><td class="num"><strong>0%</strong>（等待¥800-950触发完整信号）</td></tr>
-      </table>
-    </div>
-  </div>
-</div>
-
-<!-- MODULE 10: 终审意见 -->
-<div class="section">
-  <div class="section-header">
-    <span class="icon">✍️</span>
-    <h2>第10章 · 终审意见</h2>
-  </div>
-  <div class="section-body">
-    <div class="two-col">
-      <div>
-        <h3 style="color:var(--navy);margin-bottom:8px;">综合评述</h3>
-        <p style="font-size:0.88rem;line-height:1.8;">
-          贵州茅台是<strong>A股最优质的消费品资产</strong>——ROE 32.5%、毛利率92%、净利率49%、净现金¥1,264亿、有息负债≈0，每一项财务指标都接近完美。然而，伟大公司的定义是"在合理价格买入的好公司"，而当前PE 17.3×（有效）远高于内在价值锚点12.5×。
-        </p>
-        <p style="font-size:0.88rem;line-height:1.8;margin-top:8px;">
-          这是典型的<strong>"价值陷阱"变体</strong>：不是因为公司变差了，而是因为估值过高导致安全边际不存在。安全边际三问仅通过1/3，第2问（跌50%净资产支撑）和第三问（5年FCF覆盖）双双不通过，是严重警告信号。
-        </p>
-        <p style="font-size:0.88rem;line-height:1.8;margin-top:8px;">
-          <strong>积极的信号</strong>：高股息率（4.2%）提供了持有安全垫；营收首次负增长可能是周期性而非结构性问题；品牌护城河依然是中国最强。
-        </p>
-        <p style="font-size:0.88rem;line-height:1.8;margin-top:8px;">
-          <strong>建议</strong>：列入"长期观察清单"，设置¥950价格提醒。当PE降至13×以下（约¥950-1,000），凯利公式将给出正仓位，届时进行完整复评。耐心的价值投资者在茅台身上获得的回报，总是以"年"为单位的等待。
-        </p>
-      </div>
-      <div>
-        <h3 style="color:var(--navy);margin-bottom:8px;">PMQD复检摘要</h3>
-        <table>
-          <tr><th>维度</th><th>得分</th><th>满分</th><th>占比</th></tr>
-          <tr><td>P · 价格安全边际</td><td class="num">6</td><td class="num">40</td><td style="color:var(--red)">15.0%</td></tr>
-          <tr><td>M · 行业/结构催化</td><td class="num">12</td><td class="num">18</td><td>66.7%</td></tr>
-          <tr><td>Q · 不可替代硬质量</td><td class="num">24</td><td class="num">30</td><td style="color:var(--green)">80.0%</td></tr>
-          <tr><td>D · 市场认知差</td><td class="num">6</td><td class="num">12</td><td>50.0%</td></tr>
-          <tr class="hl-row"><td><strong>总评</strong></td><td class="num"><strong>48</strong></td><td class="num"><strong>100</strong></td><td><strong>48%</strong></td></tr>
-        </table>
-        <div class="insight-box" style="margin-top:12px;">
-          <div class="insight-title">📌 历史买点参考</div>
-          <p>2012年反腐期：¥100-150（PE 8-12×）</p>
-          <p>2018年调整期：¥490-580（PE 15-18×）</p>
-          <p><strong>目标买点：¥800-950（PE 11-13×）</strong></p>
-          <p>达到后 PMQD 预计升至 <strong>62-68分</strong>，触发买入</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- MODULE 11: 附录 -->
-<div class="section">
-  <div class="section-header">
-    <span class="icon">📎</span>
-    <h2>附录 · 数据来源索引 & 验证报告</h2>
-  </div>
-  <div class="section-body">
-    <h3 style="font-size:0.9rem;color:var(--blue);margin-bottom:8px;">三源交叉验证</h3>
-    <table>
-      <tr><th>指标</th><th class="num">源A: 通达信实时行情</th><th class="num">源B: FY2025年报</th><th class="num">源C: 一致预期</th><th>偏差</th><th>状态</th></tr>
-      <tr><td>PE(TTM)</td><td class="num">18.74×</td><td class="num">~18.8×</td><td class="num">~14×(FWD)</td><td>&lt;1%</td><td><span class="tag tag-pass">✅</span></td></tr>
-      <tr><td>总市值</td><td class="num">¥15,501亿</td><td class="num">（计算值）</td><td class="num">—</td><td>&lt;0.1%</td><td><span class="tag tag-pass">✅</span></td></tr>
-      <tr><td>归母净利润</td><td class="num">¥823.2亿</td><td class="num">¥823.2亿</td><td class="num">—</td><td>&lt;0.1%</td><td><span class="tag tag-pass">✅</span></td></tr>
-      <tr><td>每股收益</td><td class="num">21.76(Q1)</td><td class="num">65.66(FY25)</td><td class="num">—</td><td>&lt;1%</td><td><span class="tag tag-pass">✅</span></td></tr>
-    </table>
-
-    <h3 style="font-size:0.9rem;color:var(--blue);margin:16px 0 8px;">技能集成管线 · Skill Pipeline</h3>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:16px;">
-      <div style="padding:14px;background:#EEF2FF;border-radius:8px;border-left:4px solid #1E40AF;">
-        <div style="font-weight:700;color:#1E40AF;font-size:0.85rem;">westock-data · 腾讯自选股</div>
-        <div style="font-size:0.78rem;color:var(--text2);margin-top:4px;">实时行情 · K线 · 财务报表 · 分红 · 公司简况 · 资金流向</div>
-        <div style="font-size:0.7rem;color:var(--text3);margin-top:4px;">→ 第1-4章 · 行情+财务数据采集</div>
-      </div>
-      <div style="padding:14px;background:#F0FDF4;border-radius:8px;border-left:4px solid #0D9488;">
-        <div style="font-weight:700;color:#0D9488;font-size:0.85rem;">tushare-finance · Tushare Pro</div>
-        <div style="font-size:0.78rem;color:var(--text2);margin-top:4px;">A股备源数据 · 220+接口 · 财务/行情/指数</div>
-        <div style="font-size:0.7rem;color:var(--text3);margin-top:4px;">→ 交叉验证 · 数据备源</div>
-      </div>
-      <div style="padding:14px;background:#FFF7ED;border-radius:8px;border-left:4px solid #B45309;">
-        <div style="font-weight:700;color:#B45309;font-size:0.85rem;">AAA-financial-report-analysis</div>
-        <div style="font-size:0.78rem;color:var(--text2);margin-top:4px;">类现金5层框架 · 有息负债甄别 · 偿债能力7维度</div>
-        <div style="font-size:0.7rem;color:var(--text3);margin-top:4px;">→ 第4-4.5章 · 财务穿透+偿债分析</div>
-      </div>
-      <div style="padding:14px;background:#F5F3FF;border-radius:8px;border-left:4px solid #7C3AED;">
-        <div style="font-weight:700;color:#7C3AED;font-size:0.85rem;">financial-data-verifier</div>
-        <div style="font-size:0.78rem;color:var(--text2);margin-top:4px;">三源交叉验证 · PE×EPS三角验证 · 偏差检测</div>
-        <div style="font-size:0.7rem;color:var(--text3);margin-top:4px;">→ 数据质量栏 · 交叉验证表</div>
-      </div>
-      <div style="padding:14px;background:#FFFBEB;border-radius:8px;border-left:4px solid #CA8A04;">
-        <div style="font-weight:700;color:#CA8A04;font-size:0.85rem;">wind-forest-value-investing-analysis</div>
-        <div style="font-size:0.78rem;color:var(--text2);margin-top:4px;">PMQD V5.9引擎 · 凯利V5.2 · 安全边际三问 · 8维体检</div>
-        <div style="font-size:0.7rem;color:var(--text3);margin-top:4px;">→ 第5-9章 · PMQD评分+估值仓位</div>
-      </div>
-      <div style="padding:14px;background:#F3F4F6;border-radius:8px;border-left:4px solid #6B7280;">
-        <div style="font-weight:700;color:#6B7280;font-size:0.85rem;">tdx-connector · 通达信</div>
-        <div style="font-size:0.78rem;color:var(--text2);margin-top:4px;">L1实时行情 · 盘口数据 · 筛选器 · 问达资讯</div>
-        <div style="font-size:0.7rem;color:var(--text3);margin-top:4px;">→ 行情基准 · 筛选初筛</div>
-      </div>
-    </div>
-
-    <h3 style="font-size:0.9rem;color:var(--blue);margin:16px 0 8px;">标准化分析流程 · Standard Workflow</h3>
-    <div style="padding:16px;background:var(--bg1);border-radius:8px;font-size:0.8rem;line-height:2;">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-        <span style="background:var(--navy);color:white;padding:3px 10px;border-radius:10px;font-size:0.7rem;font-weight:700;">Phase 1</span>
-        <span style="color:var(--text);font-weight:600;">数据采集与验证</span>
-        <span style="color:var(--text3);font-size:0.72rem;">westock-data + tushare-finance + tdx-connector</span>
-      </div>
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-        <span style="background:#0D9488;color:white;padding:3px 10px;border-radius:10px;font-size:0.7rem;font-weight:700;">Phase 2</span>
-        <span style="color:var(--text);font-weight:600;">三源交叉验证</span>
-        <span style="color:var(--text3);font-size:0.72rem;">financial-data-verifier → 偏差检测 + 质量评分</span>
-      </div>
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-        <span style="background:#B45309;color:white;padding:3px 10px;border-radius:10px;font-size:0.7rem;font-weight:700;">Phase 3</span>
-        <span style="color:var(--text);font-weight:600;">财务穿透精算</span>
-        <span style="color:var(--text3);font-size:0.72rem;">AAA-financial-report-analysis → 类现金5层 + 有息负债甄别 + 偿债能力</span>
-      </div>
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-        <span style="background:#7C3AED;color:white;padding:3px 10px;border-radius:10px;font-size:0.7rem;font-weight:700;">Phase 4</span>
-        <span style="color:var(--text);font-weight:600;">PMQD分析引擎</span>
-        <span style="color:var(--text3);font-size:0.72rem;">wind-forest-value-investing-analysis → 评分+凯利+安全边际+体检</span>
-      </div>
-      <div style="display:flex;align-items:center;gap:10px;">
-        <span style="background:#CA8A04;color:white;padding:3px 10px;border-radius:10px;font-size:0.7rem;font-weight:700;">Phase 5</span>
-        <span style="color:var(--text);font-weight:600;">报告生成与输出</span>
-        <span style="color:var(--text3);font-size:0.72rem;">结构化15模块报告 + 可视化图表 + 终审意见</span>
-      </div>
-    </div>
-
-    <h3 style="font-size:0.9rem;color:var(--blue);margin:16px 0 8px;">数据来源</h3>
-    <table class="src-table">
-      <tr><th>数据源</th><th>层级</th><th>用途</th><th>更新时间</th></tr>
-      <tr><td>通达信行情系统 (tdx-connector)</td><td><span class="tag tag-pass">L1</span></td><td>实时股价、PE/PB、市值、盘口</td><td>2026-06-17 15:00 实时</td></tr>
-      <tr><td>腾讯自选股 (westock-data)</td><td><span class="tag tag-pass">L1</span></td><td>行情、财务报表、分红、公司简况</td><td>2026-06-17 实时</td></tr>
-      <tr><td>贵州茅台 FY2025 年度报告</td><td><span class="tag tag-pass">L1</span></td><td>资产负债表/利润表/现金流/分红</td><td>2026-04-17 披露</td></tr>
-      <tr><td>Tushare Pro (tushare-finance)</td><td><span class="tag tag-info">L2</span></td><td>财务数据备源验证</td><td>2026-06-17</td></tr>
-      <tr><td>分析师一致预期</td><td><span class="tag tag-info">L2</span></td><td>Forward PE、盈利预测</td><td>2026-06</td></tr>
-    </table>
-
-    <div style="margin-top:16px;padding:14px 20px;background:var(--bg1);border-radius:8px;font-size:0.8rem;color:var(--text2);">
-      <strong>下次复评触发条件</strong>：①股价触及¥950以下 ②FY2026 H1营收恢复正增长 ③行业政策变化（消费税/禁酒令）④国际化或系列酒战略突破<br>
-      <strong style="margin-top:6px;display:inline-block;">分析引擎版本</strong>：PMQD V5.9 · 凯利 V5.2 · 类现金5层框架 V3 · 偿债能力7维度 V2
-    </div>
-  </div>
-</div>
-
-</main>
-</div><!-- end panel-moutai -->
 
 <footer>
   <strong>PALA（老帕）· 风林慧策</strong> · 报告基于 PMQD V5.9 价值投资框架<br>
@@ -1725,26 +1238,8 @@ footer strong { color:var(--text); }
 })();
 </script>
 
-<!-- STOCK SWITCHER -->
-<script>
-function switchStock(stock) {
-  document.querySelectorAll('.report-panel').forEach(function(p){ p.classList.remove('active'); });
-  document.querySelectorAll('.stock-tab').forEach(function(t){ t.classList.remove('active'); });
-  document.getElementById('panel-' + stock).classList.add('active');
-  document.getElementById('tab-' + stock).classList.add('active');
 
-  var info = {
-    midea: { name: '美的集团 · 000333.SZ', price: '¥79.22', change: '▲ +0.33%', color: 'var(--red)' },
-    moutai: { name: '贵州茅台 · 600519.SH', price: '¥1,240', change: '▼ -1.25%', color: 'var(--green)' }
-  };
-  var d = info[stock];
-  document.getElementById('headerStockName').textContent = d.name;
-  document.getElementById('headerStockPrice').textContent = d.price;
-  var chg = document.getElementById('headerStockChange');
-  chg.textContent = d.change;
-  chg.style.color = d.color;
-}
-</script>
+<script>
 <script src="login-subscribe.js"></script>
 
 </body>
