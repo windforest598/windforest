@@ -1,0 +1,69 @@
+{
+  "meta": {
+    "version": "1.0",
+    "stock": { "code": "300750", "market": "sz", "name": "宁德时代" },
+    "generated": "2026-06-18T08:00:00+08:00",
+    "engine": "PMQD V5.9 · 凯利 V5.2"
+  },
+  "pmqd": {
+    "total": 58,
+    "verdict": "估值合理，保持观察",
+    "stars": "★★★☆☆",
+    "dimensions": {
+      "P": { "score": 18, "max": 40, "label": "价格安全边际", "color": "#1E40AF" },
+      "M": { "score": 14, "max": 18, "label": "行业/结构催化", "color": "#0D9488" },
+      "Q": { "score": 22, "max": 30, "label": "不可替代硬质量", "color": "#B45309" },
+      "D": { "score": 4, "max": 12, "label": "市场认知差", "color": "#7C3AED" }
+    },
+    "strategy": "谨慎观望",
+    "strategy_reason": "全球动力电池龙头，但行业竞争加剧、产能过剩隐忧，当前估值反映较多悲观预期"
+  },
+  "valuation": {
+    "pe": 18.5, "pb": 3.2, "roe": 22.1, "div_yield": 1.5,
+    "market_cap": "¥9,800亿", "net_cash": "¥320亿",
+    "price": 198.50, "change_pct": -1.2
+  },
+  "kelly": { "f": 8.0, "verdict": "小仓位观察" },
+  "safety": [
+    { "q": "即便行业不复苏，是否不会破产？", "status": "✅", "pass": true },
+    { "q": "股价再跌50%，企业价值是否依然坚挺？", "status": "⚠️", "pass": false },
+    { "q": "5年自由现金流能否覆盖有效市值？", "status": "✅", "pass": true }
+  ],
+  "health": [
+    { "name": "盈利能力", "status": "良好 ROE 22%", "ok": true },
+    { "name": "成长性", "status": "放缓 营收+3%", "ok": true },
+    { "name": "现金流", "status": "改善中", "ok": true },
+    { "name": "资产负债", "status": "偏高中 负债率 70%", "ok": false },
+    { "name": "运营效率", "status": "良好", "ok": true },
+    { "name": "分红回报", "status": "偏低 1.5%", "ok": false },
+    { "name": "估值水平", "status": "合理偏高 PE 18.5×", "ok": true },
+    { "name": "管理层质量", "status": "优秀", "ok": true }
+  ],
+  "finance_rules": [
+    { "name": "类现金资产", "value": "¥2,150亿", "desc": "类现金充裕", "pass": true },
+    { "name": "有息负债率", "value": "35%", "desc": "有息负债偏高但可控", "pass": true },
+    { "name": "永续债风险", "value": "无", "pass": true },
+    { "name": "股息率", "value": "1.5%", "desc": "低于2%门槛", "pass": false }
+  ],
+  "debt": [
+    { "label": "流动比率", "val": "1.15", "ok": true },
+    { "label": "速动比率", "val": "0.85", "ok": false },
+    { "label": "利息覆盖", "val": "6.2×", "ok": true },
+    { "label": "净负债/Ebitda", "val": "1.2×", "ok": false },
+    { "label": "短债占比", "val": "45%", "ok": false },
+    { "label": "现金/短债", "val": "1.3×", "ok": true },
+    { "label": "FCF/总负债", "val": "0.12", "ok": false }
+  ],
+  "insights": [
+    "全球动力电池市占率第一，技术壁垒深厚",
+    "储能业务第二增长曲线初现，增速超预期",
+    "产能扩张期已过，资本开支将逐步下降",
+    "需关注锂价波动和行业库存周期"
+  ],
+  "risks": [
+    "动力电池行业产能过剩，价格战风险",
+    "技术路线迭代（固态电池）可能冲击现有格局",
+    "海外市场政策不确定性",
+    "客户集中度偏高"
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "meta": {
+    "version": "1.0",
+    "stock": { "code": "000333", "market": "sz", "name": "美的集团" },
+    "generated": "2026-06-18T08:00:00+08:00",
+    "engine": "PMQD V5.9 · 凯利 V5.2"
+  },
+  "pmqd": {
+    "total": 72,
+    "verdict": "优质低估，值得配置",
+    "stars": "★★★★☆",
+    "dimensions": {
+      "P": { "score": 28, "max": 40, "label": "价格安全边际", "color": "#1E40AF" },
+      "M": { "score": 13, "max": 18, "label": "行业/结构催化", "color": "#0D9488" },
+      "Q": { "score": 24, "max": 30, "label": "不可替代硬质量", "color": "#B45309" },
+      "D": { "score": 7, "max": 12, "label": "市场认知差", "color": "#7C3AED" }
+    },
+    "strategy": "价值配置",
+    "strategy_reason": "PE 13.6× 低于历史均值 15×，基本面稳健，ROE 28% 处于行业领先地位，类现金充裕覆盖有息负债"
+  },
+  "valuation": {
+    "pe": 13.63,
+    "pb": 2.85,
+    "roe": 28.3,
+    "div_yield": 4.2,
+    "market_cap": "¥60,283亿",
+    "net_cash": "¥680亿（类现金-有息负债）",
+    "price": 79.22,
+    "change_pct": 0.33
+  },
+  "kelly": {
+    "f": 18.5,
+    "verdict": "适度配置",
+    "b": 0.22,
+    "pe_intrinsic": 12.5,
+    "pe_current": 13.63
+  },
+  "safety": [
+    { "q": "即便行业不复苏，是否不会破产？", "status": "✅", "pass": true },
+    { "q": "股价再跌50%，企业价值是否依然坚挺？", "status": "✅", "pass": true },
+    { "q": "5年自由现金流能否覆盖有效市值？", "status": "✅", "pass": true }
+  ],
+  "health": [
+    { "name": "盈利能力", "status": "优秀 ROE 28.3%", "ok": true },
+    { "name": "成长性", "status": "稳健 营收+8%", "ok": true },
+    { "name": "现金流", "status": "充沛 FCF ¥380亿", "ok": true },
+    { "name": "资产负债", "status": "健康 负债率 59%", "ok": true },
+    { "name": "运营效率", "status": "优秀 存货周转 5.2x", "ok": true },
+    { "name": "分红回报", "status": "优秀 股息率 4.2%", "ok": true },
+    { "name": "估值水平", "status": "合理 PE 13.6×", "ok": true },
+    { "name": "管理层质量", "status": "优秀 经验丰富", "ok": true }
+  ],
+  "finance_rules": [
+    { "name": "类现金资产", "value": "¥1,285亿", "desc": "类现金覆盖短期有息负债 ¥605亿", "pass": true },
+    { "name": "有息负债率", "value": "22.5%", "desc": "有息负债 / 总资产 < 50%，健康", "pass": true },
+    { "name": "永续债风险", "value": "无", "desc": "不存在重大永续债或优先股摊薄", "pass": true },
+    { "name": "股息率", "value": "4.2%", "desc": "近3年股息率 > 2% 且持续增长", "pass": true }
+  ],
+  "debt": [
+    { "label": "流动比率", "val": "1.35", "ok": true },
+    { "label": "速动比率", "val": "1.10", "ok": true },
+    { "label": "利息覆盖", "val": "12.8×", "ok": true },
+    { "label": "净负债/Ebitda", "val": "0.3×", "ok": true },
+    { "label": "短债占比", "val": "35%", "ok": true },
+    { "label": "现金/短债", "val": "2.1×", "ok": true },
+    { "label": "FCF/总负债", "val": "0.28", "ok": true }
+  ],
+  "insights": [
+    "家电行业龙头，全球市占率第一，品牌护城河深厚",
+    "库卡机器人业务长期增长潜力大，但短期毛利率承压",
+    "当前估值处于历史中低位，适合分批建仓",
+    "需关注房地产周期对家电需求的滞后影响"
+  ],
+  "risks": [
+    "原材料价格波动（铜、钢）影响毛利率",
+    "房地产行业持续低迷拖累家电需求",
+    "海外业务受汇率波动和贸易政策影响",
+    "库卡业务整合进度不及预期"
+  ]
+}
