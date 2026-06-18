@@ -1107,22 +1107,30 @@ function getStockData(code) {
 // Async version with API fallback
 function getStockDataAsync(code, market, callback) {
   var local = getStockData(code);
-  if (local) { callback(local); }
+  if (local) { callback(local); return; }
 
-  // Try API
-  fetch(API_BASE + '/api/analysis?code=' + encodeURIComponent(code) + '&market=' + encodeURIComponent(market))
-    .then(function(r) { return r.json(); })
+  // Stock not in local DB → show pending/analysis-needed state
+  renderNoData('', code);
+  // Still try API in background (may fail due to CORS/network)
+  fetch(API_BASE + '/api/analysis?code=' + encodeURIComponent(code) + '&market=' + encodeURIComponent(market), {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + (typeof getToken === 'function' ? getToken() : (localStorage.getItem('wf_token') || ''))
+    }
+  })
+    .then(function(r) {
+      if (!r.ok) throw new Error('API返回' + r.status);
+      return r.json();
+    })
     .then(function(data) {
       if (data.status === 'ok' && data.data) {
-        // Convert API response to dashboard format
         var apiData = convertApiToDashboard(data.data, code, market);
         callback(apiData);
-      } else if (!local) {
-        renderPending(code, market);
       }
     })
     .catch(function(err) {
-      if (!local) { renderError('网络错误', err.message); }
+      // Silently ignore — already showing renderNoData
+      console.warn('API unavailable for', code, err.message);
     });
 }
 

@@ -372,6 +372,13 @@ body {
 .hot-section {
   margin-top: 34px;
   animation: fadeInUp 0.7s ease-out 0.24s both;
+  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0s 0.15s;
+}
+.hot-section.hidden {
+  opacity: 0;
+  transform: translateY(-8px);
+  visibility: hidden;
+  pointer-events: none;
 }
 .hot-title {
   font-size: 0.72rem;
@@ -1367,6 +1374,14 @@ var STOCK_DB = [
 (function(){
   var input = document.getElementById('searchInput');
   var dropdown = document.getElementById('autocomplete');
+  var hotSection = document.querySelector('.hot-section');
+
+  // Toggle hot-section when dropdown active state changes
+  function toggleHotSection(visible) {
+    if (!hotSection) return;
+    if (visible) hotSection.classList.remove('hidden');
+    else hotSection.classList.add('hidden');
+  }
   var clearBtn = document.getElementById('searchClear');
   var searchBtn = document.getElementById('searchBtn');
   var kbdHint = document.getElementById('kbdHint');
@@ -1479,6 +1494,7 @@ var STOCK_DB = [
     if (results.length === 0) {
       dropdown.innerHTML = '<div class="autocomplete-empty">未找到匹配的股票，请尝试输入代码或名称</div>';
       dropdown.classList.add('active');
+      toggleHotSection(false);
       return;
     }
     results.forEach(function(item, idx) {
@@ -1500,11 +1516,13 @@ var STOCK_DB = [
       dropdown.appendChild(div);
     });
     dropdown.classList.add('active');
+    toggleHotSection(false);  // hide hot stocks when dropdown shows
   }
 
   function selectStock(stock) {
     input.value = stock.n + ' · ' + stock.c;
     dropdown.classList.remove('active');
+    toggleHotSection(true);   // show hot stocks when item selected
     kbdHint.classList.remove('visible');
     input.setAttribute('data-selected-code', stock.c);
     input.setAttribute('data-selected-market', stock.m);
@@ -1574,6 +1592,7 @@ var STOCK_DB = [
       } else { doAnalysis(); }
     } else if (e.key === 'Escape') {
       dropdown.classList.remove('active');
+      toggleHotSection(true);
       kbdHint.classList.remove('visible');
       input.blur();
     }
@@ -1591,6 +1610,7 @@ var STOCK_DB = [
     input.focus();
     clearBtn.classList.remove('visible');
     dropdown.classList.remove('active');
+    toggleHotSection(true);
     kbdHint.classList.remove('visible');
     input.removeAttribute('data-selected-code');
     input.removeAttribute('data-selected-market');
@@ -1601,7 +1621,7 @@ var STOCK_DB = [
 
   document.addEventListener('click', function(e) {
     var sw = document.querySelector('.search-wrapper');
-    if (!sw.contains(e.target)) { dropdown.classList.remove('active'); kbdHint.classList.remove('visible'); }
+    if (!sw.contains(e.target)) { dropdown.classList.remove('active'); toggleHotSection(true); kbdHint.classList.remove('visible'); }
   });
 
   // Hot chips
