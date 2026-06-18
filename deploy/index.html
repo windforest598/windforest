@@ -1743,25 +1743,28 @@ var API_AVAILABLE = true;
 
   // Hot chips
   var hotStocks = [
-    {c:"000333",n:"美的集团",m:"sz"},{c:"600519",n:"贵州茅台",m:"sh"},{c:"300750",n:"宁德时代",m:"sz"},
-    {c:"00700",n:"腾讯控股",m:"hk"},{c:"AAPL",n:"Apple Inc.",m:"us"},{c:"002594",n:"比亚迪",m:"sz"},
-    {c:"09988",n:"阿里巴巴-SW",m:"hk"},{c:"NVDA",n:"NVIDIA",m:"us"},{c:"601318",n:"中国平安",m:"sh"},
-    {c:"03690",n:"美团-W",m:"hk"},{c:"BABA",n:"Alibaba(美股)",m:"us"},{c:"000651",n:"格力电器",m:"sz"}
+    {c:"sz000333",n:"美的集团",m:"sz"},{c:"sh600519",n:"贵州茅台",m:"sh"},{c:"sz300750",n:"宁德时代",m:"sz"},
+    {c:"hk00700",n:"腾讯控股",m:"hk"},{c:"usAAPL",n:"Apple Inc.",m:"us"},{c:"sz002594",n:"比亚迪",m:"sz"},
+    {c:"hk09988",n:"阿里巴巴-SW",m:"hk"},{c:"usNVDA",n:"NVIDIA",m:"us"},{c:"sh601318",n:"中国平安",m:"sh"},
+    {c:"hk03690",n:"美团-W",m:"hk"},{c:"usBABA",n:"Alibaba(美股)",m:"us"},{c:"sz000651",n:"格力电器",m:"sz"}
   ];
   var hotChipsEl = document.getElementById('hotChips');
-  hotStocks.forEach(function(s) {
-    var chip = document.createElement('span');
-    chip.className = 'hot-chip';
-    chip.textContent = s.n;
-    chip.addEventListener('click', function() {
-      var stock = STOCK_DB.find(function(x) { return x.c === s.c; });
-      if (stock) { selectStock(stock); doAnalysis(); }
+  if (!hotChipsEl) { console.warn('hotChips not found'); } else {
+    hotStocks.forEach(function(s) {
+      var chip = document.createElement('span');
+      chip.className = 'hot-chip';
+      chip.textContent = s.n;
+      chip.addEventListener('click', function() {
+        var stock = STOCK_DB.find(function(x) { return x.c === s.c; });
+        if (stock) { selectStock(stock); doAnalysis(); }
+      });
+      hotChipsEl.appendChild(chip);
     });
-    hotChipsEl.appendChild(chip);
-  });
+  }
 
   // Market status
   var marketStatusEl = document.getElementById('marketStatus');
+  if (marketStatusEl) {
   var now = new Date();
   var beijingHour = now.getUTCHours() + 8;
   var beijingMin = now.getUTCMinutes();
@@ -1800,6 +1803,7 @@ var API_AVAILABLE = true;
     '<span><span class="market-status-dot '+(aOpen?'open':'closed')+'"></span>A股 '+(aOpen?'交易中':'已收盘')+'</span>' +
     '<span><span class="market-status-dot '+(hkOpen?'open':'closed')+'"></span>港股 '+(hkOpen?'交易中':'已收盘')+'</span>' +
     '<span><span class="market-status-dot '+(usOpen?'open':'closed')+'"></span>美股 '+(usOpen?'交易中':'已收盘')+'</span>';
+  } // end if(marketStatusEl)
 })();
 </script>
 
