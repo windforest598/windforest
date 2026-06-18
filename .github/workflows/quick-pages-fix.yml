@@ -1,0 +1,56 @@
+# ⚡ Quick Pages domain fix — just rebind and verify
+name: "Quick Pages Fix"
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Rebind windforest.cn + www to Pages
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -e
+          PAGES_API="https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/pages/projects/windforest/domains"
+
+          echo "=== Binding windforest.cn ==="
+          R1=$(curl -s -X POST "$PAGES_API" \
+            -H "Authorization: Bearer $CF_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data '{"name":"windforest.cn"}')
+          echo "$R1" | jq '{success, errors: .errors[0].message, status: .result.status, verification: .result.verification_status}'
+
+          echo ""
+          echo "=== Binding www.windforest.cn ==="
+          R2=$(curl -s -X POST "$PAGES_API" \
+            -H "Authorization: Bearer $CF_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data '{"name":"www.windforest.cn"}')
+          echo "$R2" | jq '{success, errors: .errors[0].message, status: .result.status}'
+
+          echo ""
+          echo "=== All Pages domains ==="
+          curl -s "$PAGES_API" \
+            -H "Authorization: Bearer $CF_TOKEN" | jq '[.result[] | {name, status, verification_status}]'
+
+          echo ""
+          echo "=== DNS propagation check (dig) ==="
+          for domain in windforest.cn www.windforest.cn api.windforest.cn; do
+            IPS=$(dig +short $domain @1.1.1.1 2>/dev/null || echo "N/A")
+            echo "  $domain → $IPS"
+          done
+
+          echo ""
+          echo "════════════════════════════════════════════════"
+          echo "  ✅ 配置完成"
+          echo "  🌐 https://windforest.cn"
+          echo "  🌐 https://www.windforest.cn"  
+          echo "  🔌 https://api.windforest.cn/api/health"
+          echo "  DNS 全球生效需 5-15 分钟"
+          echo "════════════════════════════════════════════════"
