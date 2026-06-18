@@ -35,6 +35,10 @@ database_id = "82948567-5831-4ed7-9934-35b1598a4499"
 # binding = "WIND_FOREST_R2"
 # bucket_name = "windforest-assets"
 
+# 🗂️ Workers Assets — 托管前端静态文件（与 API 同域）
+[assets]
+directory = "../deploy"
+
 [observability]
 enabled = true
 head_sampling_rate = 1
