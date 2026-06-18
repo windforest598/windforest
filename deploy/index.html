@@ -1580,7 +1580,6 @@ var API_AVAILABLE = true;
 
 </script>
 
-<script src="compact-stocks.js"></script>
 <script src="login-subscribe.js"></script>
 
 <!-- ═══════════════ SEARCH LOGIC ═══════════════ -->
@@ -1603,6 +1602,21 @@ var API_AVAILABLE = true;
   var loadingText = document.getElementById('loadingText');
   var selectedIndex = -1;
   var currentResults = [];
+
+  // 异步加载补全3352只全量股票数据库
+  setTimeout(function() {
+    fetch('stocks.txt')
+      .then(function(r) { return r.text(); })
+      .then(function(txt) {
+        var parsed = txt.split('|').map(function(s) {
+          var parts = s.split(':');
+          return {c: parts[0] + parts[1], n: parts[2], m: parts[0], mk: parts[0] === 'hk' ? 'hkshare' : parts[0] === 'us' ? 'usshare' : 'ashare'};
+        });
+        STOCK_DB = parsed;
+        console.log('Loaded ' + parsed.length + ' stocks');
+      })
+      .catch(function() { /* stocks.txt 不可用时使用内联DB */ });
+  }, 50);
 
   function fuzzyMatch(query, stock) {
     var q = query.toLowerCase().trim();

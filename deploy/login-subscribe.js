@@ -223,6 +223,23 @@ function ensureModals() {
   container.id = 'modals-container';
   container.innerHTML = MODAL_HTML.replace(/\\n/g, '\n');
   document.body.appendChild(container);
+  
+  // 绑定登录/注册表单提交（防止innerHTML onclick失效）
+  setTimeout(function() {
+    var loginForm = document.getElementById('loginForm');
+    var registerForm = document.getElementById('registerForm');
+    if (loginForm) loginForm.addEventListener('submit', function(e) { handleLogin(e); });
+    if (registerForm) registerForm.addEventListener('submit', function(e) { handleRegister(e); });
+    // 绑定标签页点击
+    var loginModal = document.getElementById('loginModal');
+    if (loginModal) {
+      loginModal.addEventListener('click', function(e) {
+        var tab = e.target.closest('.login-tab');
+        if (!tab) return;
+        switchLoginTab(tab.id === 'loginTab' ? 'login' : 'register');
+      });
+    }
+  }, 0);
 }
 
 /* ── Login / Register ── */
@@ -566,14 +583,4 @@ document.addEventListener('DOMContentLoaded', function () {
     var el = document.getElementById(id);
     if (el) el.addEventListener('click', function (e) { if (e.target === this) el.classList.remove('active'); });
   });
-  // 绑定登录/注册标签页点击（使用事件委托，避免HTML onclick转义问题）
-  var loginModal = document.getElementById('loginModal');
-  if (loginModal) {
-    loginModal.addEventListener('click', function(e) {
-      var tab = e.target.closest('.login-tab');
-      if (!tab) return;
-      var tabName = tab.id === 'loginTab' ? 'login' : 'register';
-      switchLoginTab(tabName);
-    });
-  }
 });
