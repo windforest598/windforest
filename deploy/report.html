@@ -223,13 +223,55 @@ footer { text-align:center; padding:24px; color:var(--text3); font-size:0.75rem;
 
   // ── Show "no data available" ──
   function showNoData() {
-    main.innerHTML = '<div class="error-card">' +
-      '<div class="error-title">该标的暂无预计算报告</div>' +
-      '<div class="error-desc">「' + name + '」的分析数据尚未缓存。API 分析服务当前不可用。<br>请联系管理员或稍后重试。</div>' +
-      '<a href="javascript:location.reload()" class="btn-primary">重试加载</a>' +
+    var apiBase = location.hostname.endsWith('.pages.dev') ?
+      'https://windforest-api.414946437.workers.dev' : 'https://api.windforest.cn';
+    main.innerHTML =
+      '<div class="error-card" id="noDataCard">' +
+      '<div class="error-title">' + name + ' 深度分析数据正在准备中</div>' +
+      '<div class="error-desc">该标的尚未在本地数据库中预计算。<br>点击下方按钮可触发实时分析流程。</div>' +
+      '<button id="btnTrigger" class="btn-primary" onclick="triggerAnalysis()" style="font-size:1rem;padding:14px 40px;">⚡ 触发实时分析</button>' +
+      '<div id="triggerMsg" style="margin-top:16px;font-size:0.85rem;color:var(--text2);"></div>' +
       '<a href="index.html" class="btn-primary" style="background:var(--text2);margin-left:12px;">返回首页</a>' +
       '</div>';
   }
+
+  // ═══════════════ TRIGGER ANALYSIS ═══════════════
+  window.triggerAnalysis = function() {
+    var btn = document.getElementById('btnTrigger');
+    var msg = document.getElementById('triggerMsg');
+    if (!btn) return;
+    btn.disabled = true;
+    btn.textContent = '⏳ 正在提交…';
+    msg.textContent = '正在连接分析引擎…';
+
+    var apiBase = location.hostname.endsWith('.pages.dev') ?
+      'https://windforest-api.414946437.workers.dev' : 'https://api.windforest.cn';
+
+    fetch(apiBase + '/api/trigger-analysis', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code: code, market: market })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.status === 'triggered') {
+        msg.innerHTML = '✅ 实时分析已启动！<br>正在获取 ' + name + ' 的实时数据，预计 3-5 分钟完成。<br>' +
+          '<br>分析引擎：westock-data → 三源交叉验证 → 财务穿透 → PMQD V5.9<br>' +
+          '<br><a href="javascript:location.reload()" style="color:var(--navy);">🔄 点击刷新查看结果</a>';
+        btn.textContent = '✅ 分析已触发';
+      } else {
+        msg.innerHTML = '⚠️ ' + (data.message || '分析触发失败') + '<br>请稍后重试或联系管理员。';
+        btn.textContent = '⚡ 重试';
+        btn.disabled = false;
+      }
+    })
+    .catch(function() {
+      // API unreachable — try to do basic analysis client-side
+      msg.innerHTML = '⚠️ 分析引擎 API 暂不可达。<br>请直接在搜索框输入待分析股票代码，系统将自动生成基础分析。<br><br>' +
+        '<a href="index.html" style="color:var(--navy);">🔍 返回首页重新搜索</a>';
+      btn.textContent = '已尝试';
+    });
+  };
 
   // ═══════════════ RENDER ═══════════════
   function renderReport(d) {
