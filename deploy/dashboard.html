@@ -1455,7 +1455,7 @@ function openReport() {
       if (data.data && data.data.plan && data.data.plan !== 'free') {
         // Has valid subscription → proceed to report
         doGoReport();
-      } else if (data.data && data.data.freeTrialUsed === 0) {
+      } else if (data.data && data.data.free_trial_used === 0) {
         // Has free trial → proceed
         doGoReport();
       } else {
