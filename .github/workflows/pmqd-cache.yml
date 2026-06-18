@@ -1,0 +1,78 @@
+# ═══════════════════════════════════════════════
+# 风林慧策 — PMQD 日评数据缓存
+# 每日 08:30 运行，将 PMQD 分析结果写入 CDN JSON
+# ═══════════════════════════════════════════════
+
+name: Cache PMQD to CDN
+
+on:
+  schedule:
+    - cron: '30 0 * * 1-5'  # 08:30 Beijing Time
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  cache-pmqd:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Fetch PMQD summary from API
+        run: |
+          echo "Fetching PMQD summary from Workers API..."
+          # 调用 Workers API 获取热点股票 PMQD 概要
+          curl -s "${{ secrets.API_BASE }}/api/hot-stocks" \
+            -H "Accept: application/json" \
+            -o /tmp/hot_stocks.json 2>/dev/null || echo '{"stocks":[]}' > /tmp/hot_stocks.json
+
+          echo "Fetching market indices..."
+          curl -s "${{ secrets.API_BASE }}/api/quote/sh000001" \
+            -H "Accept: application/json" \
+            -o /tmp/sh_idx.json 2>/dev/null || echo '{}' > /tmp/sh_idx.json
+
+      - name: Generate CDN cache JSON
+        run: |
+          cat > deploy/data/market_snapshot.json << 'JSONEOF'
+          {
+            "updated_at": "$(date -u '+%Y-%m-%dT%H:%M:%SZ')",
+            "source": "github-actions",
+            "version": "1.0",
+            "indices": {
+              "sh000001": {"name": "上证指数", "close": 0, "change_pct": 0},
+              "sz399001": {"name": "深证成指", "close": 0, "change_pct": 0},
+              "sz399006": {"name": "创业板指", "close": 0, "change_pct": 0},
+              "sh000688": {"name": "科创50", "close": 0, "change_pct": 0}
+            },
+            "pmqd_spotlight": [],
+            "last_full_analysis": null
+          }
+          JSONEOF
+
+          # 合并 API 数据
+          node -e "
+          const fs = require('fs');
+          const data = JSON.parse(fs.readFileSync('deploy/data/market_snapshot.json','utf-8'));
+          try { const hot = JSON.parse(fs.readFileSync('/tmp/hot_stocks.json','utf-8')); if (hot.stocks) data.pmqd_spotlight = hot.stocks; } catch(e) {}
+          try {
+            const sh = JSON.parse(fs.readFileSync('/tmp/sh_idx.json','utf-8'));
+            if (sh.price) data.indices.sh000001.close = sh.price;
+            if (sh.change_pct) data.indices.sh000001.change_pct = sh.change_pct;
+          } catch(e) {}
+          fs.writeFileSync('deploy/data/market_snapshot.json', JSON.stringify(data, null, 2));
+          console.log('✅ PMQD cache generated');
+          "
+
+      - name: Commit and push cache update
+        run: |
+          git config user.name "PMQD Bot"
+          git config user.email "pmqd-bot@windforest.cn"
+          git add deploy/data/market_snapshot.json
+          git diff --cached --quiet && echo "No changes" || (
+            git commit -m "cache: daily PMQD snapshot $(date '+%Y-%m-%d')"
+            git push
+          )

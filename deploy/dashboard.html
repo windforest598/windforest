@@ -1094,6 +1094,7 @@ var API_BASE = (function () {
   if (location.hostname === 'windforest.cn' || location.hostname === 'www.windforest.cn') return 'https://api.windforest.cn';
   if (location.hostname.endsWith('.pages.dev')) return 'https://windforest-api.414946437.workers.dev';
   if (location.hostname.endsWith('github.io')) return 'https://api.windforest.cn';
+  if (location.hostname.endsWith('.edgeone.cool') || location.hostname.endsWith('.edgeone.app')) return 'https://api.windforest.cn';
   if (location.hostname === 'localhost' || location.port) return 'http://localhost:8787';
   return 'https://api.windforest.cn';
 })();
@@ -1508,6 +1509,33 @@ document.addEventListener('keydown', function(e) {
   }
 });
 
+// ═══════ CDN PMQD Cache ═══════
+var PMQD_CACHE = null;
+
+function loadPmqdCache(callback) {
+  if (PMQD_CACHE) { callback(PMQD_CACHE); return; }
+  fetch('data/market_snapshot.json', {cache: 'default'})
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      PMQD_CACHE = data;
+      console.log('PMQD cache loaded:', data.updated_at);
+      callback(data);
+    })
+    .catch(function() {
+      callback(null);
+    });
+}
+
+function getCachedPmqd(code, market) {
+  if (!PMQD_CACHE || !PMQD_CACHE.pmqd_spotlight) return null;
+  var full = market + code;
+  for (var i = 0; i < PMQD_CACHE.pmqd_spotlight.length; i++) {
+    var s = PMQD_CACHE.pmqd_spotlight[i];
+    if ((s.market + s.code) === full) return s;
+  }
+  return null;
+}
+
 // ═══════ INIT ═══════
 (function init() {
   var params = getParams();
@@ -1515,12 +1543,22 @@ document.addEventListener('keydown', function(e) {
   var name = params.name || '';
   var market = params.market || 'sz';
 
-  getStockDataAsync(code, market, function(data) {
-    if (data) {
-      renderDashboard(data);
-    } else {
-      renderNoData(name, code);
+  // 1. Try CDN PMQD cache first (instant, ~100ms)
+  loadPmqdCache(function(cache) {
+    var cached = getCachedPmqd(code, market);
+    if (cached && cached.pmqd_total > 0) {
+      renderDashboard(convertApiToDashboard(cached, code, market));
+      return;
     }
+
+    // 2. Fall back to local DB + API
+    getStockDataAsync(code, market, function(data) {
+      if (data) {
+        renderDashboard(data);
+      } else {
+        renderNoData(name, code);
+      }
+    });
   });
 })();
 </script>

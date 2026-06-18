@@ -1,0 +1,23 @@
+{
+  "updated_at": "2026-06-18T08:00:00+08:00",
+  "source": "github-actions-daily-pmqd",
+  "version": "1.0",
+  "indices": {
+    "sh000001": {"name": "上证指数", "close": 0, "change_pct": 0},
+    "sz399001": {"name": "深证成指", "close": 0, "change_pct": 0},
+    "sz399006": {"name": "创业板指", "close": 0, "change_pct": 0},
+    "sh000688": {"name": "科创50", "close": 0, "change_pct": 0}
+  },
+  "pmqd_spotlight": [
+    {
+      "code": "000333",
+      "market": "sz",
+      "name": "美的集团",
+      "pmqd_total": 0,
+      "p_score": 0, "m_score": 0, "q_score": 0, "d_score": 0,
+      "strategy": "观望",
+      "note": "待每日分析更新"
+    }
+  ],
+  "last_full_analysis": null
+}
