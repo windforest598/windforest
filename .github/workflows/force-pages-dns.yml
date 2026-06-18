@@ -1,0 +1,61 @@
+# 🎯 Trigger Pages domain verification to force auto-CNAME creation
+name: "Force Pages DNS"
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Force Pages domain verification
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -e
+          API="https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/pages/projects/windforest/domains"
+
+          for domain in windforest.cn www.windforest.cn; do
+            echo ""
+            echo "=== $domain ==="
+
+            # Step 1: Get current state
+            STATE=$(curl -s "$API/$domain" -H "Authorization: Bearer $CF_TOKEN")
+            echo "Current: $(echo $STATE | jq '{status: .result.status, verification_status: .result.verification_status, verification_data: .result.verification_data}')"
+
+            # Step 2: Patch to trigger verification
+            PATCH=$(curl -s -X PATCH "$API/$domain" \
+              -H "Authorization: Bearer $CF_TOKEN" \
+              -H "Content-Type: application/json" \
+              --data '{}')
+            echo "Patch: $(echo $PATCH | jq '{success, result: .result.status}')"
+
+            sleep 3
+          done
+
+          # Step 3: Check DNS
+          echo ""
+          echo "=== DNS Check After ==="
+          sleep 5
+          for domain in windforest.cn www.windforest.cn api.windforest.cn; do
+            CNAME=$(dig +short $domain @1.1.1.1 CNAME 2>/dev/null)
+            A=$(dig +short $domain @1.1.1.1 A 2>/dev/null)
+            echo "  $domain → CNAME=$CNAME A=$A"
+          done
+
+          # Step 4: Final HTTP test
+          echo ""
+          echo "=== HTTP Tests ==="
+          for url in https://windforest.cn https://www.windforest.cn https://api.windforest.cn/api/health; do
+            CODE=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 5 "$url" 2>/dev/null || echo "FAIL")
+            echo "  $url → HTTP $CODE"
+          done
+
+          echo ""
+          echo "════════════════════════════════════════════════"
+          echo "  DONE"
+          echo "════════════════════════════════════════════════"
