@@ -1,0 +1,234 @@
+# 🌐 自动配置 windforest.cn 域名路由
+# 把 windforest.cn/www/api 三个子域流量全部路由到 windforest-api Worker
+# Worker 已通过 Workers Assets 托管前端静态文件，一 Worker 搞定前端+API
+
+name: Configure windforest.cn Domain
+
+on:
+  push:
+    paths:
+      - '.github/workflows/configure-domain.yml'
+      - 'fullstack/wrangler.toml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  configure-domain:
+    name: Route windforest.cn to Worker
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ── 获取 Zone ID ──
+        id: zone
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          ZONE=$(curl -s "https://api.cloudflare.com/client/v4/zones?name=windforest.cn" \
+            -H "Authorization: Bearer $CF_TOKEN")
+          echo "== Zone lookup =="
+          echo "$ZONE" | jq '.result | {id: .[0].id, name: .[0].name, status: .[0].status}'
+          
+          ZONE_ID=$(echo "$ZONE" | jq -r '.result[0].id // empty')
+          ZONE_STATUS=$(echo "$ZONE" | jq -r '.result[0].status // empty')
+          
+          if [ -z "$ZONE_ID" ]; then
+            echo "❌ Zone windforest.cn not found in Cloudflare account"
+            exit 1
+          fi
+          
+          echo "zone_id=$ZONE_ID" >> $GITHUB_OUTPUT
+          echo "zone_status=$ZONE_STATUS" >> $GITHUB_OUTPUT
+          echo "✅ Zone ID: $ZONE_ID (status: $ZONE_STATUS)"
+
+      # ──────────────────────────────────────────────────
+      # Step 1: 清理旧的 Pages 绑定（避免 522 冲突）
+      # ──────────────────────────────────────────────────
+      - name: ── 解除旧 Pages 自定义域名绑定 ──
+        id: unbind_pages
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          echo "检查 Pages 项目 windforest 的自定义域名绑定..."
+          
+          # 列出已绑定的域名
+          DOMAINS=$(curl -s \
+            "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/pages/projects/windforest/domains" \
+            -H "Authorization: Bearer $CF_TOKEN")
+          
+          echo "$DOMAINS" | jq '.result[] | {name: .name, status: .status, id: .id}' || echo "无域名绑定或 API 返回异常"
+          
+          # 删除 windforest.cn 绑定（如果存在）
+          for domain in windforest.cn www.windforest.cn; do
+            echo ""
+            echo "→ 检查 $domain ..."
+            DOMAIN_ID=$(echo "$DOMAINS" | jq -r ".result[] | select(.name==\"$domain\") | .id // empty")
+            if [ -n "$DOMAIN_ID" ]; then
+              echo "  找到绑定 $DOMAIN_ID，正在删除..."
+              DELETE_RESULT=$(curl -s -X DELETE \
+                "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/pages/projects/windforest/domains/$DOMAIN_ID" \
+                -H "Authorization: Bearer $CF_TOKEN")
+              echo "  结果: $(echo "$DELETE_RESULT" | jq -r '.success')"
+            else
+              echo "  未绑定到 Pages (OK)"
+            fi
+          done
+          
+          echo "✅ Pages 绑定清理完成"
+
+      # ──────────────────────────────────────────────────
+      # Step 2: 确保 DNS 记录存在且启用代理（橙色云）
+      # ──────────────────────────────────────────────────
+      - name: ── 确保 DNS A 记录 (Proxied) ──
+        id: dns
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          ZONE_ID="${{ steps.zone.outputs.zone_id }}"
+          
+          # 获取现有 DNS 记录
+          EXISTING=$(curl -s "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records?per_page=50" \
+            -H "Authorization: Bearer $CF_TOKEN")
+          
+          echo "== 现有 DNS 记录 =="
+          echo "$EXISTING" | jq '.result[] | {name: .name, type: .type, content: .content, proxied: .proxied}'
+          
+          # 确保根域名 A 记录 (proxied)
+          ensure_record() {
+            local NAME="$1"
+            local TYPE="$2"
+            local CONTENT="$3"
+            local FULLNAME="${NAME}.windforest.cn"
+            if [ "$NAME" = "@" ]; then FULLNAME="windforest.cn"; fi
+            
+            echo ""
+            echo "→ 检查 $FULLNAME ($TYPE) ..."
+            
+            RECORD_ID=$(echo "$EXISTING" | jq -r ".result[] | select(.name==\"$FULLNAME\" and .type==\"$TYPE\") | .id // empty" | head -1)
+            
+            if [ -n "$RECORD_ID" ]; then
+              # 已存在，确保 proxied=true
+              CURRENT_PROXIED=$(echo "$EXISTING" | jq -r ".result[] | select(.id==\"$RECORD_ID\") | .proxied")
+              if [ "$CURRENT_PROXIED" != "true" ]; then
+                echo "  更新为 proxied..."
+                curl -s -X PUT "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records/$RECORD_ID" \
+                  -H "Authorization: Bearer $CF_TOKEN" \
+                  -H "Content-Type: application/json" \
+                  --data "{\"type\":\"$TYPE\",\"name\":\"$FULLNAME\",\"content\":\"$CONTENT\",\"proxied\":true,\"ttl\":1}" \
+                  | jq '.success'
+              else
+                echo "  已存在且 proxied=true ✅"
+              fi
+            else
+              echo "  创建新记录..."
+              curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records" \
+                -H "Authorization: Bearer $CF_TOKEN" \
+                -H "Content-Type: application/json" \
+                --data "{\"type\":\"$TYPE\",\"name\":\"$FULLNAME\",\"content\":\"$CONTENT\",\"proxied\":true,\"ttl\":1}" \
+                | jq '.success'
+            fi
+          }
+          
+          # 根域 A 记录 → 占位 IP（Worker Routes 会接管）
+          ensure_record "@" "A" "192.0.2.1"
+          
+          # www A 记录
+          ensure_record "www" "A" "192.0.2.1"
+          
+          # api A 记录
+          ensure_record "api" "A" "192.0.2.1"
+          
+          echo ""
+          echo "✅ DNS 记录确认完毕"
+
+      # ──────────────────────────────────────────────────
+      # Step 3: 添加 Workers Routes
+      # ──────────────────────────────────────────────────
+      - name: ── 添加 Workers Routes ──
+        id: routes
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          ZONE_ID="${{ steps.zone.outputs.zone_id }}"
+          
+          # 列出已有路由
+          EXISTING_ROUTES=$(curl -s "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/workers/routes" \
+            -H "Authorization: Bearer $CF_TOKEN")
+          echo "== 已有 Workers Routes =="
+          echo "$EXISTING_ROUTES" | jq '.result[] | {pattern: .pattern, script: .script}'
+          
+          add_route() {
+            local PATTERN="$1"
+            local SCRIPT="$2"
+            
+            echo ""
+            echo "→ $PATTERN → $SCRIPT"
+            
+            # 检查是否已存在
+            EXISTING_ID=$(echo "$EXISTING_ROUTES" | jq -r ".result[] | select(.pattern==\"$PATTERN\") | .id // empty")
+            
+            if [ -n "$EXISTING_ID" ]; then
+              echo "  路由已存在 (id=$EXISTING_ID)，正在更新..."
+              RESULT=$(curl -s -X PUT \
+                "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/workers/routes/$EXISTING_ID" \
+                -H "Authorization: Bearer $CF_TOKEN" \
+                -H "Content-Type: application/json" \
+                --data "{\"pattern\":\"$PATTERN\",\"script\":\"$SCRIPT\"}")
+            else
+              echo "  创建新路由..."
+              RESULT=$(curl -s -X POST \
+                "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/workers/routes" \
+                -H "Authorization: Bearer $CF_TOKEN" \
+                -H "Content-Type: application/json" \
+                --data "{\"pattern\":\"$PATTERN\",\"script\":\"$SCRIPT\"}")
+            fi
+            
+            SUCCESS=$(echo "$RESULT" | jq -r '.success')
+            if [ "$SUCCESS" = "true" ]; then
+              echo "  ✅ 成功"
+            else
+              echo "  ❌ 失败: $(echo "$RESULT" | jq -r '.errors[0].message // "unknown"')"
+            fi
+          }
+          
+          # 核心路由：所有 windforest.cn 子域 → windforest-api Worker
+          add_route "windforest.cn/*" "windforest-api"
+          add_route "www.windforest.cn/*" "windforest-api"
+          add_route "api.windforest.cn/*" "windforest-api"
+          
+          echo ""
+          echo "✅ Workers Routes 配置完毕"
+
+      # ──────────────────────────────────────────────────
+      # Step 4: 验证
+      # ──────────────────────────────────────────────────
+      - name: ── 验证配置 ──
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          ZONE_ID="${{ steps.zone.outputs.zone_id }}"
+          
+          echo "════════════════════════════════════════════════"
+          echo "  ✅ 域名配置完成 — 最终状态                     "
+          echo "════════════════════════════════════════════════"
+          echo ""
+          
+          echo "📋 DNS 记录:"
+          curl -s "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records?per_page=50" \
+            -H "Authorization: Bearer $CF_TOKEN" \
+            | jq '.result[] | "  \(.name) → \(.content) | proxied=\(.proxied)"'
+          
+          echo ""
+          echo "🔀 Workers Routes:"
+          curl -s "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/workers/routes" \
+            -H "Authorization: Bearer $CF_TOKEN" \
+            | jq '.result[] | "  \(.pattern) → \(.script)"'
+          
+          echo ""
+          echo "🌐 预计 2-5 分钟后可通过以下地址访问:"
+          echo "  https://windforest.cn"
+          echo "  https://www.windforest.cn"
+          echo "  https://api.windforest.cn"
+          echo "════════════════════════════════════════════════"
