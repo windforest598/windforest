@@ -1,0 +1,124 @@
+# 🔧 全自动 DNS + 域名修复
+# 策略：绕过 DNS Records API（权限不够），用 Pages/Workers Domains API（自动建 CNAME）
+
+name: "Auto Fix DNS & Domain"
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 1️⃣ Force Zone Activation Check
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          ZONE_ID="4348c707be7347991e782af740962deb"
+
+          echo "🔍 Current zone status:"
+          curl -s "https://api.cloudflare.com/client/v4/zones/$ZONE_ID" \
+            -H "Authorization: Bearer $CF_TOKEN" | jq '{status: .result.status, ns_observed: .result.observed_name_servers, activation_failure: .result.activation_failure_reason}'
+
+          echo ""
+          echo "🔄 Triggering activation check..."
+          ACTIVATION=$(curl -s -X PUT "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/activation_check" \
+            -H "Authorization: Bearer $CF_TOKEN" \
+            -H "Content-Type: application/json")
+          echo "$ACTIVATION" | jq '{success, result: .result.id}'
+
+          # Wait and poll
+          echo ""
+          echo "⏳ Waiting for activation (up to 60s)..."
+          for i in $(seq 1 12); do
+            sleep 5
+            STATUS=$(curl -s "https://api.cloudflare.com/client/v4/zones/$ZONE_ID" \
+              -H "Authorization: Bearer $CF_TOKEN" | jq -r '.result.status')
+            echo "  [$i] Zone status: $STATUS"
+            if [ "$STATUS" = "active" ]; then
+              echo "✅ Zone activated!"
+              break
+            fi
+          done
+
+          FINAL_STATUS=$(curl -s "https://api.cloudflare.com/client/v4/zones/$ZONE_ID" \
+            -H "Authorization: Bearer $CF_TOKEN" | jq -r '.result.status')
+          echo "zone_status=$FINAL_STATUS" >> $GITHUB_OUTPUT
+          echo "Final zone status: $FINAL_STATUS"
+
+      - name: 2️⃣ Bind windforest.cn → Pages (auto-creates DNS CNAME)
+        id: bind_pages
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          echo "🌐 Binding windforest.cn to Pages..."
+          RESULT=$(curl -s -X POST \
+            "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/pages/projects/windforest/domains" \
+            -H "Authorization: Bearer $CF_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data '{"name":"windforest.cn"}')
+          echo "$RESULT" | jq '{success, result: {name: .result.name, status: .result.status, verification_status: .result.verification_status}}'
+
+          # www subdomain too
+          echo ""
+          echo "🌐 Binding www.windforest.cn to Pages..."
+          WWW=$(curl -s -X POST \
+            "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/pages/projects/windforest/domains" \
+            -H "Authorization: Bearer $CF_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data '{"name":"www.windforest.cn"}')
+          echo "$WWW" | jq '{success, result: {name: .result.name, status: .result.status}}'
+
+          SUCCESS=$(echo "$RESULT" | jq -r '.success')
+          echo "pages_ok=$SUCCESS" >> $GITHUB_OUTPUT
+
+      - name: 3️⃣ Bind api.windforest.cn → Worker (via Workers Domains API)
+        id: bind_worker
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          ZONE_ID="4348c707be7347991e782af740962deb"
+
+          echo "🔌 Binding api.windforest.cn to windforest-api Worker..."
+          RESULT=$(curl -s -X PUT \
+            "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/workers/domains" \
+            -H "Authorization: Bearer $CF_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data "{\"zone_id\":\"$ZONE_ID\",\"hostname\":\"api.windforest.cn\",\"service\":\"windforest-api\",\"environment\":\"production\"}")
+          echo "$RESULT" | jq '{success, result: .result, errors: .errors[0].message}'
+
+          SUCCESS=$(echo "$RESULT" | jq -r '.success')
+          echo "worker_ok=$SUCCESS" >> $GITHUB_OUTPUT
+
+      - name: 4️⃣ Verify DNS Records
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          ZONE_ID="4348c707be7347991e782af740962deb"
+
+          echo "📋 All DNS records in zone:"
+          curl -s "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records?per_page=20" \
+            -H "Authorization: Bearer $CF_TOKEN" | jq -r '.result[] | "\(.type)\t\(.name)\t→ \(.content)\tproxied=\(.proxied)"'
+
+      - name: 5️⃣ Summary
+        run: |
+          echo ""
+          echo "════════════════════════════════════════════════"
+          if [ "${{ steps.bind_pages.outputs.pages_ok }}" = "true" ] && [ "${{ steps.bind_worker.outputs.worker_ok }}" = "true" ]; then
+            echo "  ✅ ALL DONE! 即将可访问："
+          else
+            echo "  ⚠️  Partially completed, check logs above"
+          fi
+          echo ""
+          echo "  🌐 https://windforest.cn     → Pages 前端"
+          echo "  🌐 https://www.windforest.cn → Pages 前端"
+          echo "  🔌 https://api.windforest.cn → Worker API"
+          echo ""
+          echo "  DNS 生效需 5-15 分钟"
+          echo "════════════════════════════════════════════════"
