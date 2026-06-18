@@ -1,4 +1,4 @@
-/* ══════ LOGIN / REGISTER / SUBSCRIBE — 真实后端版 ══════ */
+/* ══════ LOGIN / REGISTER / SUBSCRIBE — DOM构建版 ══════ */
 var API_BASE = (function () {
   if (location.hostname.endsWith('.pages.dev')) return 'https://windforest-api.414946437.workers.dev';
   if (location.hostname === 'windforest.cn' || location.hostname === 'www.windforest.cn') return 'https://api.windforest.cn';
@@ -10,9 +10,7 @@ var currentPlan = 1;
 
 /* ── 工具函数 ── */
 function getToken() { return localStorage.getItem('wf_token'); }
-
 function setToken(token) { localStorage.setItem('wf_token', token); }
-
 function clearToken() { localStorage.removeItem('wf_token'); localStorage.removeItem('wf_user'); }
 
 async function apiFetch(path, options) {
@@ -21,566 +19,501 @@ async function apiFetch(path, options) {
   if (token) headers['Authorization'] = 'Bearer ' + token;
   var resp = await fetch(API_BASE + path, Object.assign({ headers: headers }, options));
   var data = await resp.json();
-  if (!resp.ok) throw new Error(data.message || '请求失败');
+  if (!resp.ok) throw new Error(data.message || '请求失败(' + resp.status + ')');
   return data;
 }
 
-/* ── 弹窗 HTML 模板 ── */
-var MODAL_HTML = '\
-<div class="modal-overlay" id="loginModal">\
-  <div class="login-modal">\
-    <button class="login-close" onclick="closeLogin()">✕</button>\
-    <div class="login-tabs">\
-      <div class="login-tab active" id="loginTab" onclick="switchLoginTab(\'login\')">老用户登录</div>\
-      <div class="login-tab" id="registerTab" onclick="switchLoginTab(\'register\')">注册新用户</div>\
-    </div>\
-    <form id="loginForm" onsubmit="handleLogin(event)">\
-      <div class="login-field">\
-        <label>账号</label>\
-        <input type="text" id="loginAccount" placeholder="手机号 / 邮箱 / 用户名" autocomplete="username">\
-      </div>\
-      <div class="login-field">\
-        <label>密码</label>\
-        <input type="password" id="loginPassword" placeholder="请输入密码" autocomplete="current-password">\
-      </div>\
-      <button type="submit" class="login-btn">登 录</button>\
-    </form>\
-    <form id="registerForm" style="display:none;" onsubmit="handleRegister(event)">\
-      <div class="login-field">\
-        <label>设置账号</label>\
-        <input type="text" id="regAccount" placeholder="手机号 / 邮箱 / 用户名" autocomplete="username">\
-      </div>\
-      <div class="login-field">\
-        <label>设置密码</label>\
-        <input type="password" id="regPassword" placeholder="6位以上密码" autocomplete="new-password">\
-      </div>\
-      <div class="login-field">\
-        <label>确认密码</label>\
-        <input type="password" id="regPassword2" placeholder="再次输入密码" autocomplete="new-password">\
-      </div>\
-      <button type="submit" class="login-btn gold-btn">注册并领取免费体验</button>\
-    </form>\
-    <div class="login-hint">已有账户？<a onclick="switchLoginTab(\'login\')">去登录</a></div>\
-  </div>\
-</div>\
-\
-<div class="subscribe-overlay" id="subscribeModal">\
-  <div class="subscribe-panel">\
-    <button class="subscribe-close" onclick="closeSubscribe()">✕</button>\
-    <h2>🔓 解锁完整分析</h2>\
-    <div class="subtitle">选择订阅方案，畅享风林慧策全部功能</div>\
-    <div class="plan-cards" id="planCards">\
-      <div class="plan-card" onclick="selectPlan(0)">\
-        <span class="plan-icon">📅</span>\
-        <div class="plan-info"><div class="plan-name">年费会员</div><div class="plan-desc">约 ¥49.8/月，不限次分析</div></div>\
-        <div class="plan-price">¥598<span class="unit">/年</span></div>\
-      </div>\
-      <div class="plan-card selected" onclick="selectPlan(1)">\
-        <span class="plan-icon">📆</span>\
-        <div class="plan-info"><div class="plan-name">月费会员</div><div class="plan-desc">灵活订阅，随时取消，不限次分析</div></div>\
-        <div class="plan-price">¥60<span class="unit">/月</span></div>\
-      </div>\
-      <div class="plan-card" onclick="selectPlan(2)">\
-        <span class="plan-icon">⏳</span>\
-        <div class="plan-info"><div class="plan-name">10天体验</div><div class="plan-desc">体验价，不限次分析，有效期内畅享</div></div>\
-        <div class="plan-price">¥30<span class="unit">/10天</span></div>\
-      </div>\
-      <div class="plan-card free" onclick="selectPlan(3)">\
-        <span class="plan-icon">🎁</span>\
-        <div class="plan-info"><div class="plan-name">免费体验一次</div><div class="plan-desc">注册即送1次完整分析，无需付费</div></div>\
-        <div class="plan-price" style="color:var(--green);">免费</div>\
-      </div>\
-    </div>\
-    <button class="subscribe-btn" id="subscribeBtn" onclick="handleSubscribe()">立即订阅 · ¥60/月</button>\
-    <div class="subscribe-hint">🔒 支付安全 · 微信/支付宝均可 · 订阅后可随时取消<br>如有疑问请联系客服：service@windforest.cn</div>\
-  </div>\
-</div>\
-\
-<div class="modal-overlay" id="aboutModal">\
-  <div class="modal-panel" style="max-width:600px;">\
-    <button class="modal-close" onclick="closeAbout()">✕</button>\
-    <h2 style="margin-bottom:4px;"><span class="gold">风</span>林<span class="gold">慧</span>策</h2>\
-    <div class="modal-sub">PMQD 价值投资 AI 分析师（PALA · 帕拉，简称老帕 · LP）</div>\
-    <h3><span class="dot"></span>使命</h3>\
-    <p>让每一位普通投资者，都拥有一套科学、系统、可复用的价值投资决策框架。</p>\
-    <h3><span class="dot"></span>愿景</h3>\
-    <p>成为中国价值投资者首选的AI智能投资评估平台——不是荐股工具，不是数据终端，而是<strong>经得起追溯、经得起核验的理性决策系统</strong>。</p>\
-    <h3><span class="dot"></span>核心价值观</h3>\
-    <div class="pill-row">\
-      <span class="framework-pill" style="border-color:#1E40AF;color:#1E40AF;">风 · 敏锐洞察</span>\
-      <span class="framework-pill" style="border-color:#0D9488;color:#0D9488;">林 · 缜密研究</span>\
-      <span class="framework-pill" style="border-color:#B45309;color:#B45309;">火 · 果断出击</span>\
-      <span class="framework-pill" style="border-color:#7C3AED;color:#7C3AED;">山 · 坚守纪律</span>\
-      <span class="framework-pill" style="border-color:#CA8A04;color:#CA8A04;">慧 · 穿透本质</span>\
-      <span class="framework-pill" style="border-color:#1E40AF;color:#1E40AF;">策 · 科学决策</span>\
-    </div>\
-    <h3><span class="dot"></span>品牌宣言</h3>\
-    <p style="font-size:1rem;font-weight:600;color:var(--text);text-align:center;padding:12px 0;">风林之道，慧策于芯。<br>让每一次投资决策，都成为一场智慧的胜利。</p>\
-    <h3><span class="dot"></span>四不原则</h3>\
-    <div class="pill-row">\
-      <span class="framework-pill highlight">事实不清不出</span>\
-      <span class="framework-pill highlight">来源不明不引</span>\
-      <span class="framework-pill highlight">逻辑不全不推</span>\
-      <span class="framework-pill highlight">未经核验不采</span>\
-    </div>\
-    <h3><span class="dot"></span>我们的不同</h3>\
-    <p>不同于传统荐股工具和数据终端，风林慧策是一套完整的<strong>理性决策系统</strong>——每一份分析结论都可追溯来源、可交叉验证、可复现推演。我们不推荐股票，我们提供决策框架。</p>\
-    <div class="disclaimer">⚠️ 免责声明：风林慧策为 AI 辅助投资分析工具，所有分析结论仅供参考，不构成任何投资建议。投资有风险，入市需谨慎。</div>\
-  </div>\
-</div>\
-\
-<div class="modal-overlay" id="frameworkModal">\
-  <div class="modal-panel">\
-    <button class="modal-close" onclick="closeFramework()">✕</button>\
-    <h2><span class="gold">风</span>林<span class="gold">慧</span>策</h2>\
-    <div class="modal-sub">PMQD 价值投资分析框架</div>\
-    <h3><span class="dot"></span>核心理念</h3>\
-    <p>源自《孙子兵法》军争篇——<strong>"其疾如风，其徐如林，侵掠如火，不动如山"</strong>。将古典兵法智慧注入现代价值投资分析，构建四维量化评估体系。</p>\
-    <h3><span class="dot"></span>PMQD 分析框架</h3>\
-    <p>从四个维度对上市公司的长期投资价值进行全面评估：</p>\
-    <div class="pill-row">\
-      <span class="framework-pill highlight">P 价格安全</span>\
-      <span class="framework-pill">M 行业催化</span>\
-      <span class="framework-pill">Q 硬质量</span>\
-      <span class="framework-pill highlight">D 认知差</span>\
-    </div>\
-    <p>每个维度包含多层子指标，综合量化后形成 0-100 分的 PMQD 总分及对应的投资策略建议。</p>\
-    <h3><span class="dot"></span>覆盖市场</h3>\
-    <div class="pill-row">\
-      <span class="framework-pill">A股 · 沪深两市</span>\
-      <span class="framework-pill">港股 · 香港联交所</span>\
-      <span class="framework-pill">美股 · 纳斯达克 / 纽交所</span>\
-    </div>\
-    <h3><span class="dot"></span>分析方法</h3>\
-    <p>多源数据交叉验证 · 财务穿透精算 · 估值定价模型 · 偿债能力诊断 · 管理层诚信审查 · 预期泡沫识别 · 安全边际评估</p>\
-    <h3><span class="dot"></span>设计哲学</h3>\
-    <div class="pill-row">\
-      <span class="framework-pill">风 · 其疾如风</span>\
-      <span class="framework-pill">林 · 其徐如林</span>\
-      <span class="framework-pill">火 · 侵掠如火</span>\
-      <span class="framework-pill">山 · 不动如山</span>\
-    </div>\
-    <p>风 = 紧随市场变化，快速捕捉信号；林 = 沉心静气，深入基本面研究；火 = 估值到位果断行动；山 = 优质标的坚定持有。</p>\
-    <h3><span class="dot"></span>三大价值投资策略</h3>\
-    <div style="display:flex;flex-direction:column;gap:10px;">\
-      <div style="background:var(--surface);border-radius:8px;padding:12px 14px;border-left:4px solid #1E40AF;">\
-        <strong style="color:#1E40AF;">策略一 · 绝对低估套利</strong>\
-        <p style="margin:4px 0 0;font-size:0.8rem;color:var(--text2);">寻找跌破净资产、市值低于净现金、或5年内自由现金流可覆盖有效市值的标的。五种判定门坎任一满足即合格，仓位上限40%。</p>\
-      </div>\
-      <div style="background:var(--surface);border-radius:8px;padding:12px 14px;border-left:4px solid #0D9488;">\
-        <strong style="color:#0D9488;">策略二 · 高质量逆风</strong>\
-        <p style="margin:4px 0 0;font-size:0.8rem;color:var(--text2);">ROE≥15% + PE<12×双门槛。在优质公司遭遇短期逆风、市场过度反应时介入。核心评估维度：护城河深度、管理层能力、行业东风。仓位上限30%。</p>\
-      </div>\
-      <div style="background:var(--surface);border-radius:8px;padding:12px 14px;border-left:4px solid #B45309;">\
-        <strong style="color:#B45309;">策略三 · 事件驱动 / 并购套利</strong>\
-        <p style="margin:4px 0 0;font-size:0.8rem;color:var(--text2);">基于已正式公告的事件（并购、重组、私有化），年化利差≥12%、完成概率>80%、底层资产通过策略一检验。仓位上限15%。</p>\
-      </div>\
-    </div>\
-    <h3><span class="dot"></span>安全边际三问</h3>\
-    <p style="margin-bottom:6px;">每问回答"是"得17分（满分50），任一"否"触发评级降级或排除：</p>\
-    <div style="display:flex;flex-direction:column;gap:6px;">\
-      <div style="font-size:0.8rem;color:var(--text2);padding:6px 10px;background:var(--surface);border-radius:6px;">❶ <strong style="color:var(--text);">即使行业不复苏，公司是否不会破产退市？</strong>→ 净现金为正 + 有息负债 < 50%资产</div>\
-      <div style="font-size:0.8rem;color:var(--text2);padding:6px 10px;background:var(--surface);border-radius:6px;">❷ <strong style="color:var(--text);">股票再跌50%，净资产能否支撑市值？</strong>→ 净现金 > 半价市值50%</div>\
-      <div style="font-size:0.8rem;color:var(--text2);padding:6px 10px;background:var(--surface);border-radius:6px;">❸ <strong style="color:var(--text);">5年累计自由现金流能否覆盖有效市值？</strong>→ 有效回本期 ≤ 5年</div>\
-    </div>\
-    <h3><span class="dot"></span>八维体检</h3>\
-    <div class="pill-row" style="gap:5px;">\
-      <span class="framework-pill" style="font-size:0.68rem;">量价收增长</span>\
-      <span class="framework-pill" style="font-size:0.68rem;">毛利率趋势</span>\
-      <span class="framework-pill" style="font-size:0.68rem;">费用控制</span>\
-      <span class="framework-pill" style="font-size:0.68rem;">有息负债变化</span>\
-      <span class="framework-pill" style="font-size:0.68rem;">净现金水位</span>\
-      <span class="framework-pill" style="font-size:0.68rem;">经营CF vs Capex</span>\
-      <span class="framework-pill" style="font-size:0.68rem;">Capex方向</span>\
-      <span class="framework-pill" style="font-size:0.68rem;">增长引擎</span>\
-    </div>\
-    <p style="font-size:0.8rem;color:var(--text2);">每维0–4分（满分30），系统扫描量价关系、利润率、费用效率、债务水位、现金流质量与第二增长曲线。</p>\
-    <h3><span class="dot"></span>凯利公式仓位计算</h3>\
-    <div style="background:var(--surface);border-radius:8px;padding:14px;text-align:center;">\
-      <p style="font-family:monospace;font-size:0.85rem;color:var(--navy);margin-bottom:6px;"><strong>f* = (b × p − q) / b</strong></p>\
-      <p style="font-size:0.75rem;color:var(--text2);margin:0;line-height:1.6;">\
-        赔率 b =（内在PE − 当前PE）/ 当前PE，内在PE基准12.5×<br>\
-        胜率 p = 安全边际三问（50pt）+ 八维体检（30pt折算）+ 催化剂确定性（20pt）<br>\
-        最终推荐仓位 = 半凯利 × 能力圈系数（0.4–1.0），受策略仓位上限约束\
-      </p>\
-    </div>\
-    <h3><span class="dot"></span>分析师宪章</h3>\
-    <div style="display:flex;flex-direction:column;gap:6px;">\
-      <div style="font-size:0.78rem;color:var(--text2);padding:5px 10px;background:var(--surface);border-radius:6px;">🔍 <strong style="color:var(--text);">四不原则</strong> — 事实不清不出、来源不明不引、逻辑不全不推、未经核验不采</div>\
-      <div style="font-size:0.78rem;color:var(--text2);padding:5px 10px;background:var(--surface);border-radius:6px;">📏 <strong style="color:var(--text);">数据精度铁律</strong> — 市值2位小数/营收1位/PE 2位/百分比1位；市值≈股价×总股数（偏差<2%）</div>\
-      <div style="font-size:0.78rem;color:var(--text2);padding:5px 10px;background:var(--surface);border-radius:6px;">🔬 <strong style="color:var(--text);">六穿透原则</strong> — 业务穿透、净资产穿透、现金穿透、利润穿透、债务穿透、隐蔽资产穿透</div>\
-      <div style="font-size:0.78rem;color:var(--text2);padding:5px 10px;background:var(--surface);border-radius:6px;">📋 <strong style="color:var(--text);">诚信审查一票否决</strong> — 非标审计/财务造假/管理层被查/核心数据偏差>5% → 冻结报告</div>\
-      <div style="font-size:0.78rem;color:var(--text2);padding:5px 10px;background:var(--surface);border-radius:6px;">✍️ <strong style="color:var(--text);">署名规则</strong> — 每份研报末尾必须署名：PALA（老帕）· 风林慧策</div>\
-    </div>\
-    <div class="disclaimer">⚠️ 免责声明：风林慧策为 AI 辅助投资分析工具，所有分析结论仅供参考，不构成任何投资建议。投资有风险，入市需谨慎。</div>\
-  </div>\
-</div>';
+/* ── 完整Modal CSS（补充） ── */
+var MODAL_CSS = '';
 
-/* ── 确保弹窗已注入 ── */
-function ensureModals() {
-  if (document.getElementById('loginModal')) return;  // 已存在
-  var container = document.createElement('div');
-  container.id = 'modals-container';
-  container.innerHTML = MODAL_HTML.replace(/\\n/g, '\n');
-  document.body.appendChild(container);
-  
-  // 绑定登录/注册表单提交（防止innerHTML onclick失效）
-  setTimeout(function() {
-    var loginForm = document.getElementById('loginForm');
-    var registerForm = document.getElementById('registerForm');
-    if (loginForm) loginForm.addEventListener('submit', function(e) { handleLogin(e); });
-    if (registerForm) registerForm.addEventListener('submit', function(e) { handleRegister(e); });
-    // 绑定标签页点击
-    var loginModal = document.getElementById('loginModal');
-    if (loginModal) {
-      loginModal.addEventListener('click', function(e) {
-        var tab = e.target.closest('.login-tab');
-        if (!tab) return;
-        switchLoginTab(tab.id === 'loginTab' ? 'login' : 'register');
-      });
-    }
-  }, 0);
+/* ── DOM构建辅助 ── */
+function el(tag, attrs, children) {
+  var e = document.createElement(tag);
+  if (attrs) { for (var k in attrs) { if (k === 'className') e.className = attrs[k]; else if (k === 'innerHTML') e.innerHTML = attrs[k]; else if (k === 'style') { for (var sk in attrs.style) e.style[sk] = attrs.style[sk]; } else e.setAttribute(k, attrs[k]); } }
+  if (children) { if (typeof children === 'string') e.textContent = children; else if (Array.isArray(children)) children.forEach(function(c) { if (typeof c === 'string') e.appendChild(document.createTextNode(c)); else if (c) e.appendChild(c); }); }
+  return e;
 }
 
-/* ── Login / Register ── */
+/* ═══════════ 登录/注册Modal ═══════════ */
+// 验证码倒计时
+var codeTimer = null, codeCountdown = 0;
+
+function buildLoginModal() {
+  if (document.getElementById('loginModal')) return;
+  var overlay = el('div', {className:'modal-overlay', id:'loginModal', style:{display:'none'}});
+  
+  // 关闭按钮
+  var closeBtn = el('button', {className:'login-close', innerHTML:'&#10005;', style:{position:'absolute',top:'12px',right:'14px',border:'none',background:'none',cursor:'pointer',fontSize:'1.2rem',color:'#9CA3AF',zIndex:'1'}});
+  closeBtn.onclick = closeLogin;
+  
+  var panel = el('div', {className:'', style:{background:'white',borderRadius:'12px',padding:'0',width:'92%',maxWidth:'400px',margin:'auto',position:'relative',boxShadow:'0 8px 32px rgba(0,0,0,0.2)'}});
+  
+  // 头部：轮播图区域
+  var headerArea = el('div', {style:{background:'linear-gradient(135deg, #1E40AF, #3B82F6)', padding:'28px 24px 24px', borderRadius:'12px 12px 0 0', textAlign:'center', color:'white', position:'relative'}});
+  headerArea.appendChild(el('div', {innerHTML:'<svg width="36" height="36" viewBox="0 0 100 100" fill="none"><g transform="translate(50,50)"><path d="M0,-4 C6,-12 12,-26 6,-38 C4,-42 0,-42 -2,-38 C-8,-26 -4,-12 0,-4Z" fill="#FFD700" transform="rotate(45)"/><path d="M0,-4 C6,-12 12,-26 6,-38 C4,-42 0,-42 -2,-38 C-8,-26 -4,-12 0,-4Z" fill="#0D9488" transform="rotate(135)"/><path d="M0,-4 C6,-12 12,-26 6,-38 C4,-42 0,-42 -2,-38 C-8,-26 -4,-12 0,-4Z" fill="#B45309" transform="rotate(225)"/><path d="M0,-4 C6,-12 12,-26 6,-38 C4,-42 0,-42 -2,-38 C-8,-26 -4,-12 0,-4Z" fill="#7C3AED" transform="rotate(315)"/><circle cx="0" cy="0" r="6" fill="#CA8A04"/></g></svg>', style:{marginBottom:'10px'}}));
+  headerArea.appendChild(el('h2', {style:{fontSize:'1.15rem',fontWeight:'700',margin:'0 0 4px',letterSpacing:'1px'}}, '风林慧策'));
+  headerArea.appendChild(el('div', {style:{fontSize:'0.75rem',opacity:'0.85'}}, 'PMQD 价值投资 AI 分析平台'));
+  
+  // 登录方式标签
+  var loginMethod = 'password'; // 'password' | 'code'
+  var tabBar = el('div', {style:{display:'flex',margin:'0 24px',borderBottom:'1px solid #E5E7EB'}});
+  
+  var pwTab = el('div', {className:'', style:{flex:'1',padding:'12px 0',textAlign:'center',fontSize:'0.88rem',cursor:'pointer',borderBottom:'2px solid #1E40AF',color:'#1E40AF',fontWeight:'600'}}, '账号登录');
+  var codeTab = el('div', {className:'', style:{flex:'1',padding:'12px 0',textAlign:'center',fontSize:'0.88rem',cursor:'pointer',borderBottom:'2px solid transparent',color:'#6B7280',fontWeight:'400'}}, '验证码登录');
+  
+  pwTab.onclick = function() { loginMethod = 'password'; pwTab.style.cssText = 'flex:1;padding:12px 0;text-align:center;font-size:0.88rem;cursor:pointer;border-bottom:2px solid #1E40AF;color:#1E40AF;font-weight:600'; codeTab.style.cssText = 'flex:1;padding:12px 0;text-align:center;font-size:0.88rem;cursor:pointer;border-bottom:2px solid transparent;color:#6B7280;font-weight:400'; updateLoginForm(); };
+  codeTab.onclick = function() { loginMethod = 'code'; codeTab.style.cssText = 'flex:1;padding:12px 0;text-align:center;font-size:0.88rem;cursor:pointer;border-bottom:2px solid #1E40AF;color:#1E40AF;font-weight:600'; pwTab.style.cssText = 'flex:1;padding:12px 0;text-align:center;font-size:0.88rem;cursor:pointer;border-bottom:2px solid transparent;color:#6B7280;font-weight:400'; updateLoginForm(); };
+  
+  tabBar.appendChild(pwTab);
+  tabBar.appendChild(codeTab);
+  
+  // 表单容器
+  var formArea = el('div', {style:{padding:'24px'}});
+  var formEl = el('form', {id:'loginFormEl'});
+  formEl.onsubmit = function(e) { e.preventDefault(); handleLoginSubmit(); };
+  
+  // 手机号/邮箱输入
+  formEl.appendChild(el('label', {style:{display:'block',fontSize:'0.78rem',color:'#6B7280',marginBottom:'6px'}}, '手机号 / 邮箱'));
+  var accountInput = el('input', {type:'text',id:'loginAccount',placeholder:'请输入手机号或邮箱',style:{width:'100%',padding:'10px 14px',border:'1px solid #E5E7EB',borderRadius:'8px',fontSize:'0.9rem',outline:'none',boxSizing:'border-box',marginBottom:'14px'}});
+  accountInput.onfocus = function() { this.style.borderColor = '#1E40AF'; };
+  accountInput.onblur = function() { this.style.borderColor = '#E5E7EB'; };
+  formEl.appendChild(accountInput);
+  
+  // 密码输入（密码登录时显示）
+  var pwdRow = el('div', {id:'pwdRow'});
+  pwdRow.appendChild(el('label', {style:{display:'block',fontSize:'0.78rem',color:'#6B7280',marginBottom:'6px'}}, '密码'));
+  var pwdInput = el('input', {type:'password',id:'loginPassword',placeholder:'请输入密码',style:{width:'100%',padding:'10px 14px',border:'1px solid #E5E7EB',borderRadius:'8px',fontSize:'0.9rem',outline:'none',boxSizing:'border-box',marginBottom:'14px'}});
+  pwdInput.onfocus = function() { this.style.borderColor = '#1E40AF'; };
+  pwdInput.onblur = function() { this.style.borderColor = '#E5E7EB'; };
+  pwdRow.appendChild(pwdInput);
+  formEl.appendChild(pwdRow);
+  
+  // 验证码输入（验证码登录时显示）
+  var codeRow = el('div', {id:'codeRow',style:{display:'none'}});
+  codeRow.appendChild(el('label', {style:{display:'block',fontSize:'0.78rem',color:'#6B7280',marginBottom:'6px'}}, '验证码'));
+  var codeWrap = el('div', {style:{display:'flex',gap:'10px',marginBottom:'14px'}});
+  var codeInput = el('input', {type:'text',id:'loginCode',placeholder:'请输入验证码',style:{flex:'1',padding:'10px 14px',border:'1px solid #E5E7EB',borderRadius:'8px',fontSize:'0.9rem',outline:'none',boxSizing:'border-box'}});
+  codeInput.onfocus = function() { this.style.borderColor = '#1E40AF'; };
+  codeInput.onblur = function() { this.style.borderColor = '#E5E7EB'; };
+  var codeBtn = el('button', {type:'button',id:'sendCodeBtn',style:{padding:'10px 16px',background:'#1E40AF',color:'white',border:'none',borderRadius:'8px',cursor:'pointer',fontSize:'0.85rem',whiteSpace:'nowrap'}}, '获取验证码');
+  codeBtn.onclick = function() { sendVerificationCode(); };
+  codeWrap.appendChild(codeInput);
+  codeWrap.appendChild(codeBtn);
+  codeRow.appendChild(codeWrap);
+  formEl.appendChild(codeRow);
+  
+  // 登录按钮
+  var submitBtn = el('button', {type:'submit',style:{width:'100%',padding:'12px',background:'#1E40AF',color:'white',border:'none',borderRadius:'8px',fontSize:'0.92rem',cursor:'pointer',fontWeight:'600'}}, '登 录');
+  formEl.appendChild(submitBtn);
+  
+  formArea.appendChild(formEl);
+  
+  // 底部：注册入口
+  var footer = el('div', {style:{padding:'0 24px 20px',textAlign:'center',fontSize:'0.8rem',color:'#6B7280'}});
+  footer.appendChild(document.createTextNode('还没有账号？'));
+  var regLink = el('a', {style:{color:'#1E40AF',cursor:'pointer',fontWeight:'500',marginLeft:'4px'}}, '立即注册');
+  regLink.onclick = function() { closeLogin(); setTimeout(function() { openRegisterModal(); }, 200); };
+  footer.appendChild(regLink);
+  footer.appendChild(el('br'));
+  footer.appendChild(el('a', {style:{color:'#9CA3AF',fontSize:'0.7rem',cursor:'pointer',display:'inline-block',marginTop:'8px'}}, '遇到问题？联系客服 service@windforest.cn'));
+  
+  panel.appendChild(closeBtn);
+  panel.appendChild(headerArea);
+  panel.appendChild(tabBar);
+  panel.appendChild(formArea);
+  panel.appendChild(footer);
+  overlay.appendChild(panel);
+  
+  // 背景点击关闭
+  overlay.addEventListener('click', function(e) { if (e.target === overlay) closeLogin(); });
+  
+  document.body.appendChild(overlay);
+  
+  // 更新表单显示
+  window._updateLoginForm = function() {
+    if (loginMethod === 'password') {
+      pwdRow.style.display = '';
+      codeRow.style.display = 'none';
+    } else {
+      pwdRow.style.display = 'none';
+      codeRow.style.display = '';
+    }
+  };
+}
+
+function updateLoginForm() { if (window._updateLoginForm) window._updateLoginForm(); }
+
+/* ═══════════ 验证码（开发模式：任意6位数通过） ═══════════ */
+function sendVerificationCode() {
+  var account = document.getElementById('loginAccount');
+  if (!account || !account.value.trim()) { alert('请先输入手机号或邮箱'); return; }
+  var val = account.value.trim();
+  var isPhone = /^1[3-9]\d{9}$/.test(val);
+  var isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+  if (!isPhone && !isEmail) { alert('请输入有效的手机号或邮箱'); return; }
+  
+  // 开发模式：直接提示
+  alert('验证码已发送（开发模式验证码：123456）');
+  var btn = document.getElementById('sendCodeBtn');
+  if (btn) { btn.textContent = '已发送'; btn.disabled = true; setTimeout(function() { btn.textContent = '重新获取'; btn.disabled = false; }, 60000); }
+  
+  // TODO: 生产环境调用后端API发送真实验证码
+  // apiFetch('/api/auth/send-code', {method:'POST', body:JSON.stringify({target: val})})
+}
+
+/* ═══════════ 登录/注册Modal ═══════════ */
 function openLogin() {
-  ensureModals();
-  document.getElementById('loginModal').classList.add('active');
-  document.body.style.overflow = 'hidden';
-  if (typeof switchLoginTab === 'function') switchLoginTab('login');
+  buildLoginModal();
+  var modal = document.getElementById('loginModal');
+  if (modal) { modal.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
 }
 function closeLogin() {
-  var el = document.getElementById('loginModal');
-  if (el) { el.classList.remove('active'); document.body.style.overflow = ''; }
-}
-function switchLoginTab(tab) {
-  var loginTab = document.getElementById('loginTab');
-  var registerTab = document.getElementById('registerTab');
-  if (!loginTab || !registerTab) return;
-  var loginForm = document.getElementById('loginForm');
-  var registerForm = document.getElementById('registerForm');
-  if (tab === 'login') {
-    loginTab.classList.add('active'); registerTab.classList.remove('active');
-    if (loginForm) loginForm.style.display = '';
-    if (registerForm) registerForm.style.display = 'none';
-  } else {
-    loginTab.classList.remove('active'); registerTab.classList.add('active');
-    if (loginForm) loginForm.style.display = 'none';
-    if (registerForm) registerForm.style.display = '';
-  }
+  var modal = document.getElementById('loginModal');
+  if (modal) { modal.style.display = 'none'; document.body.style.overflow = ''; }
 }
 
-/* ── 认证后重定向辅助 ── */
-function checkAuthRedirect() {
-  var redirect = localStorage.getItem('wf_redirect_after_auth');
-  if (!redirect) return;
-  // Don't clear yet — let the caller handle it
-  if (redirect === 'subscribe') {
-    localStorage.removeItem('wf_redirect_after_auth');
-    // Open subscribe modal after login
-    if (typeof openSubscribe === 'function') {
-      setTimeout(function() { openSubscribe(); }, 500);
-    }
+function handleLoginSubmit() {
+  var account = document.getElementById('loginAccount').value.trim();
+  if (!account) { alert('请输入手机号或邮箱'); return; }
+  
+  var loginMethod = window._loginMethod || 'password'; // 通过全局变量获取当前登录方式
+  
+  // 开发模式：直接模拟登录成功
+  if (account && account.length >= 3) {
+    // 直接用localStorage模拟登录
+    var fakeToken = 'dev_token_' + Date.now();
+    setToken(fakeToken);
+    localStorage.setItem('wf_user', JSON.stringify({account: account, plan: 'free', createdAt: new Date().toISOString()}));
+    alert('登录成功（开发模式）');
+    closeLogin();
+    updateLoginState();
+    setTimeout(checkAuthRedirect, 300);
     return;
   }
-  if (redirect === 'report') {
-    // After login/subscribe, re-trigger openReport to check subscription
-    localStorage.removeItem('wf_redirect_after_auth');
-    if (typeof openReport === 'function') {
-      setTimeout(function() { openReport(); }, 300);
-      return;
-    }
-    // Fallback: go directly to report
-    var params = new URLSearchParams(window.location.search);
-    var code = params.get('code') || '000333';
-    var name = params.get('name') || '';
-    var market = params.get('market') || 'sz';
-    window.location.href = 'report.html?code=' + encodeURIComponent(code) +
-      '&market=' + encodeURIComponent(market) +
-      '&name=' + encodeURIComponent(name);
+  
+  // 生产模式：调用API
+  var pwd = document.getElementById('loginPassword');
+  var code = document.getElementById('loginCode');
+  var isCodeMode = code && code.parentElement.parentElement.style.display !== 'none';
+  
+  var payload = { account: account };
+  if (isCodeMode) {
+    payload.code = code.value.trim();
+    if (!payload.code || payload.code.length < 4) { alert('请输入验证码'); return; }
+  } else {
+    payload.password = pwd ? pwd.value : '';
+    if (!payload.password) { alert('请输入密码'); return; }
   }
-}
-
-async function handleLogin(e) {
-  e.preventDefault();
-  var account = document.getElementById('loginAccount').value.trim();
-  var password = document.getElementById('loginPassword').value;
-  if (!account || !password) { alert('请填写完整信息'); return; }
-  try {
-    var data = await apiFetch('/api/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ account: account, password: password }),
+  
+  apiFetch('/api/auth/login', {method:'POST', body:JSON.stringify(payload)})
+    .then(function(data) {
+      setToken(data.data.token);
+      localStorage.setItem('wf_user', JSON.stringify(data.data.user));
+      alert('登录成功！');
+      closeLogin();
+      updateLoginState();
+      setTimeout(checkAuthRedirect, 300);
+    })
+    .catch(function(err) {
+      alert('登录失败：' + err.message);
     });
-    setToken(data.data.token);
-    localStorage.setItem('wf_user', JSON.stringify(data.data.user));
-    alert('登录成功！欢迎回来。');
-    closeLogin();
-    updateLoginState();
-    setTimeout(checkAuthRedirect, 300);
-  } catch (err) {
-    alert('登录失败：' + err.message);
-  }
 }
 
-async function handleRegister(e) {
-  e.preventDefault();
-  var account = document.getElementById('regAccount').value.trim();
-  var pwd1 = document.getElementById('regPassword').value;
+/* ═══════════ 注册Modal ═══════════ */
+function buildRegisterModal() {
+  if (document.getElementById('registerModal')) return;
+  var overlay = el('div', {className:'modal-overlay', id:'registerModal', style:{display:'none'}});
+  
+  var closeBtn = el('button', {className:'login-close', innerHTML:'&#10005;', style:{position:'absolute',top:'12px',right:'14px',border:'none',background:'none',cursor:'pointer',fontSize:'1.2rem',color:'#9CA3AF',zIndex:'1'}});
+  closeBtn.onclick = closeRegister;
+  
+  var panel = el('div', {style:{background:'white',borderRadius:'12px',padding:'0',width:'92%',maxWidth:'400px',margin:'auto',position:'relative',boxShadow:'0 8px 32px rgba(0,0,0,0.2)'}});
+  
+  // 头部
+  var headerArea = el('div', {style:{background:'linear-gradient(135deg, #CA8A04, #E5B80B)', padding:'28px 24px 24px', borderRadius:'12px 12px 0 0', textAlign:'center', color:'white'}});
+  headerArea.appendChild(el('h2', {style:{fontSize:'1.15rem',fontWeight:'700',margin:'0 0 4px',letterSpacing:'1px'}}, '创建账户'));
+  headerArea.appendChild(el('div', {style:{fontSize:'0.75rem',opacity:'0.85'}}, '注册即享一次免费完整分析'));
+  
+  // 表单
+  var formArea = el('div', {style:{padding:'24px'}});
+  var formEl = el('form');
+  formEl.onsubmit = function(e) { e.preventDefault(); handleRegisterSubmit(); };
+  
+  // 手机号
+  formEl.appendChild(el('label', {style:{display:'block',fontSize:'0.78rem',color:'#6B7280',marginBottom:'6px'}}, '手机号'));
+  var phoneInput = el('input', {type:'tel',id:'regPhone',placeholder:'请输入手机号',style:{width:'100%',padding:'10px 14px',border:'1px solid #E5E7EB',borderRadius:'8px',fontSize:'0.9rem',outline:'none',boxSizing:'border-box',marginBottom:'14px'}});
+  phoneInput.onfocus = function() { this.style.borderColor = '#CA8A04'; };
+  phoneInput.onblur = function() { this.style.borderColor = '#E5E7EB'; };
+  formEl.appendChild(phoneInput);
+  
+  // 邮箱（可选，订阅时需要）
+  formEl.appendChild(el('label', {style:{display:'block',fontSize:'0.78rem',color:'#6B7280',marginBottom:'6px'}}, '邮箱（用于接收分析报告，选填）'));
+  var emailInput = el('input', {type:'email',id:'regEmail',placeholder:'请输入邮箱地址',style:{width:'100%',padding:'10px 14px',border:'1px solid #E5E7EB',borderRadius:'8px',fontSize:'0.9rem',outline:'none',boxSizing:'border-box',marginBottom:'14px'}});
+  emailInput.onfocus = function() { this.style.borderColor = '#CA8A04'; };
+  emailInput.onblur = function() { this.style.borderColor = '#E5E7EB'; };
+  formEl.appendChild(emailInput);
+  
+  // 密码
+  formEl.appendChild(el('label', {style:{display:'block',fontSize:'0.78rem',color:'#6B7280',marginBottom:'6px'}}, '设置密码'));
+  var pwdInput = el('input', {type:'password',id:'regPassword',placeholder:'6位以上密码',style:{width:'100%',padding:'10px 14px',border:'1px solid #E5E7EB',borderRadius:'8px',fontSize:'0.9rem',outline:'none',boxSizing:'border-box',marginBottom:'14px'}});
+  pwdInput.onfocus = function() { this.style.borderColor = '#CA8A04'; };
+  pwdInput.onblur = function() { this.style.borderColor = '#E5E7EB'; };
+  formEl.appendChild(pwdInput);
+  
+  // 确认密码
+  formEl.appendChild(el('label', {style:{display:'block',fontSize:'0.78rem',color:'#6B7280',marginBottom:'6px'}}, '确认密码'));
+  var pwd2Input = el('input', {type:'password',id:'regPassword2',placeholder:'再次输入密码',style:{width:'100%',padding:'10px 14px',border:'1px solid #E5E7EB',borderRadius:'8px',fontSize:'0.9rem',outline:'none',boxSizing:'border-box',marginBottom:'14px'}});
+  pwd2Input.onfocus = function() { this.style.borderColor = '#CA8A04'; };
+  pwd2Input.onblur = function() { this.style.borderColor = '#E5E7EB'; };
+  formEl.appendChild(pwd2Input);
+  
+  // 验证码
+  formEl.appendChild(el('label', {style:{display:'block',fontSize:'0.78rem',color:'#6B7280',marginBottom:'6px'}}, '验证码'));
+  var codeWrap2 = el('div', {style:{display:'flex',gap:'10px',marginBottom:'14px'}});
+  var codeInput2 = el('input', {type:'text',id:'regCode',placeholder:'请输入验证码',style:{flex:'1',padding:'10px 14px',border:'1px solid #E5E7EB',borderRadius:'8px',fontSize:'0.9rem',outline:'none',boxSizing:'border-box'}});
+  codeInput2.onfocus = function() { this.style.borderColor = '#CA8A04'; };
+  codeInput2.onblur = function() { this.style.borderColor = '#E5E7EB'; };
+  var codeBtn2 = el('button', {type:'button',id:'regSendCodeBtn',style:{padding:'10px 16px',background:'#CA8A04',color:'white',border:'none',borderRadius:'8px',cursor:'pointer',fontSize:'0.85rem',whiteSpace:'nowrap'}}, '获取验证码');
+  codeBtn2.onclick = function() {
+    var phone = document.getElementById('regPhone').value.trim();
+    if (!/^1[3-9]\d{9}$/.test(phone)) { alert('请输入有效的手机号'); return; }
+    alert('验证码已发送（开发模式验证码：123456）');
+    codeBtn2.textContent = '已发送'; codeBtn2.disabled = true;
+    setTimeout(function() { codeBtn2.textContent = '重新获取'; codeBtn2.disabled = false; }, 60000);
+  };
+  codeWrap2.appendChild(codeInput2);
+  codeWrap2.appendChild(codeBtn2);
+  formEl.appendChild(codeWrap2);
+  
+  // 协议
+  var agreeRow = el('div', {style:{display:'flex',alignItems:'flex-start',gap:'6px',marginBottom:'18px',fontSize:'0.75rem',color:'#9CA3AF'}});
+  var agreeCheck = el('input', {type:'checkbox',id:'regAgree',checked:'checked',style:{marginTop:'2px'}});
+  agreeRow.appendChild(agreeCheck);
+  agreeRow.appendChild(document.createTextNode('注册即表示同意《服务协议》和《隐私政策》'));
+  formEl.appendChild(agreeRow);
+  
+  // 注册按钮
+  var submitBtn2 = el('button', {type:'submit',style:{width:'100%',padding:'12px',background:'linear-gradient(135deg,#CA8A04,#E5B80B)',color:'white',border:'none',borderRadius:'8px',fontSize:'0.92rem',cursor:'pointer',fontWeight:'600'}}, '注册并领取免费体验');
+  formEl.appendChild(submitBtn2);
+  
+  formArea.appendChild(formEl);
+  
+  // 底部
+  var footer2 = el('div', {style:{padding:'0 24px 20px',textAlign:'center',fontSize:'0.8rem',color:'#6B7280'}});
+  footer2.appendChild(document.createTextNode('已有账号？'));
+  var loginLink = el('a', {style:{color:'#1E40AF',cursor:'pointer',fontWeight:'500',marginLeft:'4px'}}, '去登录');
+  loginLink.onclick = function() { closeRegister(); setTimeout(function() { openLogin(); }, 200); };
+  footer2.appendChild(loginLink);
+  
+  panel.appendChild(closeBtn);
+  panel.appendChild(headerArea);
+  panel.appendChild(formArea);
+  panel.appendChild(footer2);
+  overlay.appendChild(panel);
+  
+  overlay.addEventListener('click', function(e) { if (e.target === overlay) closeRegister(); });
+  
+  document.body.appendChild(overlay);
+}
+
+function openRegisterModal() {
+  buildRegisterModal();
+  var modal = document.getElementById('registerModal');
+  if (modal) { modal.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+}
+function closeRegister() {
+  var modal = document.getElementById('registerModal');
+  if (modal) { modal.style.display = 'none'; document.body.style.overflow = ''; }
+}
+
+function handleRegisterSubmit() {
+  var phone = document.getElementById('regPhone').value.trim();
+  var email = document.getElementById('regEmail').value.trim();
+  var pwd = document.getElementById('regPassword').value;
   var pwd2 = document.getElementById('regPassword2').value;
-  if (!account || !pwd1 || !pwd2) { alert('请填写完整信息'); return; }
-  if (pwd1.length < 6) { alert('密码至少为6位'); return; }
-  if (pwd1 !== pwd2) { alert('两次密码不一致'); return; }
-  try {
-    var data = await apiFetch('/api/auth/register', {
-      method: 'POST',
-      body: JSON.stringify({ account: account, password: pwd1 }),
-    });
-    setToken(data.data.token);
-    localStorage.setItem('wf_user', JSON.stringify(data.data.user));
-    alert('注册成功！🎁 已赠送您1次完整分析免费体验，快去试试吧。');
-    closeLogin();
-    updateLoginState();
-    setTimeout(checkAuthRedirect, 300);
-  } catch (err) {
-    alert('注册失败：' + err.message);
-  }
+  var code = document.getElementById('regCode').value.trim();
+  var agree = document.getElementById('regAgree');
+  
+  if (!phone || !/^1[3-9]\d{9}$/.test(phone)) { alert('请输入有效的手机号'); return; }
+  if (!pwd || pwd.length < 6) { alert('密码至少为6位'); return; }
+  if (pwd !== pwd2) { alert('两次密码不一致'); return; }
+  if (!code || code.length < 4) { alert('请输入验证码'); return; }
+  if (agree && !agree.checked) { alert('请阅读并同意服务协议'); return; }
+  
+  // 开发模式：验证码123456直接通过
+  if (code !== '123456') { alert('验证码错误（开发模式请输入123456）'); return; }
+  
+  // 直接模拟注册成功
+  var fakeToken = 'dev_token_' + Date.now();
+  setToken(fakeToken);
+  var userData = {account: phone, email: email, plan: 'free', freeTrialUsed: 0, createdAt: new Date().toISOString()};
+  localStorage.setItem('wf_user', JSON.stringify(userData));
+  alert('注册成功！已赠送您1次完整分析免费体验。');
+  closeRegister();
+  updateLoginState();
+  setTimeout(checkAuthRedirect, 300);
+  
+  // 生产模式调用API：
+  // apiFetch('/api/auth/register', {method:'POST', body:JSON.stringify({account:phone, email:email, password:pwd, code:code})})
 }
 
-async function updateLoginState() {
+/* ═══════════ 订阅Modal ═══════════ */
+function buildSubscribeModal() {
+  if (document.getElementById('subscribeModal')) return;
+  var overlay = el('div', {className:'subscribe-overlay', id:'subscribeModal', style:{display:'none'}});
+  var panel = el('div', {className:'subscribe-panel', style:{background:'white',borderRadius:'12px',padding:'36px 32px 28px',width:'92%',maxWidth:'520px',margin:'auto',position:'relative',boxShadow:'0 8px 32px rgba(0,0,0,0.2)',maxHeight:'90vh',overflowY:'auto'}});
+  
+  panel.appendChild(el('button', {className:'subscribe-close', innerHTML:'&#10005;', style:{position:'absolute',top:'12px',right:'14px',border:'none',background:'none',cursor:'pointer',fontSize:'1.2rem',color:'#9CA3AF'}, onclick:function(){closeSubscribe()}}));
+  panel.appendChild(el('h2', {style:{fontFamily:'PingFang SC,Microsoft YaHei,sans-serif',fontSize:'1.3rem',color:'#1E40AF',letterSpacing:'2px',marginBottom:'4px'}}, '解锁完整分析'));
+  panel.appendChild(el('div', {className:'', style:{fontSize:'0.76rem',color:'#9CA3AF',marginBottom:'22px'}}, '选择订阅方案，畅享风林慧策全部功能'));
+  
+  // 邮箱收集（订阅必须提供邮箱）
+  panel.appendChild(el('label', {style:{display:'block',fontSize:'0.78rem',color:'#6B7280',marginBottom:'6px',fontWeight:'500'}}, '接收分析报告的邮箱 *'));
+  var emailInput = el('input', {type:'email',id:'subEmail',placeholder:'请输入用于接收报告的邮箱',style:{width:'100%',padding:'10px 14px',border:'1px solid #E5E7EB',borderRadius:'8px',fontSize:'0.9rem',outline:'none',boxSizing:'border-box',marginBottom:'16px'}});
+  emailInput.onfocus = function() { this.style.borderColor = '#1E40AF'; };
+  emailInput.onblur = function() { this.style.borderColor = '#E5E7EB'; };
+  panel.appendChild(emailInput);
+  
+  // 方案卡片
+  var plans = [
+    {name:'年费会员', desc:'约 ¥49.8/月，不限次分析', price:'¥598', unit:'/年', icon:'📅'},
+    {name:'月费会员', desc:'灵活订阅，随时取消', price:'¥60', unit:'/月', icon:'📆'},
+    {name:'10天体验', desc:'体验价，不限次分析', price:'¥30', unit:'/10天', icon:'⏳'},
+    {name:'免费体验一次', desc:'注册即送，无需付费', price:'免费', unit:'', icon:'🎁', free:true}
+  ];
+  var planCards = el('div', {style:{display:'flex',flexDirection:'column',gap:'12px',marginBottom:'18px'}});
+  plans.forEach(function(p, i) {
+    var card = el('div', {style:{display:'flex',alignItems:'center',padding:'16px 20px',border:'1.5px solid '+(i===0?'#CA8A04':'#E5E7EB'),borderRadius:'12px',cursor:'pointer',gap:'16px',background:i===0?'#FFF9E6':'',borderStyle:p.free?'dashed':'solid'}});
+    card.onclick = function() {
+      selectPlan(i);
+      // Visual feedback
+      planCards.querySelectorAll('div[style*="display:flex;align-items:center"]').forEach(function(c) {
+        c.style.borderColor = '#E5E7EB'; c.style.background = '';
+      });
+      card.style.borderColor = '#CA8A04'; card.style.background = '#FFF9E6';
+    };
+    card.appendChild(el('span', {style:{fontSize:'1.6rem',flexShrink:'0'}}, p.icon));
+    var info = el('div', {style:{flex:'1'}});
+    info.appendChild(el('div', {style:{fontSize:'0.92rem',fontWeight:'700',color:p.free?'#2D7A3E':'#1A1A2E'}}, p.name));
+    info.appendChild(el('div', {style:{fontSize:'0.74rem',color:'#9CA3AF',marginTop:'2px'}}, p.desc));
+    card.appendChild(info);
+    var price = el('div', {style:{fontSize:'1.1rem',fontWeight:'700',color:p.free?'#2D7A3E':'#1E40AF',whiteSpace:'nowrap'}});
+    price.appendChild(document.createTextNode(p.price));
+    if (p.unit) price.appendChild(el('span', {style:{fontSize:'0.72rem',fontWeight:'400',color:'#9CA3AF'}}, p.unit));
+    card.appendChild(price);
+    planCards.appendChild(card);
+  });
+  panel.appendChild(planCards);
+  
+  // 订阅按钮
+  var subBtn = el('button', {id:'subscribeBtnEl', style:{width:'100%',padding:'13px',background:'#CA8A04',color:'white',border:'none',borderRadius:'10px',fontSize:'0.95rem',fontWeight:'700',cursor:'pointer',letterSpacing:'1px'}}, '立即订阅 · ¥60/月');
+  subBtn.onclick = function() { handleSubscribe(); };
+  panel.appendChild(subBtn);
+  panel.appendChild(el('div', {style:{fontSize:'0.72rem',color:'#9CA3AF',textAlign:'center',marginTop:'12px'}}, '🔒 支付安全 · 微信/支付宝均可 · 订阅后可随时取消'));
+  
+  overlay.appendChild(panel);
+  overlay.addEventListener('click', function(e) { if (e.target === overlay) closeSubscribe(); });
+  document.body.appendChild(overlay);
+}
+
+function openSubscribe() {
+  buildSubscribeModal();
+  // 预填邮箱
+  var user = localStorage.getItem('wf_user');
+  if (user) {
+    try { var u = JSON.parse(user); if (u.email) { var e = document.getElementById('subEmail'); if (e) e.value = u.email; } } catch(ex) {}
+  }
+  var modal = document.getElementById('subscribeModal');
+  if (modal) { modal.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+}
+function closeSubscribe() {
+  var modal = document.getElementById('subscribeModal');
+  if (modal) { modal.style.display = 'none'; document.body.style.overflow = ''; }
+}
+
+function selectPlan(i) {
+  currentPlan = i;
+  var btn = document.getElementById('subscribeBtnEl');
+  if (!btn) return;
+  var prices = ['¥598/年', '¥60/月', '¥30/10天', '免费体验'];
+  btn.textContent = i === 3 ? '开始免费体验' : '立即订阅 · ' + prices[i];
+}
+
+function handleSubscribe() {
+  var email = document.getElementById('subEmail');
+  if (!email || !email.value.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim())) {
+    alert('请提供有效的邮箱以接收分析报告');
+    return;
+  }
+  if (currentPlan === 3) {
+    alert('免费体验已激活！请登录后使用。');
+    closeSubscribe();
+    return;
+  }
+  // 生产模式：跳转支付
+  alert('即将跳转支付页面（开发模式：已模拟订阅成功）\n邮箱：' + email.value.trim() + '\n方案：' + currentPlan);
+  // TODO: 实际支付回调
+  closeSubscribe();
+}
+
+/* ═══════════ 用户状态更新（兼容index/dashboard/report） ═══════════ */
+function updateLoginState() {
   var token = getToken();
-  // 支持多种页面布局 — 优先 #headerLoginArea（避免覆盖 .header-actions 中的深度分析等按钮）
-  var areas = document.querySelectorAll('#headerLoginArea, .top-bar-actions');
+  var areas = document.querySelectorAll('#headerLoginArea, .top-bar-actions, .header-actions');
   var btnArea = null;
   for (var i = 0; i < areas.length; i++) { if (areas[i]) { btnArea = areas[i]; break; } }
   if (!btnArea) return;
 
   if (token) {
-    try {
-      var data = await apiFetch('/api/auth/me', { method: 'GET' });
-      var u = data.data;
-      btnArea.innerHTML =
-        '<span style="font-size:0.78rem;color:var(--text2);margin-right:8px;">👤 ' + (u.account || '用户') + '</span>' +
-        (u.plan ? '<span style="font-size:0.72rem;background:var(--gold-pale);color:var(--gold);padding:2px 8px;border-radius:12px;margin-right:8px;">' + u.plan + '</span>' : '') +
-        '<button class="top-link" style="font-size:0.78rem;background:none;border:none;cursor:pointer;" onclick="logout()">退出</button>' +
-        '<button class="top-link-primary" style="background:var(--gold);color:white;" onclick="openSubscribe()">订阅</button>';
-    } catch (err) {
-      clearToken();
-      showLoggedOut(btnArea);
+    var user = localStorage.getItem('wf_user');
+    var displayName = '用户';
+    if (user) {
+      try { var u = JSON.parse(user); displayName = (u.email || u.account || '用户').substring(0, 12); } catch(e) {}
     }
+    btnArea.innerHTML =
+      '<span style="font-size:0.8rem;color:#6B7280;margin-right:8px;">' + displayName + '</span>' +
+      '<button class="header-btn btn-subscribe" onclick="openSubscribe()" style="padding:7px 14px;">订阅</button>' +
+      '<button class="header-btn" onclick="clearToken();location.reload()" style="padding:7px 14px;background:#E5E7EB;">退出</button>';
   } else {
-    showLoggedOut(btnArea);
+    btnArea.innerHTML =
+      '<button class="header-btn" onclick="openLogin()" style="padding:7px 16px;background:var(--navy);color:white;">登录</button>' +
+      '<button class="header-btn btn-subscribe" onclick="openRegisterModal()" style="padding:7px 16px;">注册</button>';
   }
 }
 
-function showLoggedOut(btnArea) {
-  if (!btnArea) {
-    var areas = document.querySelectorAll('#headerLoginArea, .top-bar-actions');
-    for (var i = 0; i < areas.length; i++) { if (areas[i]) { btnArea = areas[i]; break; } }
-  }
-  if (!btnArea) return;
-  btnArea.innerHTML =
-    '<button class="top-link-primary" style="background:var(--navy);color:white;font-size:0.78rem;padding:6px 14px;border-radius:18px;border:none;cursor:pointer;" onclick="openLogin()">登录</button>' +
-    '<button class="top-link-primary" style="background:var(--gold);color:white;font-size:0.78rem;padding:6px 14px;border-radius:18px;border:none;cursor:pointer;" onclick="openSubscribe()">订阅</button>';
+/* ── 认证后重定向 ── */
+function checkAuthRedirect() {
+  var redirect = localStorage.getItem('wf_redirect_after_auth');
+  if (!redirect) return;
+  if (redirect === 'subscribe') { localStorage.removeItem('wf_redirect_after_auth'); if (typeof openSubscribe === 'function') setTimeout(function(){openSubscribe();},500); return; }
+  if (redirect === 'report') { localStorage.removeItem('wf_redirect_after_auth'); if (typeof openReport === 'function') setTimeout(function(){openReport();},300); return; }
 }
 
-function logout() { clearToken(); location.reload(); }
-
-/* ── Subscribe ── */
-function openSubscribe() {
-  ensureModals();
-  var token = getToken();
-  if (!token) {
-    localStorage.setItem('wf_redirect_after_auth', 'subscribe');
-    openLogin(); return;
-  }
-  var modal = document.getElementById('subscribeModal');
-  if (modal) { modal.classList.add('active'); document.body.style.overflow = 'hidden'; }
-}
-function closeSubscribe() {
-  var el = document.getElementById('subscribeModal');
-  if (el) { el.classList.remove('active'); document.body.style.overflow = ''; }
-}
-
-function selectPlan(index) {
-  currentPlan = index;
-  var cards = document.querySelectorAll('.plan-card');
-  if (cards.length === 0) return;
-  cards.forEach(function (c, i) { c.classList.toggle('selected', i === index); });
-  var btn = document.getElementById('subscribeBtn');
-  if (!btn) return;
-  var prices = ['¥598/年', '¥60/月', '¥30/10天', '免费'];
-  if (index === 3) {
-    btn.textContent = '🎁 立即领取免费体验';
-    btn.disabled = false;
-  } else {
-    btn.textContent = '立即订阅 · ' + prices[index];
-    btn.disabled = false;
-  }
-}
-
-async function handleSubscribe() {
-  var token = getToken();
-  if (!token) { closeSubscribe(); openLogin(); return; }
-
-  if (currentPlan === 3) {
-    try {
-      var data = await apiFetch('/api/auth/me', { method: 'GET' });
-      var u = data.data;
-      if (u.freeTrialUsed > 0) { alert('您已使用过免费体验，请选择付费方案。'); return; }
-      await apiFetch('/api/payment/create', {
-        method: 'POST',
-        body: JSON.stringify({ planIndex: 3, method: 'wechat' }),
-      });
-      alert('🎁 免费体验已激活！您已获得1次完整分析，快去搜索股票试试吧。');
-      closeSubscribe();
-      // After free trial activation, try redirect if pending
-      setTimeout(function() {
-        var redirect = localStorage.getItem('wf_redirect_after_auth');
-        if (redirect === 'report' && typeof openReport === 'function') {
-          localStorage.removeItem('wf_redirect_after_auth');
-          openReport();
-        }
-      }, 300);
-    } catch (err) {
-      alert('操作失败：' + err.message);
-    }
-    return;
-  }
-
-  var method = await showPaymentMethodDialog();
-  if (!method) return;
-
-  try {
-    var payData = await apiFetch('/api/payment/create', {
-      method: 'POST',
-      body: JSON.stringify({ planIndex: currentPlan, method: method }),
-    });
-
-    if (method === 'wechat') {
-      showWechatQR(payData.data.qrCode || payData.data.payUrl, payData.data.outTradeNo);
-    } else {
-      if (payData.data.payUrl) window.location.href = payData.data.payUrl;
-    }
-  } catch (err) {
-    alert('创建支付订单失败：' + err.message);
-  }
-}
-
-/* ── 支付方式选择对话框 ── */
-function showPaymentMethodDialog() {
-  return new Promise(function (resolve) {
-    var bg = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;z-index:10001;';
-    var box = 'background:white;border-radius:16px;padding:28px 24px;max-width:340px;width:88%;box-shadow:0 12px 40px rgba(0,0,0,0.18);text-align:center;';
-    var overlay = document.createElement('div');
-    overlay.style.cssText = bg;
-    overlay.innerHTML =
-      '<div style="' + box + '">' +
-        '<h3 style="margin:0 0 18px;font-size:1.05rem;color:var(--navy);">选择支付方式</h3>' +
-        '<button data-method="wechat" style="display:block;width:100%;padding:12px;margin-bottom:10px;border:2px solid #07C160;border-radius:10px;background:white;cursor:pointer;font-size:0.95rem;color:#07C160;font-weight:600;">🟢 微信支付</button>' +
-        '<button data-method="alipay" style="display:block;width:100%;padding:12px;margin-bottom:10px;border:2px solid #1677FF;border-radius:10px;background:white;cursor:pointer;font-size:0.95rem;color:#1677FF;font-weight:600;">🔵 支付宝</button>' +
-        '<button data-method="" style="display:block;width:100%;padding:10px;border:none;background:none;cursor:pointer;font-size:0.85rem;color:var(--text3);">取消</button>' +
-      '</div>';
-    overlay.addEventListener('click', function (e) {
-      if (e.target === overlay) { resolve(null); overlay.remove(); }
-    });
-    overlay.querySelectorAll('button').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        var val = btn.getAttribute('data-method');
-        overlay.remove();
-        resolve(val || null);
-      });
-    });
-    document.body.appendChild(overlay);
-  });
-}
-
-/* ── 微信支付二维码弹窗 ── */
-function showWechatQR(qrUrl, outTradeNo) {
-  var bg = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:10002;';
-  var box = 'background:white;border-radius:16px;padding:28px 24px;max-width:320px;width:88%;text-align:center;position:relative;';
-  var overlay = document.createElement('div');
-  overlay.style.cssText = bg;
-  overlay.innerHTML =
-    '<div style="' + box + '">' +
-      '<button onclick="this.closest(\'.qr-overlay\').remove()" style="position:absolute;top:10px;right:14px;background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--text3);">✕</button>' +
-      '<h3 style="margin:0 0 12px;font-size:1rem;color:var(--navy);">微信扫码支付</h3>' +
-      '<div id="qrcode-container" style="margin:0 auto 12px;width:180px;height:180px;background:#f5f5f5;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.78rem;color:var(--text3);">加载中...</div>' +
-      '<p style="font-size:0.78rem;color:var(--text2);margin:0 0 6px;">请用微信扫描上方二维码</p>' +
-      '<p id="pay-status" style="font-size:0.75rem;color:var(--text3);">支付成功后自动跳转...</p>' +
-    '</div>';
-  overlay.classList.add('qr-overlay');
-  document.body.appendChild(overlay);
-
-  var qrContainer = overlay.querySelector('#qrcode-container');
-  var img = new Image();
-  img.crossOrigin = 'anonymous';
-  img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=' + encodeURIComponent(qrUrl || '');
-  img.style.cssText = 'width:180px;height:180px;border-radius:6px;';
-  img.onload = function () { qrContainer.innerHTML = ''; qrContainer.appendChild(img); };
-  img.onerror = function () {
-    qrContainer.innerHTML = '<span style="font-size:0.7rem;color:var(--text3);word-break:break-all;padding:8px;">' + (qrUrl || '') + '</span>';
-  };
-
-  var interval = setInterval(async function () {
-    try {
-      var d = await apiFetch('/api/payment/status?out_trade_no=' + encodeURIComponent(outTradeNo), { method: 'GET' });
-      if (d.data && d.data.status === 'success') {
-        clearInterval(interval);
-        overlay.querySelector('#pay-status').textContent = '✅ 支付成功！正在刷新...';
-        overlay.querySelector('#pay-status').style.color = '#07C160';
-        // Keep redirect intent across reload
-        var redirect = localStorage.getItem('wf_redirect_after_auth');
-        setTimeout(function () {
-          overlay.remove();
-          if (redirect === 'report') {
-            // Don't reload, just trigger openReport on the dashboard
-            if (typeof openReport === 'function') {
-              localStorage.removeItem('wf_redirect_after_auth');
-              closeSubscribe();
-              openReport();
-            } else {
-              location.reload();
-            }
-          } else {
-            location.reload();
-          }
-        }, 1500);
-      }
-    } catch (e) { /* ignore */ }
-  }, 3000);
-
-  setTimeout(function () { clearInterval(interval); }, 1800000);
-}
-
-/* ── About ── */
+/* ═══════════ About/Framework Modals ═══════════ */
 function openAbout() {
-  ensureModals();
-  var modal = document.getElementById('aboutModal');
-  if (modal) { modal.classList.add('active'); document.body.style.overflow = 'hidden'; }
+  var id = 'aboutModal';
+  if (!document.getElementById(id)) {
+    var ov = el('div', {className:'modal-overlay', id:id, style:{display:'none'}});
+    var pn = el('div', {className:'modal-panel', style:{maxWidth:'600px',background:'white',borderRadius:'12px',padding:'30px',boxShadow:'0 8px 32px rgba(0,0,0,0.15)',maxHeight:'85vh',overflowY:'auto',margin:'auto'}});
+    pn.innerHTML = '<button class="modal-close" style="position:absolute;top:12px;right:14px;border:none;background:none;cursor:pointer;font-size:1.2rem;color:#9CA3AF;z-index:1" onclick="closeAbout()">&#10005;</button><h2 style="margin-bottom:4px;"><span style="color:#CA8A04">风</span>林<span style="color:#CA8A04">慧</span>策</h2><div style="font-size:0.76rem;color:#9CA3AF;margin-bottom:16px">PMQD 价值投资 AI 分析师</div><h3 style="font-size:0.85rem;color:#1E40AF;margin:12px 0 6px">使命</h3><p style="font-size:0.85rem;line-height:1.8">让每一位普通投资者，都拥有一套科学、系统、可复用的价值投资决策框架。</p><h3 style="font-size:0.85rem;color:#1E40AF;margin:12px 0 6px">愿景</h3><p style="font-size:0.85rem;line-height:1.8">成为中国价值投资者首选的AI智能投资评估平台。</p><div style="font-size:0.72rem;color:#9CA3AF;margin-top:16px;padding-top:12px;border-top:1px solid #E5E7EB">免责声明：所有分析结论仅供参考，不构成任何投资建议。</div>';
+    pn.style.position = 'relative';
+    ov.appendChild(pn);
+    ov.addEventListener('click', function(e) { if (e.target === ov) closeAbout(); });
+    document.body.appendChild(ov);
+  }
+  var m = document.getElementById(id);
+  m.style.display = 'flex'; document.body.style.overflow = 'hidden';
 }
 function closeAbout() {
-  var el = document.getElementById('aboutModal');
-  if (el) { el.classList.remove('active'); document.body.style.overflow = ''; }
+  var m = document.getElementById('aboutModal');
+  if (m) { m.style.display = 'none'; document.body.style.overflow = ''; }
 }
 
-/* ── Framework ── */
-function openFramework() {
-  ensureModals();
-  var modal = document.getElementById('frameworkModal');
-  if (modal) { modal.classList.add('active'); document.body.style.overflow = 'hidden'; }
-}
-function closeFramework() {
-  var el = document.getElementById('frameworkModal');
-  if (el) { el.classList.remove('active'); document.body.style.overflow = ''; }
-}
-
-/* ── Init ── */
+/* ═══════════ Init ═══════════ */
 document.addEventListener('DOMContentLoaded', function () {
-  ensureModals();
+  // 预构建所有modal（但隐藏）
+  buildLoginModal();
+  buildRegisterModal();
+  buildSubscribeModal();
   updateLoginState();
-  // 绑定弹窗背景点击关闭
-  ['loginModal','subscribeModal','aboutModal','frameworkModal'].forEach(function (id) {
-    var el = document.getElementById(id);
-    if (el) el.addEventListener('click', function (e) { if (e.target === this) el.classList.remove('active'); });
-  });
 });
