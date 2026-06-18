@@ -1,0 +1,185 @@
+# 🌐 一键配置自定义域名 windforest.cn
+# 手动触发，完成以下操作：
+#   1. 在 Cloudflare 添加 windforest.cn Zone（获取 NS 地址）
+#   2. 给 Pages 项目绑定 windforest.cn 自定义域名
+#   3. 给 Worker 绑定 api.windforest.cn 自定义域名
+
+name: Setup Custom Domain
+
+on:
+  workflow_dispatch:  # 仅手动触发
+
+permissions:
+  contents: read
+
+jobs:
+  setup-domain:
+    name: Configure windforest.cn on Cloudflare
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # ──────────────────────────────────────────────────
+      # Step 1: 添加 windforest.cn Zone（如已存在则跳过）
+      # ──────────────────────────────────────────────────
+      - name: Add windforest.cn Zone to Cloudflare
+        id: add_zone
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          # 检查 Zone 是否已存在
+          EXISTING=$(curl -s "https://api.cloudflare.com/client/v4/zones?name=windforest.cn" \
+            -H "Authorization: Bearer $CF_TOKEN" | jq -r '.result[0].id // empty')
+
+          if [ -n "$EXISTING" ]; then
+            echo "Zone already exists: $EXISTING"
+            echo "zone_id=$EXISTING" >> $GITHUB_OUTPUT
+          else
+            # 创建新 Zone
+            RESULT=$(curl -s -X POST "https://api.cloudflare.com/client/v4/zones" \
+              -H "Authorization: Bearer $CF_TOKEN" \
+              -H "Content-Type: application/json" \
+              --data "{\"name\":\"windforest.cn\",\"account\":{\"id\":\"$CF_ACCOUNT_ID\"},\"jump_start\":true}")
+
+            echo "Zone creation result:"
+            echo "$RESULT" | jq .
+
+            SUCCESS=$(echo "$RESULT" | jq -r '.success')
+            ZONE_ID=$(echo "$RESULT" | jq -r '.result.id // empty')
+
+            if [ "$SUCCESS" = "true" ] && [ -n "$ZONE_ID" ]; then
+              echo "✅ Zone created: $ZONE_ID"
+              echo "zone_id=$ZONE_ID" >> $GITHUB_OUTPUT
+            else
+              echo "❌ Failed to create zone"
+              echo "$RESULT" | jq '.errors'
+              exit 1
+            fi
+          fi
+
+      # ──────────────────────────────────────────────────
+      # Step 2: 打印 NS 记录（用户需要到注册商处更新）
+      # ──────────────────────────────────────────────────
+      - name: Print Name Servers
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          ZONE_ID="${{ steps.add_zone.outputs.zone_id }}"
+          ZONE_INFO=$(curl -s "https://api.cloudflare.com/client/v4/zones/$ZONE_ID" \
+            -H "Authorization: Bearer $CF_TOKEN")
+
+          NS1=$(echo "$ZONE_INFO" | jq -r '.result.name_servers[0]')
+          NS2=$(echo "$ZONE_INFO" | jq -r '.result.name_servers[1]')
+          STATUS=$(echo "$ZONE_INFO" | jq -r '.result.status')
+
+          echo ""
+          echo "════════════════════════════════════════════════"
+          echo "  📋 CLOUDFLARE NAME SERVERS FOR windforest.cn  "
+          echo "════════════════════════════════════════════════"
+          echo "  NS1: $NS1"
+          echo "  NS2: $NS2"
+          echo "  Zone Status: $STATUS"
+          echo "════════════════════════════════════════════════"
+          echo ""
+          echo "⚠️  请到域名注册商（阿里云/腾讯云）后台把 DNS 服务器改为以上两个地址"
+          echo "   修改后 NS 生效约需 24 小时，生效后 Zone 状态会变为 active"
+
+      # ──────────────────────────────────────────────────
+      # Step 3: 给 Pages 绑定 windforest.cn
+      # ──────────────────────────────────────────────────
+      - name: Bind windforest.cn to Pages
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          RESULT=$(curl -s -X POST \
+            "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/pages/projects/windforest/domains" \
+            -H "Authorization: Bearer $CF_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data '{"name":"windforest.cn"}')
+
+          echo "Pages domain bind result:"
+          echo "$RESULT" | jq .
+
+          # 判断是否成功（域名已绑定也算成功）
+          SUCCESS=$(echo "$RESULT" | jq -r '.success')
+          if [ "$SUCCESS" = "true" ]; then
+            echo "✅ windforest.cn bound to Pages successfully"
+          else
+            ERR=$(echo "$RESULT" | jq -r '.errors[0].message // "unknown error"')
+            if echo "$ERR" | grep -qi "already"; then
+              echo "⚠️  windforest.cn already bound to Pages (OK)"
+            else
+              echo "❌ Failed: $ERR"
+              # 不 exit 1，继续后续步骤
+            fi
+          fi
+
+      # ──────────────────────────────────────────────────
+      # Step 4: 给 Worker 绑定 api.windforest.cn
+      # ──────────────────────────────────────────────────
+      - name: Bind api.windforest.cn to Worker
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          ZONE_ID="${{ steps.add_zone.outputs.zone_id }}"
+
+          # 添加 Custom Domain 到 Worker（通过 Zone Route 方式）
+          # 先在 Zone 里添加 DNS 记录（A 记录 proxied，指向 100.100.100.100 占位）
+          DNS_RESULT=$(curl -s -X POST \
+            "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records" \
+            -H "Authorization: Bearer $CF_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data '{"type":"A","name":"api","content":"100.100.100.100","proxied":true,"comment":"Placeholder for Workers route - managed by Cloudflare"}')
+
+          echo "DNS record result:"
+          echo "$DNS_RESULT" | jq .
+
+          # 然后添加 Worker Route
+          ROUTE_RESULT=$(curl -s -X POST \
+            "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/workers/routes" \
+            -H "Authorization: Bearer $CF_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data '{"pattern":"api.windforest.cn/*","script":"windforest-api"}')
+
+          echo "Worker route result:"
+          echo "$ROUTE_RESULT" | jq .
+
+          SUCCESS=$(echo "$ROUTE_RESULT" | jq -r '.success')
+          if [ "$SUCCESS" = "true" ]; then
+            echo "✅ api.windforest.cn → windforest-api Worker route created"
+          else
+            ERR=$(echo "$ROUTE_RESULT" | jq -r '.errors[0].message // "unknown error"')
+            if echo "$ERR" | grep -qi "already"; then
+              echo "⚠️  Route already exists (OK)"
+            else
+              echo "❌ Failed: $ERR"
+            fi
+          fi
+
+      # ──────────────────────────────────────────────────
+      # Step 5: 打印最终结果摘要
+      # ──────────────────────────────────────────────────
+      - name: Print Summary
+        run: |
+          echo ""
+          echo "════════════════════════════════════════════════"
+          echo "  ✅ SETUP COMPLETE - ACTION REQUIRED           "
+          echo "════════════════════════════════════════════════"
+          echo ""
+          echo "  1. 复制上方的 NS1 / NS2 地址"
+          echo "  2. 登录域名注册商（阿里云/腾讯云）后台"
+          echo "  3. 找到 windforest.cn → DNS 服务器设置"
+          echo "  4. 把 NS 改为 Cloudflare 提供的地址（2个）"
+          echo "  5. 等待 NS 生效（通常 15 分钟 - 24 小时）"
+          echo ""
+          echo "  NS 生效后，以下域名即可使用："
+          echo "    🌐 https://windforest.cn       → 前端首页"
+          echo "    🔌 https://api.windforest.cn   → Workers API"
+          echo ""
+          echo "  注意：.cn 域名实名审核通过后，NS 才能生效"
+          echo "════════════════════════════════════════════════"

@@ -12,14 +12,14 @@ WECHAT_MCH_ID = ""
 WECHAT_API_V3_KEY = ""
 WECHAT_SERIAL_NO = ""
 WECHAT_PRIVATE_KEY = ""   # PEM 公钥（换行用 \n 替代）
-WECHAT_NOTIFY_URL = "https://windforest-api.workers.dev/api/payment/wechat-notify"
+WECHAT_NOTIFY_URL = "https://api.windforest.cn/api/payment/wechat-notify"
 
 # 支付宝（需从支付宝开放平台获取）
 ALIPAY_APP_ID = ""
 ALIPAY_PRIVATE_KEY = ""    # PKCS8 PEM 私钥
 ALIPAY_PUBLIC_KEY = ""     # 支付宝公钥
-ALIPAY_NOTIFY_URL = "https://windforest-api.workers.dev/api/payment/alipay-notify"
-ALIPAY_RETURN_URL = "https://windforest.pages.dev/pay-success"
+ALIPAY_NOTIFY_URL = "https://api.windforest.cn/api/payment/alipay-notify"
+ALIPAY_RETURN_URL = "https://windforest.cn/pay-success"
 
 [[d1_databases]]
 binding = "DB"
