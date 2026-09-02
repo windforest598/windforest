@@ -25,7 +25,7 @@ ALIPAY_RETURN_URL = "https://windforest.cn/pay-success"
 #   cninfo  → 官方披露站抓取（巨潮/沪深公告搜索 + 年报 PDF 下载 + 附注文本抽取），免 token
 #   tushare → A股三表 + 行情，需 L1_PROVIDER_TOKEN
 # provider_unconfigured 时 /api/l1 返回离线状态，前端如实显示取数路径，绝不伪造。
-L1_PROVIDER = ""              # 如 "cninfo" 或 "tushare"
+L1_PROVIDER = "cninfo"        # 官方披露站抓取（巨潮/沪深公告搜索 + 年报 PDF 附注文本抽取），免 token；设为 "tushare" 需配 L1_PROVIDER_TOKEN
 L1_PROVIDER_TOKEN = ""        # tushare: api.tushare.pro token（cninfo 无需）
 
 [[d1_databases]]
