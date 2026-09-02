@@ -1,0 +1,89 @@
+/* ═══════════════════════════════════════
+   PMQD Dashboard 样式
+   ═══════════════════════════════════════ */
+
+.page-dashboard { padding-bottom: 40rpx; }
+
+.stock-header {
+  background: linear-gradient(135deg, var(--navy), #3B5CCD);
+  padding: 40rpx 32rpx;
+  color: #FFFFFF;
+}
+
+.stock-name { font-size: 36rpx; font-weight: 700; }
+.stock-code { font-size: 24rpx; opacity: 0.7; margin-top: 4rpx; }
+.stock-price { margin-top: 12rpx; display: flex; align-items: baseline; gap: 12rpx; }
+.price-val { font-size: 44rpx; font-weight: 700; }
+.price-chg { font-size: 28rpx; }
+
+/* PMQD Ring */
+.ring-wrapper {
+  position: relative;
+  width: 240rpx;
+  height: 240rpx;
+  margin: 24rpx auto 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 8rpx solid var(--border);
+}
+
+.ring-label {
+  font-size: 56rpx;
+  font-weight: 700;
+}
+
+.ring-desc {
+  font-size: 22rpx;
+  color: var(--text2);
+}
+
+/* Dimensions Grid */
+.dim-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16rpx;
+}
+
+.dim-card {
+  padding: 24rpx;
+  background: var(--surface);
+  border-radius: 16rpx;
+  border-left: 6rpx solid;
+}
+
+.dim-label { font-size: 24rpx; color: var(--text2); margin-bottom: 8rpx; }
+.dim-score { font-size: 36rpx; font-weight: 700; }
+.dim-max { font-size: 22rpx; color: var(--text3); }
+
+/* Safety */
+.safety-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12rpx;
+  padding: 12rpx 0;
+  border-bottom: 1rpx solid #F3F4F6;
+}
+
+.safety-item:last-child { border-bottom: none; }
+
+.safety-status {
+  font-size: 28rpx;
+  min-width: 40rpx;
+}
+
+.safety-q { font-size: 26rpx; color: var(--text); line-height: 1.6; }
+
+.safety-status.good { color: var(--green); }
+.safety-status.bad { color: var(--red); }
+
+/* CTA */
+.cta-section { padding: 32rpx; }
+
+/* Kelly */
+.kelly-verdict { font-size: 28rpx; font-weight: 600; }
+
+/* Loading */
+.loading-page { min-height: 100vh; }

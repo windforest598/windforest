@@ -14,6 +14,7 @@ import { subscribeRoute } from './routes/subscribe';
 import { triggerRoute } from './routes/trigger';
 import { hotStocksRoute } from './routes/hot-stocks';
 import { paymentRoute } from './routes/payment';
+import { l1Route } from './routes/l1';
 import type { Context } from 'hono';
 
 const app = new Hono();
@@ -63,6 +64,7 @@ app.route('/api/auth', authRoute);       // POST /api/auth/register, /api/auth/l
 app.route('/api/search', searchRoute);
 app.route('/api/quote', quoteRoute);
 app.route('/api/hot-stocks', hotStocksRoute);
+app.route('/api/l1', l1Route);           // GET /api/l1?code=000333&market=A  → 真实 L1 财报回填
 
 // ── 登录后可访问 ──
 app.use('/api/subscribe/*', jwtMiddleware);

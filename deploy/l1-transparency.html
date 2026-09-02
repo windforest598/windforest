@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>风林慧策 · L1 取数层复用演示</title>
+<link rel="stylesheet" href="l1/l1.css">
+<style>
+:root {
+  --navy:#1E40AF; --gold:#CA8A04; --red:#DC2626; --green:#16A34A;
+  --text:#1A1A2E; --text2:#6B7280; --text3:#9CA3AF;
+  --border:#E5E7EB; --surface:#F8F9FA; --font:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#F8F9FA; color:var(--text); font-family:var(--font); font-size:15px; line-height:1.6; }
+header { background:#fff; border-bottom:1px solid var(--border); padding:14px 24px; display:flex; align-items:center; gap:14px; }
+header h1 { font-size:1rem; color:var(--navy); }
+header h1 .gold { color:var(--gold); }
+header .tag { font-size:0.72rem; color:var(--text3); }
+main { max-width:860px; margin:0 auto; padding:24px 16px 60px; }
+.card { background:#fff; border-radius:16px; border:1px solid var(--border); padding:24px; margin-bottom:16px; }
+.card-title { font-size:0.95rem; font-weight:700; margin-bottom:16px; padding-bottom:10px; border-bottom:2px solid #EEF2FF; }
+.field { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:14px; }
+.field label { font-size:0.82rem; color:var(--text2); min-width:72px; }
+.field input { flex:1; min-width:160px; padding:9px 12px; border:1px solid var(--border); border-radius:10px; font-size:0.9rem; }
+.field select { padding:9px 12px; border:1px solid var(--border); border-radius:10px; font-size:0.9rem; background:#fff; }
+.btn { padding:9px 22px; background:var(--navy); color:#fff; border:none; border-radius:20px; font-size:0.85rem; cursor:pointer; }
+.presets { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:4px; }
+.preset { font-size:0.75rem; color:var(--navy); background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:4px 12px; cursor:pointer; }
+.preset:hover { border-color:var(--navy); }
+footer { text-align:center; padding:24px; color:var(--text3); font-size:0.75rem; }
+</style>
+</head>
+<body>
+<header>
+  <a href="index.html" style="text-decoration:none;color:inherit;"><h1><span class="gold">风</span>林<span class="gold">慧</span>策</h1></a>
+  <span class="tag">L1 取数层 · 静态站复用演示</span>
+</header>
+
+<main>
+  <div class="card">
+    <div class="card-title">输入标的，查看 L1 官方信源与取数路径</div>
+    <div class="presets" id="presets"></div>
+    <div class="field">
+      <label>股票代码</label>
+      <input id="inCode" value="000333" placeholder="如 000333 / 01114 / AAPL">
+    </div>
+    <div class="field">
+      <label>名称</label>
+      <input id="inName" value="美的集团" placeholder="可选">
+    </div>
+    <div class="field">
+      <label>市场</label>
+      <select id="inMarket">
+        <option value="">自动识别</option>
+        <option value="A">A股</option>
+        <option value="HK">港股</option>
+        <option value="US">美股</option>
+      </select>
+      <button class="btn" id="btnGo">生成 L1 透明度面板</button>
+    </div>
+    <div class="field">
+      <label>后端 apiBase</label>
+      <input id="inApiBase" value="/api" placeholder="如 /api 或 https://api.windforest.cn/api（留空为离线计划）">
+      <span class="tag" style="font-size:0.72rem;color:var(--text3);">填后点击面板内「回填真实 L1」即经 Workers 取数</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">数据来源透明度 · L1 官方信源认证</div>
+    <div id="l1Mount"><div class="l1-note">点击上方按钮生成面板。</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">说明</div>
+    <div class="l1-note" style="border:none;padding:0;">
+      本页演示将风林慧策 PMQD V6.0 的 L1 取数层（官方信源注册表 + certifySources 认证 + 适配器取数计划）以浏览器 ES 模块形式移植到 WindForest 静态站，
+      与 Node 版 report-engine 完全同源。report.html 已通过 <code>l1/l1-badge-embed.js</code> 自动挂载本面板。
+      在「后端 apiBase」填入 <code>/api</code>（API 前缀，fetcher 会自动追加 <code>/l1</code> 资源路径）后，点击面板内「回填真实 L1 财报」按钮即可经 Cloudflare Workers 真实取数并回灌分析引擎，绝不伪造数字。
+    </div>
+  </div>
+</main>
+
+<footer>风林慧策 AI 价值投资 · PMQD V6.0 · L1 取数层静态站复用</footer>
+
+<script type="module">
+  import { mountL1Panel } from './l1/l1-ui.js';
+
+  const presets = [
+    { code: '000333', name: '美的集团', market: 'A' },
+    { code: '600519', name: '贵州茅台', market: 'A' },
+    { code: '01114', name: '华晨中国', market: 'HK' },
+    { code: 'AAPL', name: 'Apple', market: 'US' },
+  ];
+  const pe = document.getElementById('presets');
+  presets.forEach((p) => {
+    const b = document.createElement('span');
+    b.className = 'preset';
+    b.textContent = p.name + ' ' + p.code;
+    b.onclick = () => { document.getElementById('inCode').value = p.code; document.getElementById('inName').value = p.name; document.getElementById('inMarket').value = p.market; go(); };
+    pe.appendChild(b);
+  });
+
+  function go() {
+    const code = document.getElementById('inCode').value.trim() || '000333';
+    const name = document.getElementById('inName').value.trim() || code;
+    const market = document.getElementById('inMarket').value || undefined;
+    const apiBase = document.getElementById('inApiBase').value.trim();
+    // 写入全局配置，report.html 等页面也能自动复用
+    window.WFL1Config = window.WFL1Config || {};
+    window.WFL1Config.apiBase = apiBase;
+    mountL1Panel(document.getElementById('l1Mount'), { code, name, market, apiBase, interactive: true });
+  }
+  document.getElementById('btnGo').onclick = go;
+  go();
+</script>
+</body>
+</html>

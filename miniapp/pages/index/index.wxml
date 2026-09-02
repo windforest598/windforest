@@ -1,0 +1,106 @@
+<!-- ═══════════════════════════════════════
+     风林慧策 — 搜索首页
+     ═══════════════════════════════════════ -->
+<view class="page-index">
+  <!-- Header -->
+  <view class="header">
+    <view class="logo-wrap">
+      <view class="brand">🌲 风林慧策</view>
+      <view class="brand-sub">Wind Forest · Wisdom</view>
+    </view>
+    <view class="header-right">
+      <button class="btn-sm" wx:if="{{!user}}" bindtap="showLogin">登录</button>
+      <view wx:else class="flex-row gap-16">
+        <text style="font-size:24rpx;color:var(--text2);">{{user.username || user.email}}</text>
+        <button class="btn-sm" bindtap="handleLogout">退出</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- Hero -->
+  <view class="hero">
+    <view class="hero-title">AI 驱动的价值投资分析</view>
+    <view class="hero-desc">PMQD 框架 · 深度财务穿透 · 实时估值判断</view>
+    <!-- Search Component -->
+    <stock-search 
+      id="stockSearch" 
+      placeholder="输入股票代码或名称…"
+      bind:select="onStockSelect"
+    />
+  </view>
+
+  <!-- Hot Stocks -->
+  <view class="section" wx:if="{{hotStocks.length > 0}}">
+    <view class="section-title">热门标的</view>
+    <view class="chip-row">
+      <view 
+        wx:for="{{hotStocks}}" 
+        wx:key="code"
+        class="chip"
+        bindtap="onHotTap"
+        data-code="{{item.code}}"
+        data-market="{{item.market}}"
+        data-name="{{item.name}}"
+      >{{item.name}}</view>
+    </view>
+  </view>
+
+  <!-- Login Modal -->
+  <view class="modal-overlay" wx:if="{{showLoginModal}}" bindtap="hideLogin">
+    <view class="modal-content" catchtap="noop">
+      <view class="card-title text-center mb-16">登录风林慧策</view>
+
+      <view class="tab-row mb-24">
+        <view class="tab {{loginTab==='sms'?'active':''}}" bindtap="switchTab" data-tab="sms">验证码登录</view>
+        <view class="tab {{loginTab==='pwd'?'active':''}}" bindtap="switchTab" data-tab="pwd">密码登录</view>
+      </view>
+
+      <!-- SMS Login -->
+      <view wx:if="{{loginTab==='sms'}}">
+        <input class="form-input" placeholder="手机号" value="{{loginPhone}}" bindinput="onLoginPhone" type="number" maxlength="11"/>
+        <view class="flex-row gap-16 mt-24">
+          <input class="form-input flex-1" placeholder="验证码" value="{{smsCode}}" bindinput="onSmsCode" maxlength="6"/>
+          <button class="btn-sm btn-primary" bindtap="sendSms" disabled="{{smsCountdown>0}}">
+            {{smsCountdown > 0 ? smsCountdown + 's' : '获取验证码'}}
+          </button>
+        </view>
+        <button class="btn-full mt-32" bindtap="handleLoginBySms">登录</button>
+        <view class="text-center mt-16" style="color:var(--text2);font-size:24rpx;">
+          没有账号？<text style="color:var(--navy);" bindtap="showRegister">立即注册</text>
+        </view>
+      </view>
+
+      <!-- Password Login -->
+      <view wx:if="{{loginTab==='pwd'}}">
+        <input class="form-input" placeholder="手机号/邮箱" value="{{loginId}}" bindinput="onLoginId"/>
+        <input class="form-input mt-24" placeholder="密码" value="{{loginPwd}}" bindinput="onLoginPwd" password/>
+        <button class="btn-full mt-32" bindtap="handleLoginByPwd">登录</button>
+        <view class="text-center mt-16" style="color:var(--text2);font-size:24rpx;">
+          没有账号？<text style="color:var(--navy);" bindtap="showRegister">立即注册</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- Register Modal -->
+  <view class="modal-overlay" wx:if="{{showRegisterModal}}" bindtap="hideRegister">
+    <view class="modal-content" catchtap="noop">
+      <view class="card-title text-center mb-24">注册风林慧策</view>
+      <input class="form-input" placeholder="手机号" value="{{regPhone}}" bindinput="onRegPhone" type="number" maxlength="11"/>
+      <input class="form-input mt-24" placeholder="邮箱（用于接收分析报告）" value="{{regEmail}}" bindinput="onRegEmail"/>
+      <input class="form-input mt-24" placeholder="密码（6位以上）" value="{{regPwd}}" bindinput="onRegPwd" password/>
+      <view class="flex-row gap-16 mt-24">
+        <input class="form-input flex-1" placeholder="验证码" value="{{regSms}}" bindinput="onRegSms" maxlength="6"/>
+        <button class="btn-sm btn-primary" bindtap="sendSms">{{regSmsCountdown > 0 ? regSmsCountdown + 's' : '获取验证码'}}</button>
+      </view>
+      <button class="btn-full mt-32" bindtap="handleRegister">注册</button>
+      <view class="text-center mt-16" style="color:var(--text2);font-size:24rpx;">
+        已有账号？<text style="color:var(--navy);" bindtap="showLogin">返回登录</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="page-footer">
+    风林慧策 AI 价值投资分析 · 不构成投资建议
+  </view>
+</view>

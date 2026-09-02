@@ -1,0 +1,503 @@
+{
+  "generated_at": "2026-09-02T07:03:49.811Z",
+  "engine": {
+    "framework": "PMQD V6.0.7",
+    "version": "windforest-report-engine 1.2.0",
+    "rulesVersion": "PMQD V6.0.7"
+  },
+  "stock": {
+    "code": "00700",
+    "name": "腾讯控股",
+    "market": "hk",
+    "currency": "HKD"
+  },
+  "market": {
+    "price": 439.8,
+    "prevClose": 441.4,
+    "changePct": -0.36,
+    "pe": 16.08,
+    "pb": null,
+    "marketCap": 40035.6594,
+    "roe": null,
+    "turnoverRate": 0,
+    "amplitude": 1.45,
+    "high52": 677.7,
+    "low52": 411,
+    "currency": "HKD",
+    "asOf": "2026/09/02 14:48:44"
+  },
+  "strategy": "S1",
+  "overallRating": "—",
+  "determinism": "初筛",
+  "pmqd": {
+    "P": 45,
+    "M": 50,
+    "Q": 50,
+    "D": 78,
+    "total": 51,
+    "weights": {
+      "P": 40,
+      "M": 18,
+      "Q": 30,
+      "D": 12
+    },
+    "points": {
+      "P": 18,
+      "M": 9,
+      "Q": 15,
+      "D": 9.4
+    },
+    "verified": {
+      "P": true,
+      "M": false,
+      "Q": false,
+      "D": true
+    }
+  },
+  "stars": "—",
+  "ratingLabel": "不予配置 / 排除",
+  "positionHint": "0%",
+  "downgrades": [
+    "安全边际三问无财报支撑（保守判未通过）→ 降档",
+    "认知确信度低 → 降档（V6.0 认知风险铁律）"
+  ],
+  "corrections": [],
+  "safety": {
+    "score": 0,
+    "max": 50,
+    "passed": false
+  },
+  "health8d": {
+    "score": 16,
+    "max": 30,
+    "capped": false
+  },
+  "ratingScore": 51,
+  "ratingNarrative": "策略S1标的，PMQD 总分 51 → —（不予配置 / 排除）。安全边际三问 0/50，8 维体检 16/30，凯利建议仓位 0.0%。 降档原因：安全边际三问无财报支撑（保守判未通过）→ 降档；认知确信度低 → 降档（V6.0 认知风险铁律）。 注意：认知确信度低，需先补研究再决策。",
+  "kelly": {
+    "b": -0.22,
+    "p": 0.21,
+    "fStar": 0,
+    "halfKelly": 0,
+    "competence": 0.6,
+    "finalPosition": 0,
+    "ceiling": 0.4,
+    "formula": "b=(12.5−PE)/PE ｜ p=(三问0+8维16+催化5)/100",
+    "pParts": {
+      "safety": 0,
+      "health": 16,
+      "catalyst": 5
+    }
+  },
+  "modules": [
+    {
+      "id": "report_header",
+      "layer": "meta",
+      "title": {
+        "zh": "报告头 · 数据来源",
+        "en": "Report Header · Data Sources"
+      },
+      "data": {
+        "stock": "00700",
+        "name": "腾讯控股",
+        "analyst": "PALA (老帕) · 风林慧策",
+        "framework": "PMQD V6.0.7",
+        "generatedAt": "2026-09-02T07:03:49.811Z",
+        "strategy": null,
+        "l1Sources": [
+          "腾讯财经行情接口 qt.gtimg.cn（2026/09/02 14:48:44）"
+        ],
+        "determinism": "初筛",
+        "certification": null,
+        "l1Fetch": null
+      }
+    },
+    {
+      "id": "integrity_review",
+      "layer": "gate",
+      "title": {
+        "zh": "诚信审查（一票否决）",
+        "en": "Integrity Review (Veto Gate)"
+      },
+      "data": {
+        "passed": true,
+        "current": [],
+        "historical": [],
+        "forcedStrategy1": false,
+        "vetoReason": null
+      }
+    },
+    {
+      "id": "strategy_classification",
+      "layer": "gate",
+      "title": {
+        "zh": "策略归属判定",
+        "en": "Strategy Classification"
+      },
+      "data": {
+        "strategy": "S1",
+        "rationale": "深度折价(78)且质量一般(50)，归入策略一（烟蒂型）。",
+        "hints": {
+          "quality": 50,
+          "discount": 78,
+          "moat": 50
+        }
+      }
+    },
+    {
+      "id": "industry_scan",
+      "layer": "core",
+      "title": {
+        "zh": "行业全景扫描",
+        "en": "Industry Holistic Scan (V6.0 NEW)"
+      },
+      "data": {
+        "swingFactor": "未识别（需行业全景扫描）",
+        "playerCount": 0,
+        "note": "翻转每块石头，找出行业摆动因子。"
+      }
+    },
+    {
+      "id": "user_value",
+      "layer": "core",
+      "title": {
+        "zh": "用户价值验证",
+        "en": "User Value Verification (V6.0 NEW)"
+      },
+      "data": {
+        "score": 0,
+        "irreplaceable": false,
+        "note": "不可替代的刚需才是好生意。"
+      }
+    },
+    {
+      "id": "financial_penetration",
+      "layer": "core",
+      "title": {
+        "zh": "财务穿透",
+        "en": "Financial Penetration"
+      },
+      "data": {
+        "netCash": 0,
+        "ncav": 0,
+        "implicitCashCandidate": false,
+        "dividendReceivable": 0
+      }
+    },
+    {
+      "id": "pmqd_scoring",
+      "layer": "core",
+      "title": {
+        "zh": "PMQD 四维评分",
+        "en": "PMQD Four-Dimension Scoring (V6.0.7)"
+      },
+      "data": {
+        "raw": {
+          "P": 45,
+          "M": 50,
+          "Q": 50,
+          "D": 78
+        },
+        "original": {
+          "P": 45,
+          "M": 50,
+          "Q": 50,
+          "D": 78
+        },
+        "points": {
+          "P": 18,
+          "M": 9,
+          "Q": 15,
+          "D": 9.4
+        },
+        "weights": {
+          "P": 40,
+          "M": 18,
+          "Q": 30,
+          "D": 12
+        },
+        "total": 51,
+        "stars": "—",
+        "ratingLabel": "不予配置 / 排除",
+        "positionHint": "0%",
+        "strategy": "S1",
+        "corrections": [],
+        "correctionApplied": false,
+        "verified": {
+          "P": true,
+          "M": false,
+          "Q": false,
+          "D": true
+        }
+      }
+    },
+    {
+      "id": "safety_margin",
+      "layer": "core",
+      "title": {
+        "zh": "安全边际三问",
+        "en": "Safety Margin Three-Question Test"
+      },
+      "data": {
+        "answers": {
+          "q1": false,
+          "q2": false,
+          "q3": false
+        },
+        "yesCount": 0,
+        "score": 0,
+        "max": 50,
+        "passed": false,
+        "indeterminate": true,
+        "downgrade": true,
+        "marginPct": 0,
+        "questions": [
+          "① 行业若不复苏，公司是否也不会破产/退市？",
+          "② 股价若再跌 50%，净资产能否支撑市值？",
+          "③ 五年累计自由现金流能否覆盖有效市值？"
+        ]
+      }
+    },
+    {
+      "id": "health_check_8d",
+      "layer": "risk",
+      "title": {
+        "zh": "8 维深度体检",
+        "en": "8-Dimension Health Check (V6.0.7)"
+      },
+      "data": {
+        "per": [
+          {
+            "dim": "盈利",
+            "raw": 50,
+            "pts": 2
+          },
+          {
+            "dim": "负债",
+            "raw": 50,
+            "pts": 2
+          },
+          {
+            "dim": "现金流",
+            "raw": 50,
+            "pts": 2
+          },
+          {
+            "dim": "分红",
+            "raw": 50,
+            "pts": 2
+          },
+          {
+            "dim": "治理",
+            "raw": 50,
+            "pts": 2
+          },
+          {
+            "dim": "成长",
+            "raw": 50,
+            "pts": 2
+          },
+          {
+            "dim": "估值",
+            "raw": 50,
+            "pts": 2
+          },
+          {
+            "dim": "景气",
+            "raw": 50,
+            "pts": 2
+          }
+        ],
+        "dims": {
+          "盈利": 50,
+          "负债": 50,
+          "现金流": 50,
+          "分红": 50,
+          "治理": 50,
+          "成长": 50,
+          "估值": 50,
+          "景气": 50
+        },
+        "score": 16,
+        "max": 30,
+        "capped": false,
+        "avg": 50,
+        "indeterminate": true
+      }
+    },
+    {
+      "id": "cognitive_risk",
+      "layer": "risk",
+      "title": {
+        "zh": "认知风险预警",
+        "en": "Cognitive Risk Alert (V6.0 NEW)"
+      },
+      "data": {
+        "conviction": "低",
+        "assumptions": [
+          "Q（资产质量）：PB 缺失，ROE 无法推导，取中性基准",
+          "净现金 / 有息负债：未接入资产负债表，需 L1 财报穿透",
+          "经营现金流 / 自由现金流：未接入现金流量表",
+          "股息率(TTM)：行情源未提供，需官方分红公告核验",
+          "M（催化）：行业事件与景气判断需人工/研报核验，取中性基准",
+          "护城河：以 ROE 推导的质量分作保守代理，待人工核验",
+          "8 维体检：未接入财报，各维取中性基准 50（非实测值）",
+          "安全边际三问：无净现金/FCF 支撑，保守判为未通过（非实测）"
+        ],
+        "items": [
+          {
+            "category": "认知风险",
+            "level": "高",
+            "base": null,
+            "downgraded": false,
+            "signal": "认知确信度 低；未验证假设 8 项。"
+          },
+          {
+            "category": "数据完备性",
+            "level": "高",
+            "base": null,
+            "downgraded": false,
+            "signal": "未接入资产负债表/现金流量表，净现金与 FCF 无法穿透，评分含中性基准占位。"
+          }
+        ],
+        "note": "最大风险是不理解公司，而非外部环境。"
+      }
+    },
+    {
+      "id": "kelly_position",
+      "layer": "decision",
+      "title": {
+        "zh": "凯利公式仓位（V5.2）",
+        "en": "Kelly Formula Position Sizing (V5.2)"
+      },
+      "data": {
+        "peIntrinsic": 12.5,
+        "peCurrent": 16.08,
+        "b": -0.22,
+        "p": 0.21,
+        "pLose": 0.79,
+        "fStar": 0,
+        "halfKelly": 0,
+        "competence": 0.6,
+        "ceiling": 0.4,
+        "finalPosition": 0,
+        "notes": [
+          "当前 PE 16.08× 已高于内在值锚 12.5× → 赔率非正，不予配置。"
+        ],
+        "formula": "b=(12.5−PE)/PE ｜ p=(三问0+8维16+催化5)/100",
+        "catalystCertainty": 5,
+        "strategy": "S1",
+        "pParts": {
+          "safety": 0,
+          "health": 16,
+          "catalyst": 5
+        }
+      }
+    },
+    {
+      "id": "master_case",
+      "layer": "decision",
+      "title": {
+        "zh": "大师案例对标",
+        "en": "Master-Case Benchmarking"
+      },
+      "data": {
+        "forced": false,
+        "total": 51,
+        "picks": [
+          {
+            "name": "桑伯恩地图",
+            "pattern": "隐藏资产重估 — 市值低于所持证券组合，资产价值与股价脱钩"
+          },
+          {
+            "name": "网易 2001",
+            "pattern": "困境反转 — 市值 < 净现金买入，主业修复后 100 倍回报"
+          },
+          {
+            "name": "北方管道",
+            "pattern": "隐藏资产 + 股东行动主义 — 主动催化资产价值释放"
+          },
+          {
+            "name": "邓普斯特农具",
+            "pattern": "烟蒂型 — 清算价值保护下限，管理层更换释放价值"
+          }
+        ],
+        "winner": "桑伯恩地图",
+        "winnerPattern": "隐藏资产重估 — 市值低于所持证券组合，资产价值与股价脱钩",
+        "note": "常规对标（未达 80 分强制线）。"
+      }
+    },
+    {
+      "id": "rating_conclusion",
+      "layer": "decision",
+      "title": {
+        "zh": "评级结论",
+        "en": "Rating Conclusion"
+      },
+      "data": {
+        "rating": "—",
+        "stars": "—",
+        "label": "不予配置 / 排除",
+        "total": 51,
+        "strat": "S1",
+        "downgrades": [
+          "安全边际三问无财报支撑（保守判未通过）→ 降档",
+          "认知确信度低 → 降档（V6.0 认知风险铁律）"
+        ],
+        "positionHint": "0%",
+        "finalPosition": 0,
+        "narrative": "策略S1标的，PMQD 总分 51 → —（不予配置 / 排除）。安全边际三问 0/50，8 维体检 16/30，凯利建议仓位 0.0%。 降档原因：安全边际三问无财报支撑（保守判未通过）→ 降档；认知确信度低 → 降档（V6.0 认知风险铁律）。 注意：认知确信度低，需先补研究再决策。"
+      }
+    },
+    {
+      "id": "hold_test",
+      "layer": "conditional",
+      "title": {
+        "zh": "持有附加测试",
+        "en": "Add-on Holding Test (V6.0 NEW)"
+      },
+      "data": {
+        "happy": false,
+        "flag": "持有信念受时间维度考验（若三问通过仍不全额给长期主义维度分）"
+      }
+    }
+  ],
+  "coherence": {
+    "passed": true,
+    "checks": [
+      {
+        "name": "评级引用上游评分",
+        "pass": true,
+        "note": "评级叙述已对齐 PMQD 总分"
+      },
+      {
+        "name": "PMQD权重口径(P40/M18/Q30/D12)",
+        "pass": true,
+        "note": "权重与规范一致，分项合计 51.4 ≈ 总分 51"
+      },
+      {
+        "name": "星级不得升档",
+        "pass": true,
+        "note": "PMQD 51 对应 —，实际 —"
+      },
+      {
+        "name": "凯利仓位受策略上限约束",
+        "pass": true,
+        "note": "建议仓位 0.0% ≤ 策略S1上限 40%"
+      }
+    ]
+  },
+  "dataGaps": [
+    "Q（资产质量）：PB 缺失，ROE 无法推导，取中性基准",
+    "净现金 / 有息负债：未接入资产负债表，需 L1 财报穿透",
+    "经营现金流 / 自由现金流：未接入现金流量表",
+    "股息率(TTM)：行情源未提供，需官方分红公告核验",
+    "M（催化）：行业事件与景气判断需人工/研报核验，取中性基准",
+    "护城河：以 ROE 推导的质量分作保守代理，待人工核验",
+    "8 维体检：未接入财报，各维取中性基准 50（非实测值）",
+    "安全边际三问：无净现金/FCF 支撑，保守判为未通过（非实测）"
+  ],
+  "sources": [
+    "腾讯财经行情接口 qt.gtimg.cn（2026/09/02 14:48:44）"
+  ]
+}

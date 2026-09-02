@@ -1,0 +1,19 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/dashboard/dashboard",
+    "pages/report/report"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#FFFFFF",
+    "navigationBarTitleText": "风林慧策",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#F8F9FA",
+    "backgroundTextStyle": "light"
+  },
+  "networkTimeout": {
+    "request": 10000
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

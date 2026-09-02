@@ -10,6 +10,32 @@ fullstack/dist/tsc/
 # ─── Wrangler local state ───
 fullstack/.wrangler/
 .fullstack/.wrangler/
+.wrangler/
+fullstack/.dryrun/
+
+# ─── 本地临时/中间产物（不进交付）───
+.tmpcheck/
+.workbuddy/
+__pycache__/
+dist/
+fix_*.py
+fix_out*.txt
+fix_output.txt
+_pala_js.js
+deploy/data/reports/__probe.json
+nul
+
+# ─── 早期一次性脚本 / 历史原型（已被 deploy/ + fullstack/ 取代）───
+insert_js*.py
+generate_report.py
+redesign_dashboard.py
+redesign_output.txt
+verify_stock.py
+verify_result.json
+pdf_extracted.txt
+proxy-server.js
+pala-dashboard*.html
+data-verify.html
 
 # ─── OS ───
 .DS_Store

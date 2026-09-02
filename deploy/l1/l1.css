@@ -1,0 +1,39 @@
+/* L1 数据透明度面板 — 复用站点 Stripe 风（navy/gold，红涨绿跌） */
+.l1-badges { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+.l1-badge {
+  display:inline-block; font-size:0.72rem; font-weight:700;
+  padding:4px 12px; border:1px solid; border-radius:14px; background:#fff;
+}
+.l1-block { margin-bottom:16px; }
+.l1-block-title { font-size:0.8rem; font-weight:700; color:var(--text); margin-bottom:8px; }
+.l1-srcs { display:flex; flex-wrap:wrap; gap:8px; }
+.l1-src {
+  font-size:0.8rem; color:var(--navy); text-decoration:none;
+  background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:6px 12px;
+}
+.l1-src:hover { border-color:var(--navy); }
+.l1-plan { margin:0; padding-left:18px; }
+.l1-plan .l1-step {
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:0.78rem; color:var(--text2); line-height:1.7; white-space:pre-wrap;
+}
+.l1-note { font-size:0.72rem; color:var(--text3); line-height:1.6; border-top:1px dashed var(--border); padding-top:10px; }
+
+/* 交互式回填 */
+.l1-actions { display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin:14px 0 4px; }
+.l1-btn {
+  padding:8px 20px; background:var(--navy); color:#fff; border:none; border-radius:20px;
+  font-size:0.82rem; cursor:pointer; transition:.15s;
+}
+.l1-btn:hover { background:#16327f; }
+.l1-btn:disabled { opacity:.6; cursor:progress; }
+.l1-apibase-note { font-size:0.72rem; color:var(--text3); }
+.l1-result-box { margin-top:12px; }
+.l1-result { border-radius:12px; padding:14px 16px; border:1px solid var(--border); background:var(--surface); }
+.l1-result-ok { border-color:#BFE3C6; background:#F3FBF4; }
+.l1-result-warn { border-color:#F3C9C9; background:#FDF4F4; }
+.l1-result-head { font-size:0.82rem; font-weight:700; color:var(--red); margin-bottom:8px; }
+.l1-data { width:100%; border-collapse:collapse; margin:6px 0; font-size:0.8rem; }
+.l1-data td { padding:6px 10px; border-bottom:1px solid var(--border); }
+.l1-data td:first-child { color:var(--text2); }
+.l1-data td:last-child { text-align:right; font-weight:700; color:var(--text); font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }

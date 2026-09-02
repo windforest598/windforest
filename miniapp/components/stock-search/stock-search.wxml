@@ -1,0 +1,42 @@
+<!-- ═══════════════════════════════════════
+     股票搜索组件
+     ═══════════════════════════════════════ -->
+<view class="search-wrapper">
+  <view class="search-box">
+    <view class="search-icon">🔍</view>
+    <input
+      class="search-input"
+      placeholder="输入股票代码或名称..."
+      value="{{query}}"
+      bindinput="onInput"
+      bindfocus="onFocus"
+      bindconfirm="onConfirm"
+      confirm-type="search"
+    />
+    <view class="search-clear" wx:if="{{query}}" bindtap="onClear">✕</view>
+  </view>
+
+  <!-- 下拉联想 -->
+  <view class="suggestions" wx:if="{{showSuggestions && suggestions.length > 0}}">
+    <scroll-view scroll-y class="suggestions-scroll">
+      <view
+        wx:for="{{suggestions}}"
+        wx:key="c"
+        class="suggestion-item {{selectedIndex === index ? 'selected' : ''}}"
+        data-index="{{index}}"
+        data-code="{{item.c}}"
+        data-name="{{item.n}}"
+        bindtap="onSelect"
+      >
+        <view class="sug-left">
+          <text class="sug-name">{{item.n}}</text>
+          <text class="sug-sector">{{item.s || ''}}</text>
+        </view>
+        <view class="sug-right">
+          <text class="sug-code">{{item.c}}</text>
+          <text class="sug-mk">{{item.mk === 'ashare' ? 'A股' : item.mk === 'hkshare' ? '港股' : '美股'}}</text>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+</view>

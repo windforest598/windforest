@@ -274,3 +274,28 @@ windforest/
 - [ ] 接入真实短信验证码（腾讯云 SMS）
 - [ ] 接入微信支付订阅
 - [ ] Service Worker 离线缓存
+
+---
+
+## 十一、L1 取数层静态站复用（PMQD V6.0）
+
+风林慧策 PMQD 的 L1 取数层（官方信源注册表 + `certifySources` 认证 + 适配器取数计划）已以浏览器 ES 模块形式移植到本静态站，与 Node 版 `report-engine` 完全同源。
+
+| 文件 | 作用 |
+|------|------|
+| `deploy/l1/l1-fetcher.js` | 信源注册表、市场识别、来源认证、取数计划生成 |
+| `deploy/l1/adapters/{tdx,neodata,pdf}.js` | 三市场取数适配器（纯调用计划，绝不伪造数字） |
+| `deploy/l1/l1-ui.js` | Stripe 风"数据来源透明度"面板渲染 |
+| `deploy/l1/l1.css` | 面板样式（navy/gold，红涨绿跌） |
+| `deploy/l1/l1-badge-embed.js` | `report.html` 集成：报告渲染后自动挂载 L1 认证面板 |
+| `deploy/l1-transparency.html` | 独立演示页（输入标的即看 L1 信源与取数路径） |
+
+**接入点**：`report.html` 末尾通过 `<script type="module" src="l1/l1-badge-embed.js">` 在每份深度报告下追加"数据来源透明度 · L1 官方信源认证"面板，异常安全（失败不影响原报告）。实际取数经 tdx-connector 或 Cloudflare Workers API 回灌分析引擎。
+
+**一键回填真实 L1（Cloudflare Workers `/api/l1`）**：`fetchL1(spec, { apiBase })` 支持注入 API 前缀（相对如 `/api`，绝对如 `https://api.windforest.cn/api`），fetcher 自动追加 `/l1` 资源路径调用 Worker 公开路由 `GET /api/l1`（`fullstack/src/routes/l1.ts` → `services/l1-provider.ts`）。
+- **provider 一：`cninfo`（官方披露站抓取 · 免 token · V6.0.6 新增）**：`L1_PROVIDER="cninfo"` → `GET /api/l1?code=000333&market=A&years=5&notes=true` 执行「巨潮公告搜索 → 报告类型分类 → 最近 N 年年报+最新季报 PDF 清单 → 年报 PDF 下载 → Worker 内轻量文本抽取（`services/pdf-text.ts`：xref+FlateDecode+Tj/TJ+中文 ToUnicode CMap）→ 附注关键词命中（货币资金/短期借款/租赁负债/永续债等 15 词）」。**网页版由此可完全脱离 TDX 独立取数**。边界：仅文本层 PDF，扫描件返回 `no_text_layer`；结构化数字仍需 tushare/tdx 或人工核实。
+- **provider 二：`tushare`**：`L1_PROVIDER="tushare"` + `L1_PROVIDER_TOKEN` → A 股三表 + 行情映射为 l1Data 契约。
+- **离线诚实**：未配置时 Worker 如实返回 `provider_unconfigured`（HTTP 200），前端显示离线取数路径，绝不伪造数字。
+- **使用**：`deploy/l1-transparency.html` 的「后端 apiBase」输入框填入 `/api` 后，点击面板内「回填真实 L1 财报」按钮即可一键取数，渲染核心字段表 + 确定性徽章；`report.html` 与演示页共享同一 `window.WFL1Config.apiBase` 约定。
+
+**一键自动化**：连接器面板连接 `tdx-connector` 后，recurring 自动化 `PMQD 完整分析 · TDX 连接后一键跑` 自动加载技能与专家，跑完 L1 取数 → 15 模块 assemble → 一致性校验并交付报告。

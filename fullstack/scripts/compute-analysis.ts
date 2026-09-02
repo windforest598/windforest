@@ -7,8 +7,9 @@
 // ═══════════════════════════════════════════════
 
 import { query, queryOne, execute } from './d1-helper';
-import { computePMQD } from '../src/services/pmqd-engine';
-import type { PMQDInput } from '../src/services/pmqd-engine';
+// V6.0 内核 + 真实行情适配层（Yahoo Finance 接口已全面限流失效，改用腾讯行情）
+import { fetchQuote, fetch52Week, buildL1Input } from '../src/services/pmqd-adapter';
+import { assemble } from '../src/pmqd/assembler.js';
 
 interface AnalysisRow {
   stock_id: number;
@@ -82,17 +83,19 @@ async function main() {
         }
       }
 
-      // 2b. Fetch market data
-      console.log('  📡 获取行情数据...');
-      const marketData = await fetchMarketData(stock);
-      if (!marketData) {
+      // 2b. Fetch market data（腾讯行情 — 真实数据源）
+      console.log('  📡 获取行情数据(腾讯)...');
+      const ref = { code: stock.code, name: stock.name, market: stock.market };
+      const quote = await fetchQuote(ref);
+      if (!quote) {
         console.log('  ⚠️  行情数据不可用，使用旧数据或跳过');
         errorCount++;
         await logAction(stock.stock_id, 'quote', 'error', 'Market data unavailable');
         continue;
       }
+      const wk = await fetch52Week(ref);
 
-      // Update market_data in D1
+      // Update market_data in D1（腾讯源无股息率/成交量字段，留空不伪造）
       execute(
         `INSERT INTO market_data (stock_id, price, change_pct, pe_ttm, pb, market_cap,
          div_yield_ttm, high_52w, low_52w, volume, turnover)
@@ -107,10 +110,10 @@ async function main() {
            updated_at = datetime('now')`,
         [
           stock.stock_id,
-          marketData.price, marketData.changePct, marketData.pe, marketData.pb,
-          marketData.marketCap, marketData.divYield,
-          marketData.high52, marketData.low52,
-          marketData.volume, marketData.turnover,
+          quote.price, quote.changePct, quote.pe, quote.pb,
+          quote.marketCap, null,
+          quote.high52 ?? wk.high, quote.low52 ?? wk.low,
+          null, quote.turnoverRate,
         ]
       );
 
@@ -152,16 +155,50 @@ async function main() {
         );
       }
 
-      // 2d. Compute PMQD
-      console.log('  🧮 计算 PMQD V5.9...');
-      const input: PMQDInput = buildPMQDInput(stock, marketData, financialData);
-      const result = computePMQD(input);
+      // 2d. 运行 PMQD V6.0 内核（模块化 15 模块 + 一致性校验）
+      console.log('  🧮 运行 PMQD V6.0 内核...');
+      const { l1Data, gaps } = buildL1Input(ref, quote, wk);
+      const contract = await assemble({ stock: stock.code, name: stock.name, l1Data });
 
-      console.log(`  📊 PMQD: ${result.pmqd_total}/100 ${result.stars} | ${result.verdict}`);
-      console.log(`  🎲 Kelly: ${(result.kelly_f * 100).toFixed(1)}% | 赔率b=${result.kelly_b.toFixed(2)} 胜率p=${result.kelly_p.toFixed(2)}`);
+      const scoring = contract.modules.find((m) => m.id === 'pmqd_scoring')?.data as any;
+      const kellyMod = contract.modules.find((m) => m.id === 'kelly_position')?.data as any;
+      const safetyMod = contract.modules.find((m) => m.id === 'safety_margin')?.data as any;
+      const ratingMod = contract.modules.find((m) => m.id === 'rating_conclusion')?.data as any;
 
-      // 2e. Generate report_json
-      const reportJson = buildReportJson(stock, marketData, financialData, result);
+      console.log(
+        `  📊 PMQD V6.0: ${scoring?.total}/100 | 策略 ${contract.strategy} | ` +
+        `评级 ${contract.overallRating} | 确定性 ${contract.meta.determinism}`
+      );
+      console.log(`  🎲 半凯利仓位: ${((kellyMod?.f ?? 0) * 100).toFixed(1)}%`);
+      console.log(
+        `  🧩 模块 ${contract.modules.length} 个 | 一致性 ${contract.coherence.passed ? '通过' : '未通过'} | 数据缺口 ${gaps.length} 项`
+      );
+
+      // 2e. 报告契约（剔除不可序列化的 render 函数）
+      const reportJson = {
+        generated_at: new Date().toISOString(),
+        engine: { framework: contract.meta.framework, version: contract.meta.engine },
+        stock: { code: stock.code, name: stock.name, market: stock.market, currency: quote.currency },
+        market: (l1Data as any).market,
+        strategy: contract.strategy,
+        overallRating: contract.overallRating,
+        determinism: contract.meta.determinism,
+        pmqd: {
+          P: scoring?.raw?.P ?? null, M: scoring?.raw?.M ?? null,
+          Q: scoring?.raw?.Q ?? null, D: scoring?.raw?.D ?? null,
+          total: scoring?.total ?? null, weights: scoring?.weights ?? null,
+          verified: (l1Data as any)._verified,
+        },
+        ratingScore: ratingMod?.score ?? null,
+        ratingNarrative: ratingMod?.narrative ?? null,
+        kelly: kellyMod ? { edge: kellyMod.edge, odds: kellyMod.odds, f: kellyMod.f } : null,
+        modules: contract.modules.map((m) => ({
+          id: m.id, layer: m.layer, title: m.title, data: m.data,
+        })),
+        coherence: contract.coherence,
+        dataGaps: gaps,
+        sources: (l1Data as any).sources,
+      };
 
       // 2f. Save to analysis_cache
       execute(
@@ -192,18 +229,24 @@ async function main() {
            solvency_score = excluded.solvency_score,
            health_check_score = excluded.health_check_score,
            data_freshness = 'today',
-           data_sources = 'westock-data, tushare-finance, financial-data-verifier',
+           data_sources = '腾讯财经行情(qt.gtimg.cn) + PMQD V6.0 内核',
            report_json = excluded.report_json,
            generated_at = datetime('now')`,
         [
           stock.stock_id,
-          result.pmqd_total,
-          result.pmqd_P.score, result.pmqd_M.score, result.pmqd_Q.score, result.pmqd_D.score,
-          result.stars, result.verdict,
-          result.kelly_f, result.kelly_b, result.kelly_p, result.kelly_verdict,
-          result.strategy,
-          result.safety.q1 ? 1 : 0, result.safety.q2 ? 1 : 0, result.safety.q3 ? 1 : 0,
-          result.safety.total,
+          scoring?.total ?? 0,
+          scoring?.raw?.P ?? 0, scoring?.raw?.M ?? 0,
+          scoring?.raw?.Q ?? 0, scoring?.raw?.D ?? 0,
+          contract.overallRating,                       // V6.0 用 AAA/AA/A/B/C 评级替代星级
+          ratingMod?.narrative ?? '',
+          kellyMod?.f ?? 0, kellyMod?.odds ?? 0, kellyMod?.edge ?? 0,
+          `半凯利 ${((kellyMod?.f ?? 0) * 100).toFixed(1)}%`,
+          contract.strategy,
+          safetyMod?.answers?.q1 ? 1 : 0,
+          safetyMod?.answers?.q2 ? 1 : 0,
+          safetyMod?.answers?.q3 ? 1 : 0,
+          [safetyMod?.answers?.q1, safetyMod?.answers?.q2, safetyMod?.answers?.q3]
+            .filter(Boolean).length,
           80,
           24,
           JSON.stringify(reportJson),
@@ -232,110 +275,18 @@ async function main() {
   console.log(`📊 成功: ${successCount} | 失败: ${errorCount} | 耗时: ${duration}s`);
 }
 
-async function fetchMarketData(stock: AnalysisRow) {
-  try {
-    let symbol: string;
-    if (stock.market === 'sh') symbol = `${stock.code}.SS`;
-    else if (stock.market === 'sz') symbol = `${stock.code}.SZ`;
-    else if (stock.market === 'hk') symbol = `${String(stock.code).padStart(4, '0')}.HK`;
-    else if (stock.market === 'us') symbol = stock.code;
-    else return null;
-
-    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d`;
-    const resp = await fetch(url, {
-      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; WindForestBot/1.0)' },
-    });
-    if (!resp.ok) return null;
-
-    const data = await resp.json() as any;
-    const meta = data?.chart?.result?.[0]?.meta;
-    if (!meta) return null;
-
-    return {
-      price: meta.regularMarketPrice || 0,
-      changePct: meta.regularMarketPrice && meta.previousClose
-        ? ((meta.regularMarketPrice - meta.previousClose) / meta.previousClose) * 100
-        : 0,
-      pe: meta.trailingPE || 0,
-      pb: meta.priceToBook || 0,
-      marketCap: meta.marketCap || 0,
-      divYield: meta.dividendYield ? meta.dividendYield * 100 : 0,
-      high52: meta.fiftyTwoWeekHigh || 0,
-      low52: meta.fiftyTwoWeekLow || 0,
-      volume: meta.regularMarketVolume || 0,
-      turnover: 0,
-    };
-  } catch (err) {
-    console.error(`  Yahoo fetch error: ${err}`);
-    return null;
-  }
+// 深度财务数据（净现金/有息负债/经营现金流等）需 L1 财报穿透。
+// 未接入前一律返回 null —— 相关维度进入数据缺口公示，绝不推算伪造。
+interface FinancialData {
+  revenue: number; netProfit: number; roe: number; totalAssets: number; netAssets: number;
+  cashEquivalents: number; interestBearingDebt: number; goodwill: number;
+  operatingCf: number; fcf: number; basicEps: number;
+  grossCash: number; netCash: number; effMarketCap: number; effPE: number;
 }
 
-async function fetchFinancialData(stock: AnalysisRow) {
-  // TODO: Integrate westock-data CLI or Tushare API
+async function fetchFinancialData(stock: AnalysisRow): Promise<FinancialData | null> {
+  // TODO: 接入 tushare / westock-data 三表，或通过 Workers /api/l1 (cninfo 官方年报) 回填
   return null;
-}
-
-function buildPMQDInput(
-  stock: AnalysisRow,
-  mkt: NonNullable<Awaited<ReturnType<typeof fetchMarketData>>>,
-  fin: Awaited<ReturnType<typeof fetchFinancialData>>
-): PMQDInput {
-  const netProfit = fin?.netProfit || mkt.marketCap * 0.05;
-  const equity = fin?.netAssets || mkt.marketCap * 0.4;
-
-  return {
-    price: mkt.price,
-    pe_ttm: mkt.pe,
-    pb: mkt.pb,
-    market_cap: mkt.marketCap,
-    div_yield_ttm: mkt.divYield,
-    roe: fin?.roe || 15,
-    net_profit: netProfit,
-    net_assets: equity,
-    net_cash: fin?.netCash || 0,
-    operating_cf: fin?.operatingCf || netProfit * 0.8,
-    fcf: fin?.fcf || netProfit * 0.5,
-    eff_pe: fin?.effPE || mkt.pe,
-    catalyst_strength: 50,
-    management_quality: 60,
-    moat_depth: 60,
-    market_sentiment: 50,
-  };
-}
-
-function buildReportJson(
-  stock: AnalysisRow,
-  mkt: NonNullable<Awaited<ReturnType<typeof fetchMarketData>>>,
-  fin: Awaited<ReturnType<typeof fetchFinancialData>>,
-  result: ReturnType<typeof computePMQD>
-) {
-  return {
-    generated_at: new Date().toISOString(),
-    stock: { code: stock.code, name: stock.name, market: stock.market },
-    modules: [
-      {
-        module_id: 'pmqd', module_name: 'PMQD 综合评分', module_order: 1,
-        data: {
-          total: result.pmqd_total,
-          P: result.pmqd_P, M: result.pmqd_M, Q: result.pmqd_Q, D: result.pmqd_D,
-          stars: result.stars, verdict: result.verdict, strategy: result.strategy_label,
-        },
-      },
-      {
-        module_id: 'kelly', module_name: '凯利仓位建议', module_order: 2,
-        data: { f: result.kelly_f, b: result.kelly_b, p: result.kelly_p, verdict: result.kelly_verdict },
-      },
-      {
-        module_id: 'safety', module_name: '安全边际三问', module_order: 3,
-        data: { q1_pass: result.safety.q1, q2_pass: result.safety.q2, q3_pass: result.safety.q3, total: result.safety.total },
-      },
-      {
-        module_id: 'valuation', module_name: '估值概览', module_order: 4,
-        data: { price: mkt.price, change_pct: mkt.changePct, pe_ttm: mkt.pe, pb: mkt.pb, market_cap: mkt.marketCap, div_yield_ttm: mkt.divYield },
-      },
-    ],
-  };
 }
 
 async function logAction(stockId: number, action: string, status: string, errorMsg: string | null) {

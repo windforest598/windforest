@@ -1,58 +1,497 @@
 {
-  "meta": { "version": "1.0", "stock": { "code": "600690", "market": "sh", "name": "海尔智家" }, "generated": "2026-06-18T12:00:00+08:00", "engine": "PMQD V5.9 · 凯利 V5.2" },
-  "pmqd": {
-    "total": 70, "verdict": "优质低估，值得配置", "stars": "★★★★☆",
-    "dimensions": {
-      "P": { "score": 24, "max": 40, "label": "价格安全边际", "color": "#1E40AF" },
-      "M": { "score": 12, "max": 18, "label": "行业/结构催化", "color": "#0D9488" },
-      "Q": { "score": 26, "max": 30, "label": "不可替代硬质量", "color": "#B45309" },
-      "D": { "score": 8, "max": 12, "label": "市场认知差", "color": "#7C3AED" }
-    },
-    "strategy": "价值配置",
-    "strategy_reason": "全球白电龙头，海外收入占比超50%，FY2025营收3023亿净利润196亿，品牌矩阵(海尔+卡萨帝+GE+Fisher&Paykel)护城河深厚"
+  "generated_at": "2026-09-02T07:03:49.424Z",
+  "engine": {
+    "framework": "PMQD V6.0.7",
+    "version": "windforest-report-engine 1.2.0",
+    "rulesVersion": "PMQD V6.0.7"
   },
-  "valuation": { "pe": 14.5, "pb": 2.1, "roe": 17.2, "div_yield": 3.5, "market_cap": "¥2,880亿", "net_cash": "¥350亿", "price": 30.70, "change_pct": -0.85 },
-  "kelly": { "f": 14.0, "verdict": "适度配置" },
-  "safety": [
-    { "q": "即便行业不复苏，是否不会破产？", "status": "✅", "pass": true },
-    { "q": "股价再跌50%，企业价值是否依然坚挺？", "status": "✅", "pass": true },
-    { "q": "5年自由现金流能否覆盖有效市值？", "status": "⚠️", "pass": false }
+  "stock": {
+    "code": "600690",
+    "name": "海尔智家",
+    "market": "sh",
+    "currency": "CNY"
+  },
+  "market": {
+    "price": 21.33,
+    "prevClose": 21.42,
+    "changePct": -0.42,
+    "pe": 11.13,
+    "pb": 1.66,
+    "marketCap": 1984.35,
+    "roe": 14.9,
+    "turnoverRate": 0.36,
+    "amplitude": 1.35,
+    "high52": 27.44,
+    "low52": 18.38,
+    "currency": "CNY",
+    "asOf": "20260902150346"
+  },
+  "strategy": "S3",
+  "overallRating": "—",
+  "determinism": "初筛",
+  "pmqd": {
+    "P": 74,
+    "M": 50,
+    "Q": 60,
+    "D": 64,
+    "total": 64,
+    "weights": {
+      "P": 40,
+      "M": 18,
+      "Q": 30,
+      "D": 12
+    },
+    "points": {
+      "P": 29.6,
+      "M": 9,
+      "Q": 18,
+      "D": 7.7
+    },
+    "verified": {
+      "P": true,
+      "M": false,
+      "Q": true,
+      "D": true
+    }
+  },
+  "stars": "—",
+  "ratingLabel": "不予配置（降档后）",
+  "positionHint": "0%",
+  "downgrades": [
+    "安全边际三问无财报支撑（保守判未通过）→ 降档",
+    "认知确信度低 → 降档（V6.0 认知风险铁律）"
   ],
-  "health": [
-    { "name": "盈利能力", "status": "良好 ROE 17.2%", "ok": true },
-    { "name": "成长性", "status": "稳健 营收+8%", "ok": true },
-    { "name": "现金流", "status": "充沛", "ok": true },
-    { "name": "资产负债", "status": "健康 负债率 62%", "ok": true },
-    { "name": "运营效率", "status": "优秀 全球化运营", "ok": true },
-    { "name": "分红回报", "status": "良好 股息率 3.5%", "ok": true },
-    { "name": "估值水平", "status": "合理偏低 PE 14.5×", "ok": true },
-    { "name": "管理层质量", "status": "优秀 国际化经验", "ok": true }
+  "corrections": [],
+  "safety": {
+    "score": 0,
+    "max": 50,
+    "passed": false
+  },
+  "health8d": {
+    "score": 16,
+    "max": 30,
+    "capped": false
+  },
+  "ratingScore": 64,
+  "ratingNarrative": "策略S3标的，PMQD 总分 64 → —（不予配置（降档后））。安全边际三问 0/50，8 维体检 16/30，凯利建议仓位 0.0%。 降档原因：安全边际三问无财报支撑（保守判未通过）→ 降档；认知确信度低 → 降档（V6.0 认知风险铁律）。 注意：认知确信度低，需先补研究再决策。",
+  "kelly": {
+    "b": 0.12,
+    "p": 0.21,
+    "fStar": -6.37,
+    "halfKelly": 0,
+    "competence": 0.6,
+    "finalPosition": 0,
+    "ceiling": 0.15,
+    "formula": "b=(12.5−11.13)/11.13=0.12 ｜ p=(0+16+5)/100=0.21 ｜ f*=(b·p−q)/b=-6.37 ｜ 半凯利 0 × 能力圈 0.6 → 0.0%",
+    "pParts": {
+      "safety": 0,
+      "health": 16,
+      "catalyst": 5
+    }
+  },
+  "modules": [
+    {
+      "id": "report_header",
+      "layer": "meta",
+      "title": {
+        "zh": "报告头 · 数据来源",
+        "en": "Report Header · Data Sources"
+      },
+      "data": {
+        "stock": "600690",
+        "name": "海尔智家",
+        "analyst": "PALA (老帕) · 风林慧策",
+        "framework": "PMQD V6.0.7",
+        "generatedAt": "2026-09-02T07:03:49.424Z",
+        "strategy": null,
+        "l1Sources": [
+          "腾讯财经行情接口 qt.gtimg.cn（20260902150346）"
+        ],
+        "determinism": "初筛",
+        "certification": null,
+        "l1Fetch": null
+      }
+    },
+    {
+      "id": "integrity_review",
+      "layer": "gate",
+      "title": {
+        "zh": "诚信审查（一票否决）",
+        "en": "Integrity Review (Veto Gate)"
+      },
+      "data": {
+        "passed": true,
+        "current": [],
+        "historical": [],
+        "forcedStrategy1": false,
+        "vetoReason": null
+      }
+    },
+    {
+      "id": "strategy_classification",
+      "layer": "gate",
+      "title": {
+        "zh": "策略归属判定",
+        "en": "Strategy Classification"
+      },
+      "data": {
+        "strategy": "S3",
+        "rationale": "特殊情景（套利/重组/困境），归入策略三。",
+        "hints": {
+          "quality": 60,
+          "discount": 64,
+          "moat": 60
+        }
+      }
+    },
+    {
+      "id": "industry_scan",
+      "layer": "core",
+      "title": {
+        "zh": "行业全景扫描",
+        "en": "Industry Holistic Scan (V6.0 NEW)"
+      },
+      "data": {
+        "swingFactor": "未识别（需行业全景扫描）",
+        "playerCount": 0,
+        "note": "翻转每块石头，找出行业摆动因子。"
+      }
+    },
+    {
+      "id": "user_value",
+      "layer": "core",
+      "title": {
+        "zh": "用户价值验证",
+        "en": "User Value Verification (V6.0 NEW)"
+      },
+      "data": {
+        "score": 0,
+        "irreplaceable": false,
+        "note": "不可替代的刚需才是好生意。"
+      }
+    },
+    {
+      "id": "financial_penetration",
+      "layer": "core",
+      "title": {
+        "zh": "财务穿透",
+        "en": "Financial Penetration"
+      },
+      "data": {
+        "netCash": 0,
+        "ncav": 0,
+        "implicitCashCandidate": false,
+        "dividendReceivable": 0
+      }
+    },
+    {
+      "id": "pmqd_scoring",
+      "layer": "core",
+      "title": {
+        "zh": "PMQD 四维评分",
+        "en": "PMQD Four-Dimension Scoring (V6.0.7)"
+      },
+      "data": {
+        "raw": {
+          "P": 74,
+          "M": 50,
+          "Q": 60,
+          "D": 64
+        },
+        "original": {
+          "P": 74,
+          "M": 50,
+          "Q": 60,
+          "D": 64
+        },
+        "points": {
+          "P": 29.6,
+          "M": 9,
+          "Q": 18,
+          "D": 7.7
+        },
+        "weights": {
+          "P": 40,
+          "M": 18,
+          "Q": 30,
+          "D": 12
+        },
+        "total": 64,
+        "stars": "★★★",
+        "ratingLabel": "仅观察",
+        "positionHint": "≤5%",
+        "strategy": "S3",
+        "corrections": [],
+        "correctionApplied": false,
+        "verified": {
+          "P": true,
+          "M": false,
+          "Q": true,
+          "D": true
+        }
+      }
+    },
+    {
+      "id": "safety_margin",
+      "layer": "core",
+      "title": {
+        "zh": "安全边际三问",
+        "en": "Safety Margin Three-Question Test"
+      },
+      "data": {
+        "answers": {
+          "q1": false,
+          "q2": false,
+          "q3": false
+        },
+        "yesCount": 0,
+        "score": 0,
+        "max": 50,
+        "passed": false,
+        "indeterminate": true,
+        "downgrade": true,
+        "marginPct": 0,
+        "questions": [
+          "① 行业若不复苏，公司是否也不会破产/退市？",
+          "② 股价若再跌 50%，净资产能否支撑市值？",
+          "③ 五年累计自由现金流能否覆盖有效市值？"
+        ]
+      }
+    },
+    {
+      "id": "health_check_8d",
+      "layer": "risk",
+      "title": {
+        "zh": "8 维深度体检",
+        "en": "8-Dimension Health Check (V6.0.7)"
+      },
+      "data": {
+        "per": [
+          {
+            "dim": "盈利",
+            "raw": 50,
+            "pts": 2
+          },
+          {
+            "dim": "负债",
+            "raw": 50,
+            "pts": 2
+          },
+          {
+            "dim": "现金流",
+            "raw": 50,
+            "pts": 2
+          },
+          {
+            "dim": "分红",
+            "raw": 50,
+            "pts": 2
+          },
+          {
+            "dim": "治理",
+            "raw": 50,
+            "pts": 2
+          },
+          {
+            "dim": "成长",
+            "raw": 50,
+            "pts": 2
+          },
+          {
+            "dim": "估值",
+            "raw": 50,
+            "pts": 2
+          },
+          {
+            "dim": "景气",
+            "raw": 50,
+            "pts": 2
+          }
+        ],
+        "dims": {
+          "盈利": 50,
+          "负债": 50,
+          "现金流": 50,
+          "分红": 50,
+          "治理": 50,
+          "成长": 50,
+          "估值": 50,
+          "景气": 50
+        },
+        "score": 16,
+        "max": 30,
+        "capped": false,
+        "avg": 50,
+        "indeterminate": true
+      }
+    },
+    {
+      "id": "cognitive_risk",
+      "layer": "risk",
+      "title": {
+        "zh": "认知风险预警",
+        "en": "Cognitive Risk Alert (V6.0 NEW)"
+      },
+      "data": {
+        "conviction": "低",
+        "assumptions": [
+          "净现金 / 有息负债：未接入资产负债表，需 L1 财报穿透",
+          "经营现金流 / 自由现金流：未接入现金流量表",
+          "股息率(TTM)：行情源未提供，需官方分红公告核验",
+          "M（催化）：行业事件与景气判断需人工/研报核验，取中性基准",
+          "护城河：以 ROE 推导的质量分作保守代理，待人工核验",
+          "8 维体检：未接入财报，各维取中性基准 50（非实测值）",
+          "安全边际三问：无净现金/FCF 支撑，保守判为未通过（非实测）"
+        ],
+        "items": [
+          {
+            "category": "认知风险",
+            "level": "高",
+            "base": null,
+            "downgraded": false,
+            "signal": "认知确信度 低；未验证假设 7 项。"
+          },
+          {
+            "category": "数据完备性",
+            "level": "高",
+            "base": null,
+            "downgraded": false,
+            "signal": "未接入资产负债表/现金流量表，净现金与 FCF 无法穿透，评分含中性基准占位。"
+          }
+        ],
+        "note": "最大风险是不理解公司，而非外部环境。"
+      }
+    },
+    {
+      "id": "kelly_position",
+      "layer": "decision",
+      "title": {
+        "zh": "凯利公式仓位（V5.2）",
+        "en": "Kelly Formula Position Sizing (V5.2)"
+      },
+      "data": {
+        "peIntrinsic": 12.5,
+        "peCurrent": 11.13,
+        "b": 0.12,
+        "p": 0.21,
+        "pLose": 0.79,
+        "fStar": -6.37,
+        "halfKelly": 0,
+        "competence": 0.6,
+        "ceiling": 0.15,
+        "finalPosition": 0,
+        "notes": [
+          "经典凯利为非正 → 数学上不具备下注优势，建议 0 仓位。"
+        ],
+        "formula": "b=(12.5−11.13)/11.13=0.12 ｜ p=(0+16+5)/100=0.21 ｜ f*=(b·p−q)/b=-6.37 ｜ 半凯利 0 × 能力圈 0.6 → 0.0%",
+        "catalystCertainty": 5,
+        "strategy": "S3",
+        "pParts": {
+          "safety": 0,
+          "health": 16,
+          "catalyst": 5
+        }
+      }
+    },
+    {
+      "id": "master_case",
+      "layer": "decision",
+      "title": {
+        "zh": "大师案例对标",
+        "en": "Master-Case Benchmarking"
+      },
+      "data": {
+        "forced": false,
+        "total": 64,
+        "picks": [
+          {
+            "name": "洛克伍德（存货套利）",
+            "pattern": "事件套利 — 公告确定的存货换股，价差锁定"
+          },
+          {
+            "name": "新奥能源私有化",
+            "pattern": "私有化套利 — 对价明确 + 股东会高票通过，年化可测"
+          },
+          {
+            "name": "德州国家石油套利",
+            "pattern": "清算套利 — 分步清算对价，下行有资产底"
+          }
+        ],
+        "winner": "洛克伍德（存货套利）",
+        "winnerPattern": "事件套利 — 公告确定的存货换股，价差锁定",
+        "note": "常规对标（未达 80 分强制线）。"
+      }
+    },
+    {
+      "id": "rating_conclusion",
+      "layer": "decision",
+      "title": {
+        "zh": "评级结论",
+        "en": "Rating Conclusion"
+      },
+      "data": {
+        "rating": "—",
+        "stars": "—",
+        "label": "不予配置（降档后）",
+        "total": 64,
+        "strat": "S3",
+        "downgrades": [
+          "安全边际三问无财报支撑（保守判未通过）→ 降档",
+          "认知确信度低 → 降档（V6.0 认知风险铁律）"
+        ],
+        "positionHint": "0%",
+        "finalPosition": 0,
+        "narrative": "策略S3标的，PMQD 总分 64 → —（不予配置（降档后））。安全边际三问 0/50，8 维体检 16/30，凯利建议仓位 0.0%。 降档原因：安全边际三问无财报支撑（保守判未通过）→ 降档；认知确信度低 → 降档（V6.0 认知风险铁律）。 注意：认知确信度低，需先补研究再决策。"
+      }
+    },
+    {
+      "id": "hold_test",
+      "layer": "conditional",
+      "title": {
+        "zh": "持有附加测试",
+        "en": "Add-on Holding Test (V6.0 NEW)"
+      },
+      "data": {
+        "happy": false,
+        "flag": "持有信念受时间维度考验（若三问通过仍不全额给长期主义维度分）"
+      }
+    }
   ],
-  "finance_rules": [
-    { "name": "类现金资产", "value": "¥680亿", "desc": "类现金覆盖短期有息负债", "pass": true },
-    { "name": "有息负债率", "value": "28%", "desc": "有息负债率可控", "pass": true },
-    { "name": "永续债风险", "value": "无", "pass": true },
-    { "name": "股息率", "value": "3.5%", "desc": "持续稳定增长", "pass": true }
+  "coherence": {
+    "passed": true,
+    "checks": [
+      {
+        "name": "评级引用上游评分",
+        "pass": true,
+        "note": "评级叙述已对齐 PMQD 总分"
+      },
+      {
+        "name": "PMQD权重口径(P40/M18/Q30/D12)",
+        "pass": true,
+        "note": "权重与规范一致，分项合计 64.3 ≈ 总分 64"
+      },
+      {
+        "name": "星级不得升档",
+        "pass": true,
+        "note": "PMQD 64 对应 ★★★，实际 —（已按规则降档）"
+      },
+      {
+        "name": "凯利仓位受策略上限约束",
+        "pass": true,
+        "note": "建议仓位 0.0% ≤ 策略S3上限 15%"
+      }
+    ]
+  },
+  "dataGaps": [
+    "净现金 / 有息负债：未接入资产负债表，需 L1 财报穿透",
+    "经营现金流 / 自由现金流：未接入现金流量表",
+    "股息率(TTM)：行情源未提供，需官方分红公告核验",
+    "M（催化）：行业事件与景气判断需人工/研报核验，取中性基准",
+    "护城河：以 ROE 推导的质量分作保守代理，待人工核验",
+    "8 维体检：未接入财报，各维取中性基准 50（非实测值）",
+    "安全边际三问：无净现金/FCF 支撑，保守判为未通过（非实测）"
   ],
-  "debt": [
-    { "label": "流动比率", "val": "1.25", "ok": true },
-    { "label": "速动比率", "val": "0.95", "ok": true },
-    { "label": "利息覆盖", "val": "8.5×", "ok": true },
-    { "label": "净负债/Ebitda", "val": "0.8×", "ok": true },
-    { "label": "短债占比", "val": "40%", "ok": true },
-    { "label": "现金/短债", "val": "1.5×", "ok": true },
-    { "label": "FCF/总负债", "val": "0.22", "ok": true }
-  ],
-  "insights": [
-    "全球白电市占率第一，海尔+卡萨帝+GE+Fisher&Paykel多品牌覆盖全价位",
-    "海外收入占比超50%，全球化布局对冲单一市场风险",
-    "卡萨帝高端品牌增长强劲，毛利率领先行业",
-    "智能家居生态布局前瞻，U+平台用户数持续增长"
-  ],
-  "risks": [
-    "原材料（钢、塑料）价格波动影响毛利率",
-    "海外市场汇率波动风险",
-    "房地产下行拖累国内白电需求",
-    "美的集团等竞争对手价格战压力"
+  "sources": [
+    "腾讯财经行情接口 qt.gtimg.cn（20260902150346）"
   ]
 }

@@ -166,18 +166,20 @@ export interface SearchResponse {
   count: number;
 }
 
+// 铁律：不可核验字段用 null 如实留空，绝不用 0 或编造值兜底
 export interface QuoteResponse {
   price: number;
   change_pct: number;
-  pe_ttm: number;
-  pb: number;
-  market_cap: number;
-  div_yield_ttm: number;
-  high_52w: number;
-  low_52w: number;
-  volume: number;
-  turnover: number;
+  pe_ttm: number | null;
+  pb: number | null;
+  market_cap: number | null;
+  div_yield_ttm: number | null;
+  high_52w: number | null;
+  low_52w: number | null;
+  volume: number | null;
+  turnover: number | null;
   updated_at: string;
+  source?: string;
 }
 
 export interface AnalysisResponse {

@@ -1,0 +1,95 @@
+/* ═══════════════════════════════════════
+   深度分析报告样式
+   ═══════════════════════════════════════ */
+
+.page-report { padding-bottom: 60rpx; }
+
+.stock-header {
+  background: linear-gradient(135deg, #1A1A2E, #2D2D5E);
+  padding: 40rpx 32rpx;
+  color: white;
+}
+
+.stock-name { font-size: 36rpx; font-weight: 700; }
+.stock-code { font-size: 24rpx; opacity: 0.6; margin-top: 4rpx; }
+.stock-price { margin-top: 12rpx; display: flex; align-items: baseline; gap: 12rpx; }
+.price-val { font-size: 44rpx; font-weight: 700; }
+.price-chg { font-size: 28rpx; }
+
+.ring-wrapper {
+  width: 200rpx; height: 200rpx;
+  margin: 16rpx auto 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  border-radius: 50%;
+  border: 8rpx solid var(--border);
+}
+.ring-label { font-size: 52rpx; font-weight: 700; }
+.ring-desc { font-size: 22rpx; color: var(--text2); }
+
+/* Dimension Bars */
+.dim-bar { display: flex; align-items: center; padding: 12rpx 0; gap: 16rpx; }
+.dim-bar-label { display: flex; align-items: center; gap: 8rpx; min-width: 180rpx; }
+.dim-letter { font-size: 32rpx; font-weight: 700; }
+.dim-name { font-size: 24rpx; color: var(--text2); }
+.dim-bar-track { flex: 1; height: 10rpx; background: #F3F4F6; border-radius: 5rpx; overflow: hidden; }
+.dim-bar-fill { height: 100%; border-radius: 5rpx; }
+.dim-bar-score { font-size: 24rpx; color: var(--text); min-width: 60rpx; text-align: right; }
+
+/* Verdict */
+.verdict-box {
+  padding: 24rpx;
+  border: 2rpx solid;
+  border-radius: 16rpx;
+}
+.verdict-title { font-size: 28rpx; font-weight: 700; display: block; margin-bottom: 8rpx; }
+.verdict-desc { font-size: 24rpx; color: var(--text2); }
+
+/* Health Grid */
+.health-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12rpx;
+}
+.health-item { display: flex; align-items: center; gap: 8rpx; padding: 8rpx 0; }
+.health-dot { width: 12rpx; height: 12rpx; border-radius: 50%; }
+.health-info { display: flex; flex-direction: column; }
+.health-name { font-size: 24rpx; color: var(--text); }
+.health-status { font-size: 22rpx; }
+
+/* Financial Rules */
+.rule-item { display: flex; gap: 12rpx; padding: 16rpx 0; border-bottom: 1rpx solid #F3F4F6; }
+.rule-item:last-child { border-bottom: none; }
+.rule-status { font-size: 28rpx; min-width: 40rpx; }
+.rule-name { font-size: 26rpx; font-weight: 600; display: block; }
+.rule-val { font-size: 24rpx; color: var(--text2); display: block; margin-top: 2rpx; }
+.rule-desc { font-size: 22rpx; color: var(--text3); display: block; }
+
+/* Debt Grid */
+.debt-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16rpx;
+}
+.debt-item { padding: 12rpx; background: var(--surface); border-radius: 12rpx; }
+.debt-label { font-size: 22rpx; color: var(--text2); display: block; }
+.debt-val { font-size: 28rpx; font-weight: 700; display: block; margin-top: 4rpx; }
+
+/* KPIs */
+.kpi-row { display: flex; gap: 16rpx; }
+.kpi { flex: 1; text-align: center; padding: 16rpx; background: var(--surface); border-radius: 12rpx; }
+.kpi-label { font-size: 22rpx; color: var(--text2); display: block; }
+.kpi-val { font-size: 30rpx; font-weight: 700; display: block; margin-top: 4rpx; }
+
+/* Insights */
+.insight-item { padding: 8rpx 0; font-size: 26rpx; color: var(--text); line-height: 1.6; }
+
+.safety-item { display: flex; gap: 12rpx; padding: 12rpx 0; border-bottom: 1rpx solid #F3F4F6; }
+.safety-item:last-child { border-bottom: none; }
+.safety-status { font-size: 28rpx; min-width: 40rpx; }
+.safety-q { font-size: 26rpx; color: var(--text); line-height: 1.6; }
+
+.good { color: var(--green); }
+.bad { color: var(--red); }
+
+.page-footer { text-align: center; padding: 40rpx; color: var(--text3); font-size: 22rpx; line-height: 1.8; }

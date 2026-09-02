@@ -1,0 +1,6 @@
+{
+  "usingComponents": {
+    "stock-search": "/components/stock-search/stock-search"
+  },
+  "navigationBarTitleText": "风林慧策"
+}

@@ -151,3 +151,30 @@ npx wrangler d1 execute windforest-db --command="SELECT COUNT(*) FROM stocks"
 # 导入分析种子数据
 npx tsx scripts/seed-database.ts
 ```
+
+---
+
+## L1 财报回填 API（`GET /api/l1`）配置
+
+静态站「回填真实 L1 财报」按钮通过本 Worker 的公开路由 `GET /api/l1` 取数（`src/routes/l1.ts` → `src/services/l1-provider.ts`）。前端 `fetchL1(spec, { apiBase })` 以 apiBase 为 **API 前缀**（相对如 `/api`，绝对如 `https://api.windforest.cn/api`），fetcher 自动追加 `/l1` 资源路径。
+
+**启用真实取数**（`wrangler.toml [vars]`）：
+
+```toml
+L1_PROVIDER = "cninfo"             # 官方披露站抓取（巨潮/沪深公告搜索+年报PDF+附注文本），免 token
+# L1_PROVIDER = "tushare"          # A 股三表 + 行情，需 token
+L1_PROVIDER_TOKEN = ""             # tushare: tushare.pro token（cninfo 无需）
+```
+
+**行为**：
+- **`cninfo`（免 token）**：`GET /api/l1?code=000333&market=A&years=5&notes=true` → 巨潮公告搜索（`src/services/l1-cninfo-provider.ts`）→ 报告类型分类 → 最近 N 年年报 + 最新季报 PDF 清单 → 下载年报 PDF → Worker 内轻量文本抽取（`src/services/pdf-text.ts`：xref + FlateDecode + Tj/TJ + 中文 ToUnicode CMap）→ 附注关键词命中（货币资金/短期借款/租赁负债/永续债等 15 词）。返回 `{ l1Data: { reportList, noteHits } }`。
+- **`tushare`**：A 股走 tushare 三表 + 行情，映射为 l1Data 契约回填；港股/美股返回 `provider_market`（需另配 provider）。
+- **未配置**：返回 `provider_unconfigured`（HTTP 200），前端如实显示离线取数路径与官方信源，**绝不伪造数字**（与 PMQD 数据纪律一致）。
+
+**cninfo 边界（诚实标注）**：仅抽取文本层 PDF；扫描件返回 `no_text_layer`（须桌面端 financial-report-analysis 解析）；结构化数字仍需 tushare/tdx 或人工核实。
+
+**验证**：
+
+```bash
+curl "https://<worker>/api/l1?code=000333&market=A&years=5&notes=true"
+```

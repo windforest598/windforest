@@ -278,6 +278,8 @@ footer { text-align:center; padding:24px; color:var(--text3); font-size:0.75rem;
 
   // ═══════════════ RENDER ═══════════════
   function renderReport(d) {
+    // V6.0 契约（含 15 模块结构）走新渲染器；旧格式保持向下兼容
+    if (d && d.modules && d.engine && d.engine.framework) { renderV6(d); return; }
     if (!d || !d.pmqd) { showNoData(); return; }
 
     // Update header price
@@ -416,8 +418,217 @@ footer { text-align:center; padding:24px; color:var(--text3); font-size:0.75rem;
     main.innerHTML = html;
   }
 
+  // ═══════════════ PMQD V6.0 契约渲染器 ═══════════════
+  function renderV6(d) {
+    var mk = d.market || {};
+    var pmqd = d.pmqd || {};
+    var vf = pmqd.verified || {};
+    var cur = (d.stock && d.stock.currency) || 'CNY';
+    var sym = cur === 'HKD' ? 'HK$' : cur === 'USD' ? '$' : '¥';
+    var total = pmqd.total || 0;
+
+    function esc(s) {
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+    function kpi(label, val, small) {
+      return '<div class="kpi"><div class="kpi-label">' + label + '</div>' +
+        '<div class="kpi-val"' + (small ? ' style="font-size:0.95rem;"' : '') + '>' + val + '</div></div>';
+    }
+    function inline(o) {
+      if (o === null || o === undefined) return '—';
+      if (typeof o === 'boolean') return o ? '✓' : '✗';
+      if (typeof o === 'object') return esc(JSON.stringify(o));
+      return esc(String(o));
+    }
+    // 通用结构化渲染：模块 data 对象 → 键值列表（下划线私有字段跳过）
+    function renderData(o) {
+      if (o === null || o === undefined) return '<div class="insight-item">—</div>';
+      if (Array.isArray(o)) {
+        if (!o.length) return '<div class="insight-item">—</div>';
+        return o.map(function (x) {
+          return '<div class="insight-item">' + (typeof x === 'object' ? renderData(x) : esc(x)) + '</div>';
+        }).join('');
+      }
+      if (typeof o === 'object') {
+        return Object.keys(o).map(function (k) {
+          if (k.charAt(0) === '_') return '';
+          return '<div class="insight-item"><b>' + esc(k) + '</b>：' + inline(o[k]) + '</div>';
+        }).join('');
+      }
+      return '<div class="insight-item">' + esc(String(o)) + '</div>';
+    }
+
+    // 头部行情（红涨绿跌）
+    if (mk.price != null) {
+      var el = document.getElementById('sPrice');
+      if (el) {
+        el.textContent = sym + Number(mk.price).toFixed(2);
+        var chg = mk.changePct || 0;
+        var col = chg >= 0 ? 'var(--red)' : 'var(--green)';
+        var ec = document.getElementById('sChg');
+        if (ec) {
+          ec.textContent = (chg >= 0 ? '▲' : '▼') + ' ' + (chg >= 0 ? '+' : '') + Number(chg).toFixed(2) + '%';
+          ec.style.color = col;
+        }
+        el.style.color = col;
+      }
+    }
+
+    var vc = total >= 80 ? 'var(--gold)' : total >= 65 ? 'var(--green)'
+      : total >= 50 ? 'var(--navy)' : total >= 35 ? '#B45309' : 'var(--red)';
+    var html = '';
+
+    // ── 核心结论卡 ──
+    html += '<div class="pmqd-card">';
+    html += '<div style="font-size:0.85rem;color:var(--text2);">' + esc(d.engine.framework || 'PMQD V6.0') + ' 综合评分</div>';
+    html += '<div class="pmqd-ring"><div class="pmqd-score" style="color:' + vc + ';">' + total + '</div><div class="pmqd-max">/ 100</div></div>';
+    var starStr = d.stars || d.overallRating || '';
+    var isStars = /★/.test(String(starStr));
+    html += '<div class="pmqd-verdict" style="color:' + (isStars ? 'var(--gold)' : vc) + ';">' +
+      (starStr ? (isStars ? esc(starStr) : '综合评级 ' + esc(starStr)) : '--') + '</div>';
+    if (d.ratingLabel) {
+      html += '<div style="margin-top:2px;font-size:0.82rem;font-weight:600;color:' + vc + ';">' + esc(d.ratingLabel) + '</div>';
+    }
+    html += '<div style="margin-top:10px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">';
+    html += '<span style="background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:4px 14px;font-size:0.78rem;font-weight:600;">策略 ' + esc(d.strategy || '—') + '</span>';
+    html += '<span style="background:#FFF7ED;border:1px solid #FCD9A4;color:#8A5A00;border-radius:999px;padding:4px 14px;font-size:0.78rem;font-weight:600;">确定性 ' + esc(d.determinism || '—') + '</span>';
+    if (d.positionHint) {
+      html += '<span style="background:#EFF6FF;border:1px solid #BFDBFE;color:#1E40AF;border-radius:999px;padding:4px 14px;font-size:0.78rem;font-weight:600;">' + esc(d.positionHint) + '</span>';
+    }
+    html += '</div>';
+    if (d.ratingNarrative) {
+      html += '<div style="margin-top:10px;font-size:0.8rem;color:var(--text2);line-height:1.6;">' + esc(d.ratingNarrative) + '</div>';
+    }
+    if (d.downgrades && d.downgrades.length) {
+      html += '<div style="margin-top:8px;font-size:0.75rem;color:#B45309;line-height:1.6;">降档：' +
+        esc(d.downgrades.join('；')) + '</div>';
+    }
+    html += '</div>';
+
+    // ── 四维拆解（标注已核验/待核验）──
+    var dims = [
+      { k: 'P', v: pmqd.P, max: 40, label: '价格安全边际', color: '#1E40AF', ok: vf.P },
+      { k: 'M', v: pmqd.M, max: 18, label: '行业/结构催化', color: '#0D9488', ok: vf.M },
+      { k: 'Q', v: pmqd.Q, max: 30, label: '不可替代硬质量', color: '#B45309', ok: vf.Q },
+      { k: 'D', v: pmqd.D, max: 12, label: '市场认知差', color: '#7C3AED', ok: vf.D }
+    ];
+    html += '<div class="section"><div class="section-title">四维拆解 · 固定权重 P40/M18/Q30/D12</div>';
+    dims.forEach(function (dim) {
+      var pct = Math.round((dim.v || 0) / dim.max * 100);
+      html += '<div class="dim-bar"><span class="dim-letter" style="color:' + dim.color + ';">' + dim.k + '</span>';
+      html += '<span class="dim-label">' + dim.label;
+      html += dim.ok ? '' : ' <span style="color:#B45309;font-size:0.68rem;font-weight:600;">待核验</span>';
+      html += '</span>';
+      html += '<div class="dim-track"><div class="dim-fill" style="width:' + pct + '%;background:' + dim.color + ';' + (dim.ok ? '' : 'opacity:0.4;') + '"></div></div>';
+      html += '<span class="dim-score">' + dim.v + '/' + dim.max + '</span></div>';
+    });
+    html += '</div>';
+
+    // ── 真实行情 KPI ──
+    html += '<div class="section"><div class="section-title">真实行情 · ' + esc(cur) + '</div>';
+    html += '<div class="grid3">';
+    html += kpi('现价', sym + (mk.price != null ? Number(mk.price).toFixed(2) : '—'));
+    html += kpi('PE(TTM)', mk.pe != null ? mk.pe : '—');
+    html += kpi('PB', mk.pb != null ? mk.pb : '—');
+    html += '</div><div class="grid3" style="margin-top:12px;">';
+    html += kpi('ROE(PB/PE推导)', mk.roe != null ? mk.roe + '%' : '—');
+    html += kpi('总市值', mk.marketCap != null ? Number(mk.marketCap).toFixed(0) + '亿' : '—', true);
+    html += kpi('52周区间', (mk.low52 != null && mk.high52 != null) ? (mk.low52 + '~' + mk.high52) : '—', true);
+    html += '</div>';
+    html += '<div style="margin-top:10px;font-size:0.72rem;color:var(--text3);">数据来源：' +
+      esc((d.sources || []).join('、')) + ' · 抓取时间 ' + esc(mk.asOf || '—') + '</div>';
+    html += '</div>';
+
+    // ── V6.0.7 决策仪表盘：三问 50 + 8维 30 + 催化 20 → 凯利仓位 ──
+    if (d.safety || d.health8d || d.kelly) {
+      var kl = d.kelly || {};
+      var pp = kl.pParts || {};
+      html += '<div class="section"><div class="section-title">决策仪表盘 · 胜率构成与凯利仓位（V5.2）</div>';
+      html += '<div class="grid3">';
+      html += kpi('安全边际三问', (d.safety && d.safety.score != null ? d.safety.score : (pp.safety != null ? pp.safety : '—')) + '/50');
+      html += kpi('8 维体检', (d.health8d && d.health8d.score != null ? d.health8d.score : (pp.health != null ? pp.health : '—')) + '/30');
+      html += kpi('催化确定性', (pp.catalyst != null ? pp.catalyst : '—') + '/20');
+      html += '</div>';
+      if (kl.finalPosition != null) {
+        var posPct = (Number(kl.finalPosition) * 100).toFixed(1);
+        var ceilPct = kl.ceiling != null ? (Number(kl.ceiling) * 100).toFixed(0) : '—';
+        html += '<div style="margin-top:14px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;">';
+        html += '<span style="font-size:2rem;font-weight:800;color:var(--gold);">' + posPct + '%</span>';
+        html += '<span style="font-size:0.8rem;color:var(--text2);">建议仓位（半凯利 × 能力圈 ' +
+          esc(String(kl.competence != null ? kl.competence : '—')) + '）</span>';
+        html += '<span style="margin-left:auto;font-size:0.75rem;color:var(--text3);">策略' +
+          esc(d.strategy || '') + ' 上限 ' + ceilPct + '%</span>';
+        html += '</div>';
+        html += '<div style="margin-top:8px;font-size:0.72rem;color:var(--text3);line-height:1.7;">赔率 b = ' +
+          esc(String(kl.b == null ? '不可算' : kl.b)) + ' ｜ 胜率 p = ' + esc(String(kl.p != null ? kl.p : '—')) +
+          ' ｜ 经典凯利 f* = ' + esc(String(kl.fStar != null ? kl.fStar : '—')) +
+          '<br>内在值锚 PE = 12.5×（品牌溢价上限 16.5×）· b =（PE内在 − PE现价）÷ PE现价</div>';
+      }
+      html += '</div>';
+    }
+
+    // ── V6.0.7 结构性修正留痕（透明度即安全边际）──
+    if (d.corrections && d.corrections.length) {
+      html += '<div class="section"><div class="section-title">V6.0.7 结构性修正留痕（' + d.corrections.length + '）</div>';
+      html += '<div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;padding:12px 14px;">';
+      d.corrections.forEach(function (c) {
+        html += '<div class="insight-item" style="color:#1E40AF;">• <b>' + esc(c.dim || '') + '</b> ' +
+          esc(String(c.from != null ? c.from : '')) + ' → ' + esc(String(c.to != null ? c.to : '')) +
+          '　<span style="color:var(--text2);">' + esc(c.rule || '') + '</span></div>';
+        if (c.note) {
+          html += '<div style="font-size:0.72rem;color:var(--text3);margin:2px 0 8px 14px;line-height:1.6;">' + esc(c.note) + '</div>';
+        }
+      });
+      html += '<div style="margin-top:6px;font-size:0.72rem;color:var(--text3);line-height:1.6;">' +
+        '控股型公司（被动少数股权）合并口径失真时，依 V6.0.7 条款做结构性修正，每项均留痕规则与理由，不做无据上调。</div>';
+      html += '</div></div>';
+    }
+
+    // ── 15 模块（按层渲染）──
+    var LAYER = { meta: '报告头', gate: '闸门审查', core: '核心分析', risk: '风险', decision: '决策', conditional: '条件模块' };
+    (d.modules || []).forEach(function (m) {
+      if (m.id === 'report_header' || m.id === 'pmqd_scoring') return;  // 上方已展示
+      html += '<div class="section"><div class="section-title">' +
+        esc(m.title && m.title.zh ? m.title.zh : m.id) +
+        ' <span style="font-size:0.68rem;color:var(--text3);font-weight:400;">' + esc(LAYER[m.layer] || m.layer) + '</span></div>';
+      html += renderData(m.data);
+      html += '</div>';
+    });
+
+    // ── 数据缺口公示（铁律：穿透不到就标注）──
+    if (d.dataGaps && d.dataGaps.length) {
+      html += '<div class="section"><div class="section-title">⚠️ 数据缺口 · 未核验项（' + d.dataGaps.length + '）</div>';
+      html += '<div style="background:#FFF7ED;border:1px solid #FCD9A4;border-radius:10px;padding:12px 14px;">';
+      d.dataGaps.forEach(function (g) {
+        html += '<div class="insight-item" style="color:#8A5A00;">• ' + esc(g) + '</div>';
+      });
+      html += '<div style="margin-top:8px;font-size:0.72rem;color:var(--text3);line-height:1.6;">' +
+        '依 PMQD 铁律「保守兜底是底线，穿透不到就标注」：以上维度未取得可核验数据，' +
+        '报告取中性基准并如实公示，未参与实质评分。接入 L1 财报后自动升级为「标准」确定性。</div>';
+      html += '</div></div>';
+    }
+
+    // ── 一致性校验 ──
+    if (d.coherence && d.coherence.checks && d.coherence.checks.length) {
+      html += '<div class="section"><div class="section-title">一致性校验（Coherence Pass）</div>';
+      d.coherence.checks.forEach(function (c) {
+        html += '<div class="insight-item">' + (c.pass ? '✅' : '❌') + ' ' + esc(c.name) + ' — ' + esc(c.note) + '</div>';
+      });
+      html += '</div>';
+    }
+
+    html += '<div style="text-align:center;padding:20px;color:var(--text3);font-size:0.75rem;line-height:1.8;">' +
+      esc(d.engine.framework || 'PMQD V6.0') + ' · ' + esc(d.engine.version || '') +
+      '<br>分析师 PALA（老帕）· 风林慧策<br>本报告为研究参考，不构成投资建议，投资者自负盈亏</div>';
+
+    main.innerHTML = html;
+  }
+
 })();
 </script>
+
+<!-- L1 取数层复用：报告渲染后自动挂载"数据来源透明度 · L1 认证"面板 -->
+<script type="module" src="l1/l1-badge-embed.js"></script>
 
 </body>
 </html>

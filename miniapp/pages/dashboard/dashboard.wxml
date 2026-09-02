@@ -1,0 +1,84 @@
+<!-- ═══════════════════════════════════════
+     风林慧策 — PMQD 分析看板
+     ═══════════════════════════════════════ -->
+<view class="page-dashboard" wx:if="{{loaded}}">
+  <!-- Stock Header -->
+  <view class="stock-header">
+    <view class="stock-name">{{stock.name}}</view>
+    <view class="stock-code">{{stock.market}}{{stock.code}}</view>
+    <view class="stock-price" wx:if="{{stock.price}}">
+      <text class="price-val" style="color:{{stock.changePct >= 0 ? 'var(--red)' : 'var(--green)'}}">
+        {{stock.price}}
+      </text>
+      <text class="price-chg" style="color:{{stock.changePct >= 0 ? 'var(--red)' : 'var(--green)'}}">
+        {{stock.changePct >= 0 ? '+' : ''}}{{stock.changePct}}%
+      </text>
+    </view>
+  </view>
+
+  <!-- PMQD Score Ring -->
+  <view class="card">
+    <view class="card-title text-center">PMQD 综合评分</view>
+    <view class="ring-wrapper">
+      <view class="ring-label {{verdictClass}}">{{stock.pmqd_total || '-'}}</view>
+      <view class="ring-desc">/ 100</view>
+    </view>
+    <view class="text-center mt-16" style="font-size:26rpx;color:var(--text2);">
+      {{verdictText}}
+    </view>
+  </view>
+
+  <!-- PMQD Dimension Cards -->
+  <view class="card">
+    <view class="card-title">四维分析</view>
+    <view class="dim-grid">
+      <view class="dim-card" wx:for="{{dims}}" wx:key="label" style="border-left: 6rpx solid {{item.color}};">
+        <view class="dim-label">{{item.label}}</view>
+        <view class="dim-score" style="color:{{item.color}};">{{item.score}}</view>
+        <view class="dim-max">/ {{item.max}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- Kelly Formula -->
+  <view class="card" wx:if="{{stock.kelly_f > 0}}">
+    <view class="card-title">凯利公式 V5.2</view>
+    <view class="flex-row" style="justify-content:space-between;align-items:center;">
+      <view>
+        <text style="font-size:40rpx;font-weight:700;color:var(--gold);">{{stock.kelly_f}}%</text>
+        <text style="font-size:24rpx;color:var(--text2);margin-left:4rpx;">下注比例</text>
+      </view>
+      <view class="kelly-verdict" style="color:{{stock.kelly_f >= 10 ? 'var(--green)' : 'var(--text2)'}};">
+        {{stock.kelly_verdict || '--'}}
+      </view>
+    </view>
+  </view>
+
+  <!-- Safety Check -->
+  <view class="card">
+    <view class="card-title">安全边际三问</view>
+    <view wx:for="{{stock.safety}}" wx:key="q" class="safety-item">
+      <text class="safety-status {{item.cls}}">{{item.status}}</text>
+      <text class="safety-q">{{item.q}}</text>
+    </view>
+  </view>
+
+  <!-- CTA -->
+  <view class="cta-section">
+    <button class="btn-full" bindtap="openReport">📊 查看完整深度分析报告</button>
+    <view class="text-center mt-16" style="color:var(--text3);font-size:22rpx;">
+      包含 15 模块风林慧策完整分析 · 需要登录
+    </view>
+  </view>
+
+  <!-- Risky footer -->
+  <view class="page-footer mt-32">
+    以上分析基于公开数据与 PMQD 模型，不构成投资建议
+  </view>
+</view>
+
+<!-- Loading -->
+<view wx:else class="loading-page">
+  <view style="font-size:64rpx;text-align:center;padding-top:200rpx;">⏳</view>
+  <view class="text-center mt-24" style="color:var(--text2);">正在加载分析数据...</view>
+</view>

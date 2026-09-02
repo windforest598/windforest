@@ -1,0 +1,164 @@
+<!-- ═══════════════════════════════════════
+     风林慧策 — 深度分析报告
+     ═══════════════════════════════════════ -->
+<view class="page-report">
+  <!-- Header -->
+  <view class="stock-header">
+    <view class="stock-name">{{report.name || '--'}}</view>
+    <view class="stock-code">{{report.market}}{{report.code}}</view>
+    <view class="stock-price" wx:if="{{report.price}}">
+      <text class="price-val" style="color:{{report.changePct >= 0 ? 'var(--red)' : 'var(--green)'}}">
+        {{report.price}}
+      </text>
+      <text class="price-chg" style="color:{{report.changePct >= 0 ? 'var(--red)' : 'var(--green)'}}">
+        {{report.changePct >= 0 ? '+' : ''}}{{report.changePct}}%
+      </text>
+    </view>
+  </view>
+
+  <!-- PMQD Summary -->
+  <view class="card">
+    <view class="card-title">PMQD V5.9 综合评级</view>
+    <view class="ring-wrapper">
+      <view class="ring-label {{verdictClass}}">{{report.pmqd_total || '--'}}</view>
+      <view class="ring-desc">/ 100 · {{report.pmqd_stars || '--'}}</view>
+    </view>
+    <view class="text-center mt-16" style="font-size:26rpx;font-weight:600;color:var(--text);">
+      {{report.pmqd_verdict || '--'}}
+    </view>
+  </view>
+
+  <!-- Four Dimensions Detail -->
+  <view class="card">
+    <view class="card-title">四维拆解</view>
+    <view class="dim-bar" wx:for="{{dims}}" wx:key="label">
+      <view class="dim-bar-label">
+        <text class="dim-letter" style="color:{{item.color}};">{{item.letter}}</text>
+        <text class="dim-name">{{item.label}}</text>
+      </view>
+      <view class="dim-bar-track">
+        <view class="dim-bar-fill" style="width:{{item.pct}}%;background:{{item.color}};"></view>
+      </view>
+      <text class="dim-bar-score">{{item.score}}/{{item.max}}</text>
+    </view>
+  </view>
+
+  <!-- Strategy Verdict -->
+  <view class="card">
+    <view class="card-title">策略判定</view>
+    <view class="verdict-box" style="border-color:{{report.verdict === 'deep_value' ? 'var(--gold)' : report.verdict === 'value' ? 'var(--green)' : 'var(--border)'}};">
+      <text class="verdict-title">{{report.strategy || '--'}}</text>
+      <text class="verdict-desc">{{report.strategy_reason || '--'}}</text>
+    </view>
+  </view>
+
+  <!-- Safety Margin -->
+  <view class="card">
+    <view class="card-title">安全边际三问</view>
+    <view wx:for="{{report.safety}}" wx:key="q" class="safety-item">
+      <text class="safety-status {{item.cls}}">{{item.status}}</text>
+      <text class="safety-q">{{item.q}}</text>
+    </view>
+  </view>
+
+  <!-- Kelly % -->
+  <view class="card" wx:if="{{report.kelly_f > 0}}">
+    <view class="card-title">凯利公式 V5.2</view>
+    <view class="flex-row" style="justify-content:space-between;">
+      <view>
+        <text style="font-size:48rpx;font-weight:700;color:var(--gold);">{{report.kelly_f}}%</text>
+        <text style="font-size:24rpx;color:var(--text2);"> 建议下注比例</text>
+      </view>
+      <text style="font-size:28rpx;font-weight:600;">{{report.kelly_verdict || '--'}}</text>
+    </view>
+    <view style="margin-top:12rpx;font-size:22rpx;color:var(--text2);">
+      b = (12.5 PE - 当前PE) / 当前PE，内在价值锚定 12.5× 历史合理市盈率
+    </view>
+  </view>
+
+  <!-- Eight Dimensional Health -->
+  <view class="card">
+    <view class="card-title">8 维健康体检</view>
+    <view class="health-grid">
+      <view class="health-item" wx:for="{{healthChecks}}" wx:key="name">
+        <view class="health-dot" style="background:{{item.ok ? 'var(--green)' : 'var(--red)'}};"></view>
+        <view class="health-info">
+          <text class="health-name">{{item.name}}</text>
+          <text class="health-status {{item.ok ? 'good' : 'bad'}}">{{item.status}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- Financial Penetration -->
+  <view class="card">
+    <view class="card-title">财务穿透 · 四条铁律</view>
+    <view wx:for="{{financeRules}}" wx:key="name" class="rule-item">
+      <text class="rule-status {{item.pass ? 'good' : 'bad'}}">{{item.pass ? '✅' : '❌'}}</text>
+      <view>
+        <text class="rule-name">{{item.name}}</text>
+        <text class="rule-val">{{item.value}}</text>
+        <text class="rule-desc">{{item.desc}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- Debt Solvency (7 dims) -->
+  <view class="card">
+    <view class="card-title">偿债能力 · 7 维度</view>
+    <view class="debt-grid">
+      <view class="debt-item" wx:for="{{debtMetrics}}" wx:key="label">
+        <text class="debt-label">{{item.label}}</text>
+        <text class="debt-val" style="color:{{item.ok ? 'var(--green)' : 'var(--red)'}};">{{item.val}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- Market Cap / Net Cash -->
+  <view class="card">
+    <view class="card-title">估值概览</view>
+    <view class="kpi-row">
+      <view class="kpi">
+        <text class="kpi-label">市值</text>
+        <text class="kpi-val">{{report.marketCap || '--'}}</text>
+      </view>
+      <view class="kpi">
+        <text class="kpi-label">PE</text>
+        <text class="kpi-val">{{report.pe || '--'}}</text>
+      </view>
+      <view class="kpi">
+        <text class="kpi-label">PB</text>
+        <text class="kpi-val">{{report.pb || '--'}}</text>
+      </view>
+    </view>
+    <view class="kpi-row mt-24">
+      <view class="kpi">
+        <text class="kpi-label">ROE</text>
+        <text class="kpi-val">{{report.roe || '--'}}</text>
+      </view>
+      <view class="kpi">
+        <text class="kpi-label">股息率</text>
+        <text class="kpi-val">{{report.divYield || '--'}}</text>
+      </view>
+      <view class="kpi">
+        <text class="kpi-label">净现金</text>
+        <text class="kpi-val">{{report.netCash || '--'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- Investment Insights -->
+  <view class="card" wx:if="{{report.insights && report.insights.length > 0}}">
+    <view class="card-title">投资洞见</view>
+    <view wx:for="{{report.insights}}" wx:key="*this" class="insight-item">
+      <text>• {{item}}</text>
+    </view>
+  </view>
+
+  <!-- Disclaimer -->
+  <view class="page-footer">
+    <view>本报告由风林慧策 AI 基于公开数据生成</view>
+    <view>PMQD V5.9 框架 · 数据来源 westock-data / tushare-finance</view>
+    <view style="color:var(--red);margin-top:8rpx;">⚠ 不构成投资建议，投资有风险，入市需谨慎</view>
+  </view>
+</view>
